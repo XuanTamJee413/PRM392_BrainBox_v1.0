@@ -16,4 +16,7 @@ public interface UserDao {
 
     @Query("SELECT * FROM users WHERE id = :id")
     User getById(int id);
+
+    @Query("SELECT * FROM users WHERE username = :username AND passwordHash = :hashed LIMIT 1")
+    User login(String username, String hashed);
 }
