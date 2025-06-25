@@ -37,6 +37,14 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+
+    //tamnx add room
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
+    androidTestImplementation(libs.room.testing)
+
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

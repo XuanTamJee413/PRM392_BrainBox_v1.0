@@ -8,6 +8,9 @@ material = "1.12.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
 
+#tamnx add room
+roomVersion = "2.6.1"
+
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -16,6 +19,11 @@ appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "a
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+
+# tamnx add room
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomVersion" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomVersion" }
+room-testing = { group = "androidx.room", name = "room-testing", version.ref = "roomVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
