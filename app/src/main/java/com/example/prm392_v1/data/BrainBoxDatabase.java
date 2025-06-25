@@ -75,8 +75,8 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
             try {
                 userDao.insert(new User("admin", hash("123456"), "admin"));
                 userDao.insert(new User("teacher", hash("123456"), "teacher"));
-                userDao.insert(new User("student", hash("123456"), "user"));
-                userDao.insert(new User("student", hash("123456"), "user"));
+                userDao.insert(new User("student1", hash("123456"), "user"));
+                userDao.insert(new User("student2", hash("123456"), "user"));
             } catch (Exception e) {
                 e.printStackTrace();
             }

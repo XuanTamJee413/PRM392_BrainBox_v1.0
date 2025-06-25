@@ -64,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
                         } else if ("teacher".equalsIgnoreCase(user.role)) {
                             startActivity(new Intent(this, HomeActivity.class));
                         } else{
-                            startActivity(new Intent(this, HomeActivity.class));
+                            startActivity(new Intent(this, MainActivity.class));
                         }
 
                         finish();
@@ -75,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
             }).start();
         });
     }
-    private String hash(String input) {
+    public static String hash(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(input.getBytes("UTF-8"));
