@@ -1,0 +1,41 @@
+# Gradle
+.gradle/
+build/
+**/build/
+
+# Local configuration
+local.properties
+
+# IDE files
+.idea/
+*.iml
+
+# NDK / CMake
+.cxx/
+.externalNativeBuild/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Capture outputs
+captures/
+
+# Keystore (bảo mật)
+*.jks
+*.keystore
+
+# Crashlytics / Firebase
+crashlytics.properties
+firebase-debug.log
+
+# Misc
+*.log
+*.apk
+*.aar
+
+# Android Studio Navigation Editor
+.navigation/
+
+# Auto-generated files
+*.class
