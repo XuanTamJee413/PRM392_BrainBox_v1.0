@@ -32,7 +32,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // OData
 builder.Services.AddControllers()
     .AddOData(opt =>
-        opt.Select().Filter().Expand().OrderBy().Count().SetMaxTop(100));
+        opt.Select().Filter().Expand().OrderBy().Count().SetMaxTop(100).EnableQueryFeatures());
 
 // Swagger + JWT
 builder.Services.AddSwaggerGen(c =>
@@ -71,7 +71,6 @@ builder.Services.AddCors(options =>
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<TokenService>();
 

@@ -28,7 +28,7 @@ namespace BrainBoxAPI.Controllers
             if (user == null)
                 return NotFound("Tài khoản không tồn tại");
 
-            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
                 return Unauthorized("Sai mật khẩu");
 
             if (!user.Status)
