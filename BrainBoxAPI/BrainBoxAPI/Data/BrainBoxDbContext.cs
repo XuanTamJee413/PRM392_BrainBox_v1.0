@@ -9,6 +9,8 @@ namespace BrainBoxAPI.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
+        public DbSet<Document> Documents { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,12 +24,7 @@ namespace BrainBoxAPI.Data
                 .HasOne(q => q.User)
                 .WithMany()
                 .HasForeignKey(q => q.CreatorId)
-                .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<User>()
-                .HasMany<Quiz>()
-                .WithOne()
-                .HasForeignKey(q => q.CreatorId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade);  
 
             modelBuilder.Entity<User>()
                 .HasMany<Document>()

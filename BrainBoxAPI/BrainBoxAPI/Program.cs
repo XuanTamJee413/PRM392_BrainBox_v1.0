@@ -1,9 +1,12 @@
 ﻿using BrainBoxAPI.Data;
+using BrainBoxAPI.Models;
 using BrainBoxAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OData.Edm;
+using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
@@ -28,11 +31,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
     });
+IEdmModel GetEdmModel()
+{
+    var builder = new ODataConventionModelBuilder();
+    builder.EntitySet<User>("Users");
+    builder.EntitySet<Quiz>("Quizzes");
+    builder.EntitySet<Document>("Documents");
+
+    return builder.GetEdmModel();
+}
 
 // OData
 builder.Services.AddControllers()
     .AddOData(opt =>
-        opt.Select().Filter().Expand().OrderBy().Count().SetMaxTop(100).EnableQueryFeatures());
+        opt.Select().Filter().Expand().OrderBy().Count().SetMaxTop(100).EnableQueryFeatures().AddRouteComponents("odata", GetEdmModel()));
 
 // Swagger + JWT
 builder.Services.AddSwaggerGen(c =>

@@ -16,5 +16,8 @@ namespace BrainBoxAPI.Models
         public long PremiumExpiredAt { get; set; }
 
         public bool IsPremium => PremiumExpiredAt > DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
+        public ICollection<Document> Documents { get; set; } = new List<Document>();
+
     }
 }
