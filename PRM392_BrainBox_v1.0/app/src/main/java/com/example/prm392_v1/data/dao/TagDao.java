@@ -13,10 +13,11 @@ import java.util.List;
 public interface TagDao {
     @Insert
     void insert(Tag tag);
+
     @Query("SELECT * FROM tags")
     List<Tag> getAll();
 
-    @Insert void insertCrossRef(DocumentTagCrossRef cross);
-    @Query("SELECT tagId FROM document_tag_crossref WHERE docId = :docId")
-    List<Integer> getTagsForDocument(int docId);
+    @Query("SELECT * FROM tags WHERE name LIKE '%' || :search || '%'")
+    List<Tag> searchByName(String search);
 }
+

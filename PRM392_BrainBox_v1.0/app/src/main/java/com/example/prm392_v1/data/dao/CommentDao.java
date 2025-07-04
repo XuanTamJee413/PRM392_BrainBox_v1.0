@@ -12,6 +12,8 @@ import java.util.List;
 public interface CommentDao {
     @Insert
     void insert(Comment comment);
-    @Query("SELECT * FROM comments WHERE docId = :docId ORDER BY timestamp DESC")
-    List<Comment> getByDocument(int docId);
+
+    @Query("SELECT * FROM comments WHERE docDetailId = :docDetailId ORDER BY createdAt DESC")
+    List<Comment> getByDocDetail(int docDetailId);
 }
+

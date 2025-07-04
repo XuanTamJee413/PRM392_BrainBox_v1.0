@@ -11,11 +11,12 @@ import java.util.List;
 @Dao
 public interface DocumentDao {
     @Insert
-    void insert(Document document);
-    @Query("SELECT * FROM documents WHERE docId = :id")
-    Document getById(int id);
-    @Query("SELECT * FROM documents WHERE title LIKE '%' || :query || '%' ORDER BY timestamp DESC")
-    List<Document> search(String query);
+    void insert(Document doc);
+
     @Query("SELECT * FROM documents WHERE authorId = :userId")
     List<Document> getByAuthor(int userId);
+
+    @Query("SELECT * FROM documents WHERE isPublic = 1")
+    List<Document> getAllPublic();
 }
+

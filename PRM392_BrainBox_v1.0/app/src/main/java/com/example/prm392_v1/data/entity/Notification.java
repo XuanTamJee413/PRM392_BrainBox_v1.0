@@ -5,27 +5,30 @@ import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 @Entity(
-        tableName = "documents",
+        tableName = "notifications",
         foreignKeys = @ForeignKey(
                 entity = User.class,
                 parentColumns = "id",
-                childColumns = "authorId",
+                childColumns = "userId",
                 onDelete = ForeignKey.CASCADE
         )
 )
-public class Document {
+public class Notification {
     @PrimaryKey(autoGenerate = true)
-    public int docId;
+    public int notificationId;
 
-    public String title;
+    public int userId;
 
     public String content;
 
-    public int authorId; // liên kết đến User
+    public String type; // ví dụ: "comment", "challenge", "quiz", v.v.
 
-    public boolean isPublic = true;
+    public int relatedId; // liên kết đến quizId, docId... tùy loại
 
-    public int views = 0;
+    public boolean isRead = false;
+
+    public long readAt = 0;
 
     public long createdAt = System.currentTimeMillis();
 }
+

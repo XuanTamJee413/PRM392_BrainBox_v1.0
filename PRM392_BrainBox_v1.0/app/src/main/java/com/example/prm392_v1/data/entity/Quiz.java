@@ -5,27 +5,26 @@ import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 @Entity(
-        tableName = "documents",
+        tableName = "quizzes",
         foreignKeys = @ForeignKey(
                 entity = User.class,
                 parentColumns = "id",
-                childColumns = "authorId",
+                childColumns = "creatorId",
                 onDelete = ForeignKey.CASCADE
         )
 )
-public class Document {
+public class Quiz {
     @PrimaryKey(autoGenerate = true)
-    public int docId;
+    public int quizId;
 
-    public String title;
+    public String quizName;
 
-    public String content;
+    public String description;
 
-    public int authorId; // liên kết đến User
+    public int creatorId;
 
     public boolean isPublic = true;
 
-    public int views = 0;
-
     public long createdAt = System.currentTimeMillis();
 }
+

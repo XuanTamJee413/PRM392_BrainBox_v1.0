@@ -5,11 +5,11 @@ import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 @Entity(
-        tableName = "comments",
+        tableName = "quiz_ratings",
         foreignKeys = {
-                @ForeignKey(entity = DocumentDetail.class,
-                        parentColumns = "docDetailId",
-                        childColumns = "docDetailId",
+                @ForeignKey(entity = Quiz.class,
+                        parentColumns = "quizId",
+                        childColumns = "quizId",
                         onDelete = ForeignKey.CASCADE),
                 @ForeignKey(entity = User.class,
                         parentColumns = "id",
@@ -17,16 +17,18 @@ import androidx.room.PrimaryKey;
                         onDelete = ForeignKey.CASCADE)
         }
 )
-public class Comment {
+public class RatingQuiz {
     @PrimaryKey(autoGenerate = true)
-    public int commentId;
+    public int ratingId;
 
-    public int docDetailId;
+    public int quizId;
 
     public int userId;
 
-    public String content;
+    public int rating; // từ 1 đến 5
 
-    public long createdAt = System.currentTimeMillis();
+    public String comment; // tùy chọn
+
+    public long ratedAt = System.currentTimeMillis();
 }
 

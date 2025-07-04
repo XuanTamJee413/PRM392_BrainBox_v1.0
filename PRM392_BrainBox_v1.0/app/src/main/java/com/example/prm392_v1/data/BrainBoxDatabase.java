@@ -1,9 +1,8 @@
 package com.example.prm392_v1.data;
 
-import static androidx.activity.OnBackPressedDispatcherKt.addCallback;
-
 import android.content.Context;
 
+import androidx.room.RoomDatabase.Callback;
 import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
@@ -18,50 +17,63 @@ import java.util.concurrent.Executors;
 @Database(
         entities = {
                 User.class,
-                Document.class,
-                Comment.class,
-                SavedDocument.class,
+                Quiz.class,
                 Flashcard.class,
-                Tag.class,
+                Bookmark.class,
+                Challenge.class,
+                Comment.class,
+                Document.class,
+                DocumentDetail.class,
                 DocumentTagCrossRef.class,
                 DownloadHistory.class,
-                ShareLog.class,
-                QuizProgress.class,
-                Bookmark.class
+                Notification.class,
+                RatingQuiz.class,
+                Tag.class
         },
-        version = 1
+        version = 1,
+        exportSchema = false
 )
 public abstract class BrainBoxDatabase extends RoomDatabase {
 
     private static volatile BrainBoxDatabase INSTANCE;
 
+    // ==== DAO declarations ====
     public abstract UserDao userDao();
     public abstract DocumentDao documentDao();
     public abstract CommentDao commentDao();
-    //public abstract SavedDao savedDao();
     public abstract FlashcardDao flashcardDao();
     public abstract TagDao tagDao();
-    //public abstract ShareDao shareDao();
     public abstract BookmarkDao bookmarkDao();
-    public abstract ProgressDao progressDao();
+    public abstract QuizDao quizDao();
+    public abstract RatingDao ratingDao();
+    public abstract DownloadDao downloadDao();
+    public abstract DocumentDetailDao documentDetailDao();
+    public abstract NotificationDao notificationDao();
+    public abstract ChallengeDao challengeDao();
 
+    // ==== Singleton builder ====
     public static BrainBoxDatabase getInstance(Context context) {
         if (INSTANCE == null) {
             synchronized (BrainBoxDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(
-                            context.getApplicationContext(),
-                            BrainBoxDatabase.class,
-                            "brainbox-db"
-                    ).fallbackToDestructiveMigration()
-                            .addCallback(new Callback() {
+                                    context.getApplicationContext(),
+                                    BrainBoxDatabase.class,
+                                    "brainbox-db"
+                            )
+                            .fallbackToDestructiveMigration()
+                            .addCallback(new RoomDatabase.Callback() {
+                                public void onConfigure(@NonNull SupportSQLiteDatabase db) {
+                                    db.setForeignKeyConstraintsEnabled(true);
+                                }
+
                                 @Override
                                 public void onCreate(@NonNull SupportSQLiteDatabase db) {
                                     super.onCreate(db);
-
                                     seedData(INSTANCE);
                                 }
                             })
+
                             .build();
                 }
             }
@@ -69,20 +81,25 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
         return INSTANCE;
     }
 
+    // ==== Seed default users ====
     private static void seedData(BrainBoxDatabase db) {
         Executors.newSingleThreadExecutor().execute(() -> {
             UserDao userDao = db.userDao();
+            long now = System.currentTimeMillis();
+            long nextMonth = now + 30L * 24 * 60 * 60 * 1000;
+
             try {
-                userDao.insert(new User("admin", hash("123456"), "admin"));
-                userDao.insert(new User("teacher", hash("123456"), "teacher"));
-                userDao.insert(new User("student1", hash("123456"), "user"));
-                userDao.insert(new User("student2", hash("123456"), "user"));
+                userDao.insert(new User(0, "admin", hash("123456"), "admin", "admin@brainbox.com", true, "https://i.pravatar.cc/150?img=1", now, nextMonth));
+                userDao.insert(new User(0, "teacher.jane", hash("123456"), "teacher", "jane@brainbox.com", true, "https://i.pravatar.cc/150?img=12", now, 0));
+                userDao.insert(new User(0, "student.bob", hash("123456"), "user", "bob@student.edu", true, "https://i.pravatar.cc/150?img=25", now, nextMonth));
+                userDao.insert(new User(0, "student.alice", hash("123456"), "user", "alice@student.edu", false, "https://i.pravatar.cc/150?img=30", now, 0));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
     }
 
+    // ==== SHA-256 Hashing ====
     private static String hash(String input) {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
