@@ -69,7 +69,7 @@ namespace BrainBoxAPI.Data
                 .HasOne(b => b.Quiz)
                 .WithMany()
                 .HasForeignKey(b => b.QuizId)
-                .OnDelete(DeleteBehavior.Restrict); // Đổi từ Cascade → Restrict để tránh loop
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Bookmark → Flashcard
             modelBuilder.Entity<Bookmark>()
@@ -139,7 +139,7 @@ namespace BrainBoxAPI.Data
                 .HasOne(r => r.User)
                 .WithMany()
                 .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // tránh loop
+                .OnDelete(DeleteBehavior.Restrict);
 
             // DownloadHistory → User
             modelBuilder.Entity<DownloadHistory>()
@@ -166,7 +166,7 @@ namespace BrainBoxAPI.Data
 
         private void SeedData(ModelBuilder modelBuilder)
         {
-            const long now = 1743752400000;
+            const long now = 1743752400000; // hard code ngay` 1/6/2025 00:00:00 GMT+7
 
             modelBuilder.Entity<User>().HasData(
                 new User { Id = 1, Username = "admin", Password = HashHelper.Hash("123456"), Role = "admin", Email = "admin@brainbox.com", Status = true, Avatar = "", CreatedAt = now, PremiumExpiredAt = 0 },

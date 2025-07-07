@@ -36,7 +36,10 @@ IEdmModel GetEdmModel()
     var builder = new ODataConventionModelBuilder();
     builder.EntitySet<User>("Users");
     builder.EntitySet<Quiz>("Quizzes");
+    builder.EntitySet<Flashcard>("Flashcards");
     builder.EntitySet<Document>("Documents");
+    builder.EntitySet<DocumentDetail>("DocumentDetails");
+    builder.EntitySet<Comment>("Comments");
 
     return builder.GetEdmModel();
 }
