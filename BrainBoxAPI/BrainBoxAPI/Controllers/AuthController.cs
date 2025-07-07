@@ -1,6 +1,7 @@
 ﻿using BrainBoxAPI.Data;
 using BrainBoxAPI.DTOs;
 using BrainBoxAPI.Services;
+using BrainBoxAPI.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,7 +29,7 @@ namespace BrainBoxAPI.Controllers
             if (user == null)
                 return NotFound("Tài khoản không tồn tại");
 
-            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+            if (HashHelper.Hash(dto.Password) != user.Password)
                 return Unauthorized("Sai mật khẩu");
 
             if (!user.Status)

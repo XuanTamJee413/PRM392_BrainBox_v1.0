@@ -1,10 +1,12 @@
 ﻿using BrainBoxAPI.Data;
+using BrainBoxAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
+using Microsoft.EntityFrameworkCore;
 
 namespace BrainBoxAPI.Controllers
 {
@@ -21,13 +23,13 @@ namespace BrainBoxAPI.Controllers
         [EnableQuery]
         public IActionResult Get()
         {
-            return Ok(_context.Documents.Include(d => d.User));
+            return Ok(_context.Documents.Include(d => d.Author));
         }
 
         [EnableQuery]
         public IActionResult Get([FromODataUri] int key)
         {
-            var doc = _context.Documents.Include(d => d.User).FirstOrDefault(d => d.DocId == key);
+            var doc = _context.Documents.Include(d => d.Author).FirstOrDefault(d => d.DocId == key);
             if (doc == null) return NotFound();
             return Ok(doc);
         }

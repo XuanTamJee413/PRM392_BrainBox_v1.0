@@ -6,21 +6,13 @@ import androidx.room.PrimaryKey;
 
 @Entity(
         tableName = "download_history",
-        primaryKeys = {"userId", "docId"}, // composite key để tránh trùng
-        foreignKeys = {
-                @ForeignKey(entity = User.class,
-                        parentColumns = "id",
-                        childColumns = "userId",
-                        onDelete = ForeignKey.CASCADE),
-                @ForeignKey(entity = Document.class,
-                        parentColumns = "docId",
-                        childColumns = "docId",
-                        onDelete = ForeignKey.CASCADE)
-        }
+        primaryKeys = {"userId", "targetId", "targetType"}
 )
 public class DownloadHistory {
     public int userId;
-    public int docId;
+    public int targetId;         // dung thay cho docId hoac quizId
+    public String targetType;    // "document", "quiz", ...
     public long downloadedAt = System.currentTimeMillis();
 }
+
 

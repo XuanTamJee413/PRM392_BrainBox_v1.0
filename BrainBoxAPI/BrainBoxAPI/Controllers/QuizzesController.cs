@@ -23,13 +23,13 @@ namespace BrainBoxAPI.Controllers
         [EnableQuery]
         public IActionResult Get()
         {
-            return Ok(_context.Quizzes.Include(q => q.User));
+            return Ok(_context.Quizzes.Include(q => q.Creator));
         }
 
         [EnableQuery]
         public IActionResult Get([FromODataUri] int key)
         {
-            var quiz = _context.Quizzes.Include(q => q.User).FirstOrDefault(q => q.QuizId == key);
+            var quiz = _context.Quizzes.Include(q => q.Creator).FirstOrDefault(q => q.QuizId == key);
             if (quiz == null) return NotFound();
             return Ok(quiz);
         }
