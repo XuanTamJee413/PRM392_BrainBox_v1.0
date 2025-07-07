@@ -3,6 +3,7 @@ using BrainBoxAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
@@ -40,5 +41,34 @@ namespace BrainBoxAPI.Controllers
             await _context.SaveChangesAsync();
             return Created(quiz);
         }
+        public async Task<IActionResult> Put([FromODataUri] int key, [FromBody] Quiz quiz)
+        {
+            if (key != quiz.QuizId) return BadRequest();
+
+            _context.Entry(quiz).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return Updated(quiz);
+        }
+
+        public async Task<IActionResult> Patch([FromODataUri] int key, [FromBody] Delta<Quiz> delta)
+        {
+            var entity = await _context.Quizzes.FindAsync(key);
+            if (entity == null) return NotFound();
+
+            delta.Patch(entity);
+            await _context.SaveChangesAsync();
+            return Updated(entity);
+        }
+
+        public async Task<IActionResult> Delete([FromODataUri] int key)
+        {
+            var quiz = await _context.Quizzes.FindAsync(key);
+            if (quiz == null) return NotFound();
+
+            _context.Quizzes.Remove(quiz);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
     }
 }
