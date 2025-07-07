@@ -19,6 +19,7 @@
         <activity
             android:name=".ui.main.HomeActivity"
             android:exported="false" />
+        <activity android:name=".ui.main.QuizActivity" />
         <activity
             android:name=".ui.auth.RegisterActivity"
             android:exported="false" />
