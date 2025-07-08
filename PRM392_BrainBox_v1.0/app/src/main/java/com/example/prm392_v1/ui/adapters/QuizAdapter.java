@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.prm392_v1.R;
-import com.example.prm392_v1.data.entity.Quiz;
+import com.example.prm392_v1.data.model.Quiz;
 
 public class QuizAdapter extends ListAdapter<Quiz, QuizAdapter.QuizViewHolder> {
 
