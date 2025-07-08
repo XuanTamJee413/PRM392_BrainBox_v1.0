@@ -96,6 +96,29 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+            QuizDao quizDao = db.quizDao();
+            try {
+                // Tạo bài quiz thứ nhất
+                Quiz quiz1 = new Quiz();
+                quiz1.quizName = "PRM392 PT1";
+                quiz1.description = "Các câu hỏi về mobile app";
+                quiz1.creatorId = 1;
+
+                // Tạo bài quiz thứ hai
+                Quiz quiz2 = new Quiz();
+                quiz2.quizName = "EXE101";
+                quiz2.description = "Khởi Nghiệp";
+                quiz2.creatorId = 1;
+
+                // Chèn vào database
+                quizDao.insert(quiz1);
+                quizDao.insert(quiz2);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         });
     }
 
