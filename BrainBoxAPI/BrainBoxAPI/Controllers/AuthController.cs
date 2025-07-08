@@ -23,6 +23,8 @@ namespace BrainBoxAPI.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDto dto)
         {
+            Console.WriteLine(">>>>>>>>>> Có request login từ client đến API <<<<<<<<<<");
+            Console.WriteLine(dto.UsernameOrEmail +" ++ "+ dto.Password);
             var user = _context.Users.FirstOrDefault(u =>
                 u.Username == dto.UsernameOrEmail || u.Email == dto.UsernameOrEmail);
 

@@ -1,5 +1,6 @@
 package com.example.prm392_v1.data.entity;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
@@ -11,6 +12,7 @@ import androidx.room.PrimaryKey;
 public class DownloadHistory {
     public int userId;
     public int targetId;         // dung thay cho docId hoac quizId
+    @NonNull
     public String targetType;    // "document", "quiz", ...
     public long downloadedAt = System.currentTimeMillis();
 }
