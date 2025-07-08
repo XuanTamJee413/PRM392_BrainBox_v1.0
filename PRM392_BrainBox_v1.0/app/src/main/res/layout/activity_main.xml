@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bấm nút đăng nhập được rồi, nút đăng ký chưa"
+        android:text="Main Activity: Bấm nút đăng nhập được rồi, nút đăng ký chưa"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

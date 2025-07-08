@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace BrainBoxAPI.Controllers
 {
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,teacher,user")]
     public class UsersController : ODataController
     {
         private readonly BrainBoxDbContext _context;
