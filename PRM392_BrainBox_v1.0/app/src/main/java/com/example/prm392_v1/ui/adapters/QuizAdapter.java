@@ -14,6 +14,16 @@ import com.example.prm392_v1.data.model.Quiz;
 
 public class QuizAdapter extends ListAdapter<Quiz, QuizAdapter.QuizViewHolder> {
 
+    private OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(Quiz quiz);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
     public QuizAdapter() {
         super(DIFF_CALLBACK);
     }
@@ -53,6 +63,13 @@ public class QuizAdapter extends ListAdapter<Quiz, QuizAdapter.QuizViewHolder> {
             super(itemView);
             textViewTitle = itemView.findViewById(R.id.quiz_title_text);
             textViewDescription = itemView.findViewById(R.id.quiz_description_text);
+
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (listener != null && position != RecyclerView.NO_POSITION) {
+                    listener.onItemClick(getItem(position));
+                }
+            });
         }
 
         public void bind(Quiz quiz) {

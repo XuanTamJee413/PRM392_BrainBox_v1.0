@@ -13,15 +13,15 @@ import retrofit2.http.Query;
 import com.example.prm392_v1.data.model.ODataResponse;
 import com.example.prm392_v1.data.model.QuizDto;
 import com.example.prm392_v1.data.model.UserDto;
+import com.example.prm392_v1.data.model.Flashcard;
 
 public interface ApiService {
 
-    // Endpoint đăng nhập
-    // Thay thế "api/auth/login" bằng đường dẫn đúng của bạn
+
     @POST("api/auth/login")
     Call<LoginResponse> login(@Body LoginRequest loginRequest);
 
-    // Endpoint lấy danh sách quiz
+
     @GET("odata/quizzes")
     Call<ODataResponse<Quiz>> getAllQuizzes();
 
@@ -45,4 +45,6 @@ public interface ApiService {
     Call<ODataResponse<UserDto>> getUserById(@Query("$filter") String filter);
 
     // end tamnx
+    @GET("odata/flashcards")
+    Call<ODataResponse<Flashcard>> getFlashcardsForQuiz(@Query("$filter") String filter);
 }
