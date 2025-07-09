@@ -20,13 +20,13 @@ namespace BrainBoxAPI.Controllers
         {
             _context = context;
         }
-
+        [AllowAnonymous]
         [EnableQuery]
         public IActionResult Get()
         {
             return Ok(_context.Documents.Include(d => d.Author));
         }
-
+        [AllowAnonymous]
         [EnableQuery]
         public IActionResult Get([FromODataUri] int key)
         {

@@ -166,7 +166,8 @@ namespace BrainBoxAPI.Data
 
         private void SeedData(ModelBuilder modelBuilder)
         {
-            const long now = 1746013200000; // hard code ngay` 1/6/2025 00:00:00 GMT+7
+            //const long now = 1748620800000; // hard code ngay` 1/6/2025 00:00:00 GMT+7
+            long now = DateUtils.DateTimeToTimestamp("01/06/2025 12:00"); // hard code ngay` 1/6/2025 00:00:00 GMT+7
 
             modelBuilder.Entity<User>().HasData(
                 new User { Id = 1, Username = "admin", Password = HashHelper.Hash("123456"), Role = "admin", Email = "admin@brainbox.com", Status = true, Avatar = "", CreatedAt = now, PremiumExpiredAt = 0 },

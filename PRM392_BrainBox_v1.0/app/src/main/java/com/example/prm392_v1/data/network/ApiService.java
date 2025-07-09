@@ -12,6 +12,7 @@ import retrofit2.http.Query;
 
 import com.example.prm392_v1.data.model.ODataResponse;
 import com.example.prm392_v1.data.model.QuizDto;
+import com.example.prm392_v1.data.model.RegisterRequest;
 import com.example.prm392_v1.data.model.UserDto;
 
 public interface ApiService {
@@ -43,6 +44,9 @@ public interface ApiService {
     // ApiService.java
     @GET("odata/Users")
     Call<ODataResponse<UserDto>> getUserById(@Query("$filter") String filter);
+
+    @POST("auth/register")
+    Call<LoginResponse> register(@Body RegisterRequest request);
 
     // end tamnx
 }

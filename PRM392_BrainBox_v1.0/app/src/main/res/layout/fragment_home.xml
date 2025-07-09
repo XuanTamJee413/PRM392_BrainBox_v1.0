@@ -39,14 +39,14 @@
                     android:layout_height="wrap_content" />
 
                 <TextView
-                    android:text="Khi nạp gói này, bạn sẽ nhận được toàn bộ chức năng Premium vĩnh viễn dành cho tài khoản mới. Ưu đãi áp dụng cho tài khoản dưới 1 tháng."
+                    android:text="Khi nạp gói này, bạn sẽ nhận được toàn bộ chức năng Premium vô thời hạn. Ưu đãi áp dụng cho tài khoản được tạo ít hơn 1 tháng."
                     android:layout_marginBottom="8dp"
                     android:textColor="@color/white"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
                 <Button
-                    android:text="Nâng cấp ngay 49k"
+                    android:text="Nâng cấp ngay 89k"
                     android:backgroundTint="#F57C00"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
@@ -79,7 +79,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="1 Tháng - 10k" />
+                    android:text="30 Ngày - 10k" />
 
                 <Button
                     android:layout_width="wrap_content"

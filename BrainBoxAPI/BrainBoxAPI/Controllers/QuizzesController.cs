@@ -20,13 +20,13 @@ namespace BrainBoxAPI.Controllers
         {
             _context = context;
         }
-
+        [AllowAnonymous]
         [EnableQuery]
         public IActionResult Get()
         {
             return Ok(_context.Quizzes.Include(q => q.Creator));
         }
-
+        [AllowAnonymous]
         [EnableQuery]
         public IActionResult Get([FromODataUri] int key)
         {

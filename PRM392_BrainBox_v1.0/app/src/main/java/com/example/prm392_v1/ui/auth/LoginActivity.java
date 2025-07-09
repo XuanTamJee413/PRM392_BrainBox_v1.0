@@ -21,6 +21,7 @@ import com.example.prm392_v1.data.network.RetrofitClient;
 import com.example.prm392_v1.ui.main.DashboardActivity;
 import com.example.prm392_v1.ui.main.HomeActivity;
 import com.example.prm392_v1.ui.main.MainActivity;
+import com.example.prm392_v1.utils.AuthUtils;
 import com.example.prm392_v1.utils.JwtUtils;
 
 import retrofit2.Call;
@@ -30,7 +31,7 @@ import retrofit2.Response;
 public class LoginActivity extends AppCompatActivity {
 
     private EditText edtUsername, edtPassword;
-    private Button btnLogin;
+    private Button btnLogin, btnHome, btnRegister;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,18 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
 
         btnLogin.setOnClickListener(v -> handleApiLogin());
+        btnHome = findViewById(R.id.btnHome);
+        btnRegister = findViewById(R.id.btnRegister);
+        btnHome.setOnClickListener(v -> {
+            Intent intent = new Intent(this, HomeActivity.class);
+            startActivity(intent);
+        });
+
+        btnRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(this, RegisterActivity.class);
+            startActivity(intent);
+        });
+
     }
 
     private void handleApiLogin() {
@@ -61,8 +74,8 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     String token = response.body().token;
-                    saveToken(token);
-                    navigateToScreenByRole(token);
+                    AuthUtils.saveToken(LoginActivity.this, token);
+                    AuthUtils.navigateToScreenByRole(LoginActivity.this, token);
 
                     Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
                     finish();
@@ -87,35 +100,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void saveToken(String token) {
-        SharedPreferences prefs = getSharedPreferences("auth_prefs", Context.MODE_PRIVATE);
-        prefs.edit().putString("jwt_token", token).apply();
-    }
-    private void navigateToScreenByRole(String token) {
-        User user = JwtUtils.parseUserFromToken(token);
-        if (user == null) {
-            Toast.makeText(this, "Không đọc được thông tin người dùng từ token", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
-        Intent intent;
-        switch (user.role.toLowerCase()) {
-            case "admin":
-                intent = new Intent(this, HomeActivity.class);
-                break;
-            case "teacher":
-                intent = new Intent(this, HomeActivity.class);
-                break;
-            case "user":
-                intent = new Intent(this, HomeActivity.class);
-                break;
-            default:
-                intent = new Intent(this, MainActivity.class);
-                break;
-        }
-
-        startActivity(intent);
-        finish();
-    }
 
 }

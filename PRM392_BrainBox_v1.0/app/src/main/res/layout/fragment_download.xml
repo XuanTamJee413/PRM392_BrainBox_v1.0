@@ -1,14 +1,206 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/download_scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.fragment.DownloadFragment">
+    android:padding="16dp">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:divider="?android:attr/dividerHorizontal"
+        android:showDividers="middle"
+        android:dividerPadding="8dp">
 
-</FrameLayout>
+        <!-- Mở khóa chế độ học offline -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="8dp">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="#7E57C2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:text="Học offline không giới hạn"
+                    android:textSize="20sp"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:text="Mở khóa chế độ học offline không giới hạn trong gói Premium vô thời hạn chỉ với 89k dành cho người mới."
+                    android:layout_marginBottom="8dp"
+                    android:textColor="@color/white"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <Button
+                    android:text="Nâng cấp ngay 49k"
+                    android:backgroundTint="#F57C00"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Các gói Premium -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#FFF3E0"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Hoặc mở khóa Premium"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="1 Tháng - 10k" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#F57C00"
+                    android:text="Mua gói" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="6 Tháng - 49k" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#F57C00"
+                    android:text="Mua gói" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="12 Tháng - 99k" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#F57C00"
+                    android:text="Mua gói" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Header Tài liệu -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:text="Tài liệu đã tải"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <!-- RecyclerView Tài liệu -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="8dp"
+            android:layout_marginBottom="12dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_downloaded_documents"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:clipToPadding="false"
+                android:scrollbars="horizontal" />
+
+            <TextView
+                android:id="@+id/text_no_downloaded_documents"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chưa có tài liệu nào."
+                android:textSize="16sp"
+                android:gravity="center"
+                android:padding="8dp"
+                android:visibility="gone" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- Header Quiz -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:text="Quiz đã tải"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <!-- RecyclerView Quiz -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="8dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_downloaded_quizzes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:clipToPadding="false"
+                android:scrollbars="horizontal" />
+
+            <TextView
+                android:id="@+id/text_no_downloaded_quizzes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chưa có quiz nào."
+                android:textSize="16sp"
+                android:gravity="center"
+                android:padding="8dp"
+                android:visibility="gone" />
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+</ScrollView>

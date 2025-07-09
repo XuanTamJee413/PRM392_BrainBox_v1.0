@@ -21,13 +21,11 @@ namespace BrainBoxAPI.Controllers
         {
             _context = context;
         }
-
         [EnableQuery]
         public IActionResult Get()
         {
             return Ok(_context.DocumentDetails);
         }
-
         [EnableQuery]
         public IActionResult Get([FromODataUri] int key)
         {

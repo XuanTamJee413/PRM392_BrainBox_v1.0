@@ -1,9 +1,11 @@
 package com.example.prm392_v1.ui.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -30,6 +32,23 @@ public class HomeActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        SearchView searchView = findViewById(R.id.searchView);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Intent intent = new Intent(HomeActivity.this, SearchResultActivity.class);
+                intent.putExtra("query", query);
+                startActivity(intent);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
         bottomNav = findViewById(R.id.bottom_nav);
         bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();

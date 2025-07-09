@@ -43,21 +43,9 @@ public class SettingFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setting, container, false);
 
-        txtUsername = view.findViewById(R.id.txtUsername);
-        txtEmail = view.findViewById(R.id.txtEmail);
-        txtCreatedAt = view.findViewById(R.id.txtCreatedAt);
-        txtRole = view.findViewById(R.id.txtRole);
-        txtStatus = view.findViewById(R.id.txtStatus);
-        txtPremium = view.findViewById(R.id.txtPremium);
-
-        btnDashboard = view.findViewById(R.id.btnDashboard);
-        Button btnLogout = view.findViewById(R.id.btnLogout);
-
         SharedPreferences prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE);
         String token = prefs.getString("jwt_token", null);
-
-        if (token == null) {
-            Toast.makeText(requireContext(), "Chưa đăng nhập", Toast.LENGTH_SHORT).show();
+        if (token == null || token.isEmpty()) {
             startActivity(new Intent(requireContext(), LoginActivity.class));
             requireActivity().finish();
             return view;
@@ -70,6 +58,15 @@ public class SettingFragment extends Fragment {
             requireActivity().finish();
             return view;
         }
+
+        txtUsername = view.findViewById(R.id.txtUsername);
+        txtEmail = view.findViewById(R.id.txtEmail);
+        txtCreatedAt = view.findViewById(R.id.txtCreatedAt);
+        txtRole = view.findViewById(R.id.txtRole);
+        txtStatus = view.findViewById(R.id.txtStatus);
+        txtPremium = view.findViewById(R.id.txtPremium);
+        btnDashboard = view.findViewById(R.id.btnDashboard);
+        Button btnLogout = view.findViewById(R.id.btnLogout);
 
         loadUserInfo(user.id);
 
@@ -85,6 +82,7 @@ public class SettingFragment extends Fragment {
 
         return view;
     }
+
     private void loadUserInfo(int userId) {
         ApiService apiService = RetrofitClient.getApiService(requireContext());
         String filter = "Id eq " + userId;
@@ -125,6 +123,7 @@ public class SettingFragment extends Fragment {
                     } else {
                         createText += " (Đã hết ưu đãi thành viên mới)";
                     }
+
                     txtCreatedAt.setText(createText);
 
                     // Premium
