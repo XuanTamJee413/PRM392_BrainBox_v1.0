@@ -113,7 +113,35 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Tài liệu mới nhất -->
+        <!-- Header Tài liệu -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:text="Tài liệu"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/text_see_all_docs"
+                android:text="Xem tất cả"
+                android:textColor="#1565C0"
+                android:textSize="14sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+
+        <!-- CardView tài liệu hiển thị ngang -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -121,31 +149,53 @@
             app:cardElevation="4dp"
             app:cardCornerRadius="8dp">
 
-            <LinearLayout
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:background="#E3F2FD"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_top_documents"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:text="Tài liệu nhiều view nhất"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/text_top_documents"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Đang tải tài liệu..."
-                    android:textSize="16sp"/>
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:clipToPadding="false"
+                android:scrollbars="horizontal" />
+            <TextView
+                android:id="@+id/text_no_documents"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Đang tải tài liệu..."
+                android:textSize="16sp"
+                android:padding="8dp"
+                android:gravity="center"
+                android:visibility="gone" />
         </androidx.cardview.widget.CardView>
 
-        <!-- Quiz mới nhất -->
+        <!-- Header Quiz -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:text="Quiz"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/text_see_all_quizzes"
+                android:text="Xem tất cả"
+                android:textColor="#1565C0"
+                android:textSize="14sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+
+        <!-- CardView quiz hiển thị ngang -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -153,29 +203,22 @@
             app:cardElevation="4dp"
             app:cardCornerRadius="8dp">
 
-            <LinearLayout
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:background="#E3F2FD"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_latest_quizzes"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:text="Quiz mới nhất"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/text_latest_quizzes"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Đang tải quiz..."
-                    android:textSize="16sp" />
-
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:clipToPadding="false"
+                android:scrollbars="horizontal" />
+            <TextView
+                android:id="@+id/text_no_quizzes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Đang tải quiz..."
+                android:textSize="16sp"
+                android:visibility="gone"
+                android:gravity="center"
+                android:padding="8dp" />
         </androidx.cardview.widget.CardView>
 
     </LinearLayout>

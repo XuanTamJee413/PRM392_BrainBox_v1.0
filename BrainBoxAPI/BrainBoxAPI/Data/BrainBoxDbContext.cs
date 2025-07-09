@@ -166,7 +166,7 @@ namespace BrainBoxAPI.Data
 
         private void SeedData(ModelBuilder modelBuilder)
         {
-            const long now = 1743752400000; // hard code ngay` 1/6/2025 00:00:00 GMT+7
+            const long now = 1746013200000; // hard code ngay` 1/6/2025 00:00:00 GMT+7
 
             modelBuilder.Entity<User>().HasData(
                 new User { Id = 1, Username = "admin", Password = HashHelper.Hash("123456"), Role = "admin", Email = "admin@brainbox.com", Status = true, Avatar = "", CreatedAt = now, PremiumExpiredAt = 0 },
@@ -178,7 +178,15 @@ namespace BrainBoxAPI.Data
 
             modelBuilder.Entity<Quiz>().HasData(
                 new Quiz { QuizId = 1, QuizName = "Basic Math", Description = "Simple arithmetic quiz", CreatorId = 2, IsPublic = true, CreatedAt = now },
-                new Quiz { QuizId = 2, QuizName = "English Vocabulary", Description = "Common English words", CreatorId = 3, IsPublic = true, CreatedAt = now }
+                new Quiz { QuizId = 2, QuizName = "English Vocabulary", Description = "Common English words", CreatorId = 3, IsPublic = true, CreatedAt = now },
+                new Quiz { QuizId = 3, QuizName = "Địa lý thế giới", Description = "Câu hỏi về quốc gia, thủ đô và danh lam thắng cảnh", CreatorId = 2, IsPublic = true, CreatedAt = now },
+                new Quiz { QuizId = 4, QuizName = "Vật lý cơ bản", Description = "Kiến thức nền tảng về cơ học và nhiệt học", CreatorId = 4, IsPublic = true, CreatedAt = now },
+                new Quiz { QuizId = 5, QuizName = "Lịch sử Việt Nam", Description = "Các sự kiện và nhân vật lịch sử nổi bật", CreatorId = 3, IsPublic = true, CreatedAt = now },
+                new Quiz { QuizId = 6, QuizName = "Sinh học nhập môn", Description = "Câu hỏi về tế bào, di truyền và hệ sinh thái", CreatorId = 5, IsPublic = true, CreatedAt = now },
+                new Quiz { QuizId = 7, QuizName = "Luyện đọc IELTS", Description = "Bài đọc kèm câu hỏi theo chuẩn IELTS", CreatorId = 2, IsPublic = true, CreatedAt = now },
+                new Quiz { QuizId = 8, QuizName = "Thuật ngữ tin học", Description = "Thuật ngữ và khái niệm cơ bản trong CNTT", CreatorId = 4, IsPublic = true, CreatedAt = now },
+                new Quiz { QuizId = 9, QuizName = "Hiragana tiếng Nhật", Description = "Nhận diện chữ cái Hiragana cơ bản", CreatorId = 3, IsPublic = false, CreatedAt = now },
+                new Quiz { QuizId = 10, QuizName = "Tư duy logic", Description = "Câu hỏi rèn luyện khả năng suy luận logic", CreatorId = 5, IsPublic = false, CreatedAt = now }
             );
             modelBuilder.Entity<Flashcard>().HasData(
                 new Flashcard { CardId = 1, QuizId = 1, Question = "1 + 1 = ?", Option1 = "1", Option2 = "2", Option3 = "3", Option4 = "4", Answer = 2, CreatorId = 3, CreatedAt = now },
@@ -226,7 +234,16 @@ namespace BrainBoxAPI.Data
             );
             modelBuilder.Entity<Document>().HasData(
                 new Document { DocId = 1, Title = "Android cơ bản", Content = "trong docs này chúng tôi dạy bạn android cơ bản nè", AuthorId = 1, IsPublic = true, Views = 10, CreatedAt = now },
-                new Document { DocId = 2, Title = "ASP.NET core API", Content = "trong doc này chúng tôi hướng dẫn bạn về c# API", AuthorId = 2, IsPublic = false, Views = 5, CreatedAt = now }
+                new Document { DocId = 2, Title = "ASP.NET core API", Content = "trong doc này chúng tôi hướng dẫn bạn về c# API", AuthorId = 2, IsPublic = true, Views = 5, CreatedAt = now },
+                new Document { DocId = 3, Title = "Sinh học tế bào", Content = "Tài liệu cung cấp kiến thức cơ bản về cấu trúc và chức năng của tế bào.", AuthorId = 1, IsPublic = true, Views = 32, CreatedAt = now },
+                new Document { DocId = 4, Title = "Văn học dân gian Việt Nam", Content = "Tổng hợp truyện cổ tích, ca dao, tục ngữ đặc sắc trong kho tàng dân gian.", AuthorId = 3, IsPublic = true, Views = 21, CreatedAt = now },
+                new Document { DocId = 5, Title = "Địa lý tự nhiên Việt Nam", Content = "Trình bày khí hậu, địa hình, sông ngòi và vùng miền trên lãnh thổ Việt Nam.", AuthorId = 4, IsPublic = true, Views = 14, CreatedAt = now },
+                new Document { DocId = 6, Title = "Hệ mặt trời", Content = "Tìm hiểu về các hành tinh, vệ tinh và hiện tượng thiên văn cơ bản.", AuthorId = 2, IsPublic = true, Views = 19, CreatedAt = now },
+                new Document { DocId = 7, Title = "Các cuộc cách mạng tư sản", Content = "Phân tích các cuộc cách mạng lớn: Anh, Mỹ, Pháp và ảnh hưởng của chúng.", AuthorId = 1, IsPublic = true, Views = 16, CreatedAt = now },
+                new Document { DocId = 8, Title = "Thực vật học", Content = "Khám phá cấu trúc, phân loại và vai trò của thực vật trong tự nhiên.", AuthorId = 3, IsPublic = true, Views = 20, CreatedAt = now },
+                new Document { DocId = 9, Title = "Tâm lý học giáo dục", Content = "Tài liệu nội bộ nghiên cứu tâm lý học sinh trong quá trình học tập.", AuthorId = 4, IsPublic = false, Views = 3, CreatedAt = now },
+                new Document { DocId = 10, Title = "Kinh tế học vi mô", Content = "Tài liệu chuyên sâu về hành vi người tiêu dùng và doanh nghiệp trong thị trường.", AuthorId = 2, IsPublic = false, Views = 2, CreatedAt = now },
+                new Document { DocId = 11, Title = "", Content = "Tài liệu chuyên sâu về hành vi người tiêu dùng và doanh nghiệp trong thị trường.", AuthorId = 2, IsPublic = false, Views = 2, CreatedAt = now }
             );
 
             modelBuilder.Entity<DocumentDetail>().HasData(
@@ -259,14 +276,28 @@ namespace BrainBoxAPI.Data
                 new Tag { TagId = 2, TagName = ".Net", Description = "học C# .Net" },
                 new Tag { TagId = 3, TagName = "Android", Description = "học viết ứng dụng android" },
                 new Tag { TagId = 4, TagName = "Code", Description = "học làm thợ Code" },
-                new Tag { TagId = 5, TagName = "Vocabulary", Description = "học từ vựng" }
+                new Tag { TagId = 5, TagName = "Vocabulary", Description = "học từ vựng" },
+                new Tag { TagId = 6, TagName = "Tự nhiên", Description = "Khoa học tự nhiên" },
+                new Tag { TagId = 7, TagName = "Xã hội", Description = "Khoa học xã hội" },
+                new Tag { TagId = 8, TagName = "Kinh tế", Description = "kinh tế học vĩ mô, kinh tế học vi mô" },
+                new Tag { TagId = 9, TagName = "Vật lý", Description = "Vật lý học tổng quát" },
+                new Tag { TagId = 10, TagName = "Xuyên không học", Description = "Cơ học lượng tử, lý thuyết xuyên qua không thời gian" }
             );
 
             modelBuilder.Entity<DocumentTagCrossRef>().HasData(
                 new DocumentTagCrossRef { DocId = 1, TagId = 3 },
                 new DocumentTagCrossRef { DocId = 1, TagId = 4 },
                 new DocumentTagCrossRef { DocId = 2, TagId = 2 },
-                new DocumentTagCrossRef { DocId = 2, TagId = 4 }
+                new DocumentTagCrossRef { DocId = 2, TagId = 4 },
+                new DocumentTagCrossRef { DocId = 3, TagId = 6 },
+                new DocumentTagCrossRef { DocId = 3, TagId = 10 },
+                new DocumentTagCrossRef { DocId = 4, TagId = 7 },
+                new DocumentTagCrossRef { DocId = 5, TagId = 6 },
+                new DocumentTagCrossRef { DocId = 6, TagId = 6 },
+                new DocumentTagCrossRef { DocId = 7, TagId = 7 },
+                new DocumentTagCrossRef { DocId = 8, TagId = 6 },
+                new DocumentTagCrossRef { DocId = 9, TagId = 7 },
+                new DocumentTagCrossRef { DocId = 10, TagId = 8 }
             );
 
             modelBuilder.Entity<RatingQuiz>().HasData(
@@ -293,7 +324,10 @@ namespace BrainBoxAPI.Data
             );
 
             modelBuilder.Entity<Comment>().HasData(
-                new Comment { CommentId = 1, DocDetailId = 1, UserId = 2, Content = "Nice image!", CreatedAt = now }
+                new Comment { CommentId = 1, DocDetailId = 1, UserId = 2, Content = "Học android rất là hay luôn", CreatedAt = now },
+                new Comment { CommentId = 2, DocDetailId = 1, UserId = 4, Content = "đỡ tốn tiền học trung tâm", CreatedAt = now },
+                new Comment { CommentId = 3, DocDetailId = 1, UserId = 5, Content = "Ảnh bị sao vậy sao không hiển thị", CreatedAt = now },
+                new Comment { CommentId = 4, DocDetailId = 2, UserId = 3, Content = "có 20 trang thôi à, thêm đi", CreatedAt = now }
             );
 
             modelBuilder.Entity<Challenge>().HasData(
