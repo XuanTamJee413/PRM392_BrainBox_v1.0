@@ -1,5 +1,6 @@
 package com.example.prm392_v1.ui.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -19,13 +20,12 @@ import com.example.prm392_v1.ui.adapters.QuizAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class QuizActivity extends AppCompatActivity {
+public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnItemClickListener {
 
     private RecyclerView recyclerView;
     private QuizAdapter quizAdapter;
@@ -55,20 +55,27 @@ public class QuizActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         quizAdapter = new QuizAdapter();
         recyclerView.setAdapter(quizAdapter);
+        quizAdapter.setOnItemClickListener(this); // Gán listener
+    }
+
+    // Phương thức này được gọi khi một item được nhấn
+    @Override
+    public void onItemClick(Quiz quiz) {
+        Intent intent = new Intent(this, QuizDetailActivity.class);
+        intent.putExtra("EXTRA_QUIZ_ID", quiz.quizId);
+        intent.putExtra("EXTRA_QUIZ_NAME", quiz.quizName);
+        startActivity(intent);
     }
 
     private void loadQuizzesFromApi() {
         progressBar.setVisibility(View.VISIBLE);
-        // Lấy service từ RetrofitClient, nhớ truyền context
         ApiService apiService = RetrofitClient.getApiService(this);
-
 
         apiService.getAllQuizzes().enqueue(new Callback<ODataResponse<Quiz>>() {
             @Override
             public void onResponse(Call<ODataResponse<Quiz>> call, Response<ODataResponse<Quiz>> response) {
                 progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
-
                     fullQuizList = response.body().value;
                     quizAdapter.submitList(fullQuizList);
                 } else {
@@ -87,9 +94,7 @@ public class QuizActivity extends AppCompatActivity {
     private void setupSearchView() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
+            public boolean onQueryTextSubmit(String query) { return false; }
 
             @Override
             public boolean onQueryTextChange(String newText) {
