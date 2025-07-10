@@ -4,10 +4,14 @@ import com.example.prm392_v1.data.model.LoginRequest;
 import com.example.prm392_v1.data.model.LoginResponse;
 import com.example.prm392_v1.data.model.Quiz;
 import java.util.List;
+import java.util.Map;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 import com.example.prm392_v1.data.model.ODataResponse;
@@ -41,9 +45,10 @@ public interface ApiService {
             @Query("$top") Integer top,
             @Query("$expand") String expand
     );
-    // ApiService.java
     @GET("odata/Users")
     Call<ODataResponse<UserDto>> getUserById(@Query("$filter") String filter);
+    @PATCH("odata/Users({id})")
+    Call<Void> updatePremium(@Path("id") int id, @Body Map<String, Object> updates);
 
     @POST("auth/register")
     Call<LoginResponse> register(@Body RegisterRequest request);

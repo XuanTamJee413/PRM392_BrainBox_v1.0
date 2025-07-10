@@ -1,5 +1,6 @@
 package com.example.prm392_v1.ui.main.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -32,6 +33,29 @@ public class DownloadFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_download, container, false);
+        View.OnClickListener upgradeClickListener = v -> {
+            int id = v.getId();
+            String selectedPackage = "";
+
+            if (id == R.id.btn_upgrade_download_lifetime) {
+                selectedPackage = "lifetime";
+            } else if (id == R.id.btn_upgrade_download_1month) {
+                selectedPackage = "30days";
+            } else if (id == R.id.btn_upgrade_download_6months) {
+                selectedPackage = "6months";
+            } else if (id == R.id.btn_upgrade_download_12months) {
+                selectedPackage = "12months";
+            }
+
+            Intent intent = new Intent(requireContext(), com.example.prm392_v1.ui.main.PurchaseActivity.class);
+            intent.putExtra("selected_package", selectedPackage);
+            startActivity(intent);
+        };
+
+        view.findViewById(R.id.btn_upgrade_download_lifetime).setOnClickListener(upgradeClickListener);
+        view.findViewById(R.id.btn_upgrade_download_1month).setOnClickListener(upgradeClickListener);
+        view.findViewById(R.id.btn_upgrade_download_6months).setOnClickListener(upgradeClickListener);
+        view.findViewById(R.id.btn_upgrade_download_12months).setOnClickListener(upgradeClickListener);
 
         recyclerDocuments = view.findViewById(R.id.recycler_downloaded_documents);
         recyclerQuizzes = view.findViewById(R.id.recycler_downloaded_quizzes);

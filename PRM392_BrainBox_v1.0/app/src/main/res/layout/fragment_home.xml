@@ -46,6 +46,7 @@
                     android:layout_height="wrap_content" />
 
                 <Button
+                    android:id="@+id/btn_upgrade_lifetime"
                     android:text="Nâng cấp ngay 89k"
                     android:backgroundTint="#F57C00"
                     android:layout_width="wrap_content"
@@ -82,6 +83,7 @@
                     android:text="30 Ngày - 10k" />
 
                 <Button
+                    android:id="@+id/btn_upgrade_30days"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#F57C00"
@@ -94,6 +96,7 @@
                     android:text="6 Tháng - 49k" />
 
                 <Button
+                    android:id="@+id/btn_upgrade_6months"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#F57C00"
@@ -106,6 +109,7 @@
                     android:text="12 Tháng - 99k" />
 
                 <Button
+                    android:id="@+id/btn_upgrade_12months"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#F57C00"

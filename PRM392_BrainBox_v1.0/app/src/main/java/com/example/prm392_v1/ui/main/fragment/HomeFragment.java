@@ -1,5 +1,6 @@
 package com.example.prm392_v1.ui.main.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.prm392_v1.R;
 import com.example.prm392_v1.data.model.DocumentDto;
@@ -21,6 +23,8 @@ import com.example.prm392_v1.data.network.ApiService;
 import com.example.prm392_v1.data.network.RetrofitClient;
 import com.example.prm392_v1.ui.adapters.DocumentAdapter;
 import com.example.prm392_v1.ui.adapters.QuizAdapter;
+import com.example.prm392_v1.ui.auth.LoginActivity;
+import com.example.prm392_v1.ui.main.PurchaseActivity;
 import com.example.prm392_v1.ui.main.QuizActivity;
 
 import java.util.ArrayList;
@@ -38,6 +42,39 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        View.OnClickListener upgradeClickListener = v -> {
+            String token = requireContext()
+                    .getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                    .getString("jwt_token", null);
+
+            if (token == null || token.isEmpty()) {
+                Toast.makeText(requireContext(), "Bạn phải đăng nhập trước", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(requireContext(), LoginActivity.class));
+                return;
+            }
+            int id = v.getId();
+            String selectedPackage = "";
+
+            if (id == R.id.btn_upgrade_lifetime) {
+                selectedPackage = "lifetime";
+            } else if (id == R.id.btn_upgrade_30days) {
+                selectedPackage = "30days";
+            } else if (id == R.id.btn_upgrade_6months) {
+                selectedPackage = "6months";
+            } else if (id == R.id.btn_upgrade_12months) {
+                selectedPackage = "12months";
+            }
+
+            Intent intent = new Intent(requireContext(), PurchaseActivity.class);
+            intent.putExtra("selected_package", selectedPackage);
+            startActivity(intent);
+        };
+        view.findViewById(R.id.btn_upgrade_lifetime).setOnClickListener(upgradeClickListener);
+        view.findViewById(R.id.btn_upgrade_30days).setOnClickListener(upgradeClickListener);
+        view.findViewById(R.id.btn_upgrade_6months).setOnClickListener(upgradeClickListener);
+        view.findViewById(R.id.btn_upgrade_12months).setOnClickListener(upgradeClickListener);
+
 
         view.findViewById(R.id.text_see_all_docs).setOnClickListener(v -> {
             startActivity(new Intent(requireContext(), QuizActivity.class)); // fall back tam quiz =))))))
