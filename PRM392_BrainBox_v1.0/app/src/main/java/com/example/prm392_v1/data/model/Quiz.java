@@ -1,5 +1,6 @@
 package com.example.prm392_v1.data.model;
 import com.google.gson.annotations.SerializedName;
+import java.util.List;
 public class Quiz {
     @SerializedName("QuizId")
     public int quizId;
@@ -18,4 +19,6 @@ public class Quiz {
 
     @SerializedName("CreatedAt")
     public long createdAt;
+    @SerializedName("Flashcards")
+    public List<Flashcard> flashcards;
 }

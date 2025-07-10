@@ -27,4 +27,20 @@
                 return null;
             }
         }
+
+        public static String getUserIdFromToken(String token) {
+            try {
+                String[] parts = token.split("\\.");
+                if (parts.length != 3) return null;
+
+                String payload = new String(Base64.decode(parts[1], Base64.URL_SAFE), "UTF-8");
+                JSONObject json = new JSONObject(payload);
+
+                // Trả về trực tiếp chuỗi ID
+                return json.optString("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
     }

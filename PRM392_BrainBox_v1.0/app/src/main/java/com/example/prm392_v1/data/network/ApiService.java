@@ -13,12 +13,15 @@ import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
-
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
+import com.example.prm392_v1.data.model.QuizUpdateDto;
 import com.example.prm392_v1.data.model.ODataResponse;
 import com.example.prm392_v1.data.model.QuizDto;
 import com.example.prm392_v1.data.model.RegisterRequest;
 import com.example.prm392_v1.data.model.UserDto;
 import com.example.prm392_v1.data.model.Flashcard;
+import com.example.prm392_v1.data.model.QuizCreateRequest;
 
 public interface ApiService {
 
@@ -29,6 +32,16 @@ public interface ApiService {
 
     @GET("odata/quizzes")
     Call<ODataResponse<Quiz>> getAllQuizzes();
+    @GET("odata/quizzes")
+    Call<ODataResponse<Quiz>> getQuizzesByFilter(@Query("$filter") String filter);
+    @POST("odata/quizzes")
+    Call<Quiz> createQuizWithFlashcards(@Body QuizCreateRequest request);
+    @PUT("odata/quizzes({id})")
+    Call<Void> updateQuiz(@Path("id") int quizId, @Body QuizUpdateDto request);
+    @GET("odata/quizzes({id})")
+    Call<Quiz> getQuizDetails(@Path("id") int quizId, @Query("$expand") String expand);
+    @GET("odata/flashcards")
+    Call<ODataResponse<Flashcard>> getFlashcardsByFilter(@Query("$filter") String filter);
 
     // tamnx get top 5 document & top latest quiz
     @GET("odata/Documents")

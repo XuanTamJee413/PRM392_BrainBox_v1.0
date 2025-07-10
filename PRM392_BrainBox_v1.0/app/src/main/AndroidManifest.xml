@@ -47,6 +47,12 @@
             android:name=".ui.main.QuizDetailActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.main.CreateQuizActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.main.EditQuizActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="false" />
     </application>
