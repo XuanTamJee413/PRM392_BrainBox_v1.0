@@ -40,6 +40,7 @@ IEdmModel GetEdmModel()
     builder.EntitySet<Document>("Documents");
     builder.EntitySet<DocumentDetail>("DocumentDetails");
     builder.EntitySet<Comment>("Comments");
+    builder.EntitySet<DownloadHistory>("DownloadHistories");
 
     return builder.GetEdmModel();
 }

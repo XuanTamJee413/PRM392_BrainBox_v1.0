@@ -87,7 +87,7 @@ public class DownloadFragment extends Fragment {
                 dto.Views = d.views;
 
                 DocumentDto.Author author = new DocumentDto.Author();
-                author.Username = "truy cập online để xem author";
+                author.Username = "unknown author";
                 dto.Author = author;
 
                 dtos.add(dto);

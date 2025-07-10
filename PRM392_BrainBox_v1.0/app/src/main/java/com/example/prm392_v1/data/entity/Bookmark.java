@@ -27,7 +27,7 @@ public class Bookmark {
     public int quizId;
 
     @Nullable
-    public Integer lastCardId; // có thể null nếu chưa học gì
+    public Integer lastCardId;
 
     public long bookmarkedAt = System.currentTimeMillis();
 }

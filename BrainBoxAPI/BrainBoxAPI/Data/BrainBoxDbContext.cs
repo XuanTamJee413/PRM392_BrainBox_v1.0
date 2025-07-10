@@ -33,7 +33,6 @@ namespace BrainBoxAPI.Data
         {
             // Composite keys
             modelBuilder.Entity<Bookmark>().HasKey(b => new { b.UserId, b.QuizId });
-            modelBuilder.Entity<DownloadHistory>().HasKey(h => new { h.UserId, h.TargetId, h.TargetType });
             modelBuilder.Entity<DocumentTagCrossRef>().HasKey(x => new { x.DocId, x.TagId });
 
             // Quiz → User (Creator)
@@ -166,8 +165,8 @@ namespace BrainBoxAPI.Data
 
         private void SeedData(ModelBuilder modelBuilder)
         {
-            //const long now = 1748620800000; // hard code ngay` 1/6/2025 00:00:00 GMT+7
-            long now = DateUtils.DateTimeToTimestamp("01/06/2025 12:00"); // hard code ngay` 1/6/2025 00:00:00 GMT+7
+            const long now = 1748720800000; // hard code ngay` 1/6/2025 00:00:00 GMT+7
+            //long now = DateUtils.DateTimeToTimestamp("01/06/2025 12:00"); // hard code ngay` 1/6/2025 00:00:00 GMT+7
 
             modelBuilder.Entity<User>().HasData(
                 new User { Id = 1, Username = "admin", Password = HashHelper.Hash("123456"), Role = "admin", Email = "admin@brainbox.com", Status = true, Avatar = "", CreatedAt = now, PremiumExpiredAt = 0 },
@@ -321,8 +320,18 @@ namespace BrainBoxAPI.Data
             );
 
             modelBuilder.Entity<DownloadHistory>().HasData(
-                new DownloadHistory { UserId = 3, TargetId = 1, TargetType= "document", DownloadedAt = now }
+                new DownloadHistory { Id = 1, UserId = 4, TargetId = 1, TargetType = "document", DownloadedAt = 1751414888397 },
+                new DownloadHistory { Id = 2, UserId = 3, TargetId = 2, TargetType = "document", DownloadedAt = 1751651196732 },
+                new DownloadHistory { Id = 3, UserId = 4, TargetId = 6, TargetType = "quiz", DownloadedAt = 1750696820452 },
+                new DownloadHistory { Id = 4, UserId = 4, TargetId = 5, TargetType = "quiz", DownloadedAt = 1750670829108 },
+                new DownloadHistory { Id = 5, UserId = 5, TargetId = 10, TargetType = "document", DownloadedAt = 1749106261854 },
+                new DownloadHistory { Id = 6, UserId = 1, TargetId = 6, TargetType = "quiz", DownloadedAt = 1749480779530 },
+                new DownloadHistory { Id = 7, UserId = 3, TargetId = 1, TargetType = "quiz", DownloadedAt = 1751720678852 },
+                new DownloadHistory { Id = 8, UserId = 1, TargetId = 5, TargetType = "quiz", DownloadedAt = 1751903568658 },
+                new DownloadHistory { Id = 9, UserId = 4, TargetId = 2, TargetType = "quiz", DownloadedAt = 1750874085287 },
+                new DownloadHistory { Id = 10, UserId = 2, TargetId = 1, TargetType = "document", DownloadedAt = 1749305100835 }
             );
+
 
             modelBuilder.Entity<Comment>().HasData(
                 new Comment { CommentId = 1, DocDetailId = 1, UserId = 2, Content = "Học android rất là hay luôn", CreatedAt = now },

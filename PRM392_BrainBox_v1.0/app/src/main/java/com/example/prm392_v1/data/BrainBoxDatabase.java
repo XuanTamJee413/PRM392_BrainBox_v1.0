@@ -99,25 +99,55 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
 
             QuizDao quizDao = db.quizDao();
             try {
-                // Tạo bài quiz thứ nhất
                 Quiz quiz1 = new Quiz();
                 quiz1.quizName = "PRM392 PT1";
                 quiz1.description = "Các câu hỏi về mobile app";
                 quiz1.creatorId = 1;
 
-                // Tạo bài quiz thứ hai
                 Quiz quiz2 = new Quiz();
                 quiz2.quizName = "EXE101";
                 quiz2.description = "Khởi Nghiệp";
                 quiz2.creatorId = 1;
 
-                // Chèn vào database
                 quizDao.insert(quiz1);
                 quizDao.insert(quiz2);
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            DocumentDao documentDao = db.documentDao();
+            try {
+                Document doc1 = new Document();
+                doc1.title = "Lập trình Android cơ bản";
+                doc1.content = "Tài liệu hướng dẫn lập trình Android từ cơ bản đến nâng cao.";
+                doc1.authorId = 1;
+                doc1.isPublic = true;
+                doc1.views = 25;
+                doc1.createdAt = now;
+
+                Document doc2 = new Document();
+                doc2.title = "Cơ sở dữ liệu nâng cao";
+                doc2.content = "Giải thích các khái niệm nâng cao trong thiết kế database.";
+                doc2.authorId = 2;
+                doc2.isPublic = false;
+                doc2.views = 12;
+                doc2.createdAt = now;
+
+                Document doc3 = new Document();
+                doc3.title = "Mạng máy tính";
+                doc3.content = "Giới thiệu về các giao thức mạng và kiến trúc OSI.";
+                doc3.authorId = 3;
+                doc3.isPublic = true;
+                doc3.views = 40;
+                doc3.createdAt = now;
+
+                documentDao.insert(doc1);
+                documentDao.insert(doc2);
+                documentDao.insert(doc3);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
 
         });
     }
