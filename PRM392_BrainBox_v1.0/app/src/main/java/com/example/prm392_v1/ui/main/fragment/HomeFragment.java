@@ -24,8 +24,10 @@ import com.example.prm392_v1.data.network.RetrofitClient;
 import com.example.prm392_v1.ui.adapters.DocumentAdapter;
 import com.example.prm392_v1.ui.adapters.QuizAdapter;
 import com.example.prm392_v1.ui.auth.LoginActivity;
+import com.example.prm392_v1.ui.main.DocumentDetailActivity;
 import com.example.prm392_v1.ui.main.PurchaseActivity;
 import com.example.prm392_v1.ui.main.QuizActivity;
+import com.example.prm392_v1.ui.main.QuizDetailActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,11 +94,7 @@ public class HomeFragment extends Fragment {
 
         ApiService apiService = RetrofitClient.getApiService(requireContext());
 
-        apiService.getTopDocuments(
-                null,
-                "Views desc",
-                5,
-                "Author($select=Username)"
+        apiService.getTopDocuments(null, "Views desc", 5,"Author($select=Username)"
         ).enqueue(new Callback<ODataResponse<DocumentDto>>() {
             @Override
             public void onResponse(Call<ODataResponse<DocumentDto>> call, Response<ODataResponse<DocumentDto>> response) {
@@ -111,6 +109,13 @@ public class HomeFragment extends Fragment {
                         DocumentAdapter documentAdapter = new DocumentAdapter();
                         recyclerDocuments.setAdapter(documentAdapter);
                         documentAdapter.submitList(docs);
+                        documentAdapter.setOnItemClickListener(document -> {
+                            Intent intent = new Intent(requireContext(), DocumentDetailActivity.class);
+                            intent.putExtra("EXTRA_DOC_ID", document.DocId);
+                            intent.putExtra("EXTRA_DOC_TITLE", document.Title);
+                            startActivity(intent);
+                        });
+
                     }
                 } else {
                     recyclerDocuments.setVisibility(View.GONE);
@@ -155,6 +160,13 @@ public class HomeFragment extends Fragment {
                         QuizAdapter quizAdapter = new QuizAdapter();
                         recyclerQuizzes.setAdapter(quizAdapter);
                         quizAdapter.submitList(quizList);
+                        quizAdapter.setOnItemClickListener(quiz -> {
+                            Intent intent = new Intent(requireContext(), QuizDetailActivity.class);
+                            intent.putExtra("EXTRA_QUIZ_ID", quiz.quizId);
+                            intent.putExtra("EXTRA_QUIZ_NAME", quiz.quizName);
+                            startActivity(intent);
+                        });
+
                     }
                 } else {
                     recyclerQuizzes.setVisibility(View.GONE);

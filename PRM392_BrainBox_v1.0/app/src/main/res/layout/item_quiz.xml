@@ -26,6 +26,19 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Tên Quiz" />
 
+        <ImageButton
+            android:id="@+id/download_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_download"
+            android:contentDescription="Tải xuống"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBaseline_toBaselineOf="@id/quiz_title_text"/>
+
         <TextView
             android:id="@+id/quiz_description_text"
             android:layout_width="0dp"

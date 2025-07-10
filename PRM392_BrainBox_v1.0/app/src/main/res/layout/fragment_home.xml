@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/home_scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -137,10 +138,10 @@
                 android:id="@+id/text_see_all_docs"
                 android:text="Xem tất cả"
                 android:textColor="#1565C0"
-                android:textSize="14sp"
+                android:textSize="17sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="4dp"
+                android:padding="12dp"
                 android:clickable="true"
                 android:focusable="true" />
         </LinearLayout>
@@ -159,7 +160,10 @@
                 android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:clipToPadding="false"
-                android:scrollbars="horizontal" />
+                android:scrollbars="horizontal"
+                tools:layoutManager="LinearLayoutManager"
+                tools:orientation="horizontal"
+                tools:listitem="@layout/item_document"/>
             <TextView
                 android:id="@+id/text_no_documents"
                 android:layout_width="match_parent"
@@ -191,10 +195,10 @@
                 android:id="@+id/text_see_all_quizzes"
                 android:text="Xem tất cả"
                 android:textColor="#1565C0"
-                android:textSize="14sp"
+                android:textSize="17sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="4dp"
+                android:padding="12dp"
                 android:clickable="true"
                 android:focusable="true" />
         </LinearLayout>
@@ -213,7 +217,10 @@
                 android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:clipToPadding="false"
-                android:scrollbars="horizontal" />
+                android:scrollbars="horizontal"
+                tools:layoutManager="LinearLayoutManager"
+                tools:orientation="horizontal"
+                tools:listitem="@layout/item_quiz"/>
             <TextView
                 android:id="@+id/text_no_quizzes"
                 android:layout_width="match_parent"

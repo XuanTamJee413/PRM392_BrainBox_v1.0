@@ -16,7 +16,11 @@ import com.example.prm392_v1.data.model.DocumentDto;
 import java.util.List;
 
 public class DocumentAdapter extends ListAdapter<DocumentDto, DocumentAdapter.DocumentViewHolder> {
-
+    private OnItemClickListener listener;
+    public interface OnItemClickListener {
+        void onItemClick(DocumentDto document);
+    }
+    public void setOnItemClickListener(OnItemClickListener listener) {this.listener = listener;}
     public DocumentAdapter() {
         super(DIFF_CALLBACK);
     }
@@ -51,7 +55,7 @@ public class DocumentAdapter extends ListAdapter<DocumentDto, DocumentAdapter.Do
         holder.bind(doc);
     }
 
-    static class DocumentViewHolder extends RecyclerView.ViewHolder {
+    class DocumentViewHolder extends RecyclerView.ViewHolder {
         TextView title, author, views;
 
         public DocumentViewHolder(@NonNull View itemView) {
@@ -59,6 +63,13 @@ public class DocumentAdapter extends ListAdapter<DocumentDto, DocumentAdapter.Do
             title = itemView.findViewById(R.id.text_doc_title);
             author = itemView.findViewById(R.id.text_doc_author);
             views = itemView.findViewById(R.id.text_doc_views);
+
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (listener != null && position != RecyclerView.NO_POSITION) {
+                    listener.onItemClick(getItem(position));
+                }
+            });
         }
 
         public void bind(DocumentDto doc) {
