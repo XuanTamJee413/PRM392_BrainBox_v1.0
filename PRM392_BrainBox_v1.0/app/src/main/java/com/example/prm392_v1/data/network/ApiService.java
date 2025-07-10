@@ -36,8 +36,8 @@ public interface ApiService {
     Call<Void> updateQuiz(@Path("id") int quizId, @Body QuizUpdateDto request);
     @GET("odata/quizzes({id})")
     Call<Quiz> getQuizDetails(@Path("id") int quizId, @Query("$expand") String expand);
-
-    // 2. Cập nhật một quiz
+    @GET("odata/flashcards")
+    Call<ODataResponse<Flashcard>> getFlashcardsByFilter(@Query("$filter") String filter);
 
     // tamnx get top 5 document & top latest quiz
     @GET("odata/Documents")

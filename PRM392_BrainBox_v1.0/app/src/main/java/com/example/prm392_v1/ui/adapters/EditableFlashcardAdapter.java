@@ -3,33 +3,34 @@ package com.example.prm392_v1.ui.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.prm392_v1.R;
 import com.example.prm392_v1.data.model.Flashcard;
 import java.util.List;
-import android.widget.Button;
 
 public class EditableFlashcardAdapter extends RecyclerView.Adapter<EditableFlashcardAdapter.ViewHolder> {
 
     private List<Flashcard> flashcardList;
-    private OnDeleteClickListener listener;
+    private OnButtonClickListener listener;
 
-    public interface OnDeleteClickListener {
-        void onDeleteClick(Flashcard flashcard, int position);
+    public interface OnButtonClickListener {
+        void onDeleteClick(int position);
+        void onEditClick(int position);
     }
 
-    public EditableFlashcardAdapter(List<Flashcard> flashcardList, OnDeleteClickListener listener) {
-        this.flashcardList = flashcardList;
+    public void setOnButtonClickListener(OnButtonClickListener listener) {
         this.listener = listener;
     }
 
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public EditableFlashcardAdapter(List<Flashcard> flashcardList) {
+        this.flashcardList = flashcardList;
+    }
 
+    @NonNull @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_editable_flashcard, parent, false);
         return new ViewHolder(view);
     }
@@ -46,21 +47,24 @@ public class EditableFlashcardAdapter extends RecyclerView.Adapter<EditableFlash
 
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView textQuestion;
-        Button buttonDelete;
+        Button buttonDelete, buttonEdit;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             textQuestion = itemView.findViewById(R.id.text_flashcard_question);
             buttonDelete = itemView.findViewById(R.id.button_delete_flashcard);
+            buttonEdit = itemView.findViewById(R.id.button_edit_flashcard);
 
             buttonDelete.setOnClickListener(v -> {
                 int pos = getAdapterPosition();
-                if (listener != null && pos != RecyclerView.NO_POSITION) {
-                    listener.onDeleteClick(flashcardList.get(pos), pos);
-                }
+                if (listener != null && pos != RecyclerView.NO_POSITION) listener.onDeleteClick(pos);
+            });
+
+            buttonEdit.setOnClickListener(v -> {
+                int pos = getAdapterPosition();
+                if (listener != null && pos != RecyclerView.NO_POSITION) listener.onEditClick(pos);
             });
         }
-
         void bind(Flashcard card) {
             textQuestion.setText(card.question);
         }
