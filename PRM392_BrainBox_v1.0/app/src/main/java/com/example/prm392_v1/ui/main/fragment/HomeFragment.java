@@ -28,6 +28,7 @@ import com.example.prm392_v1.ui.main.DocumentDetailActivity;
 import com.example.prm392_v1.ui.main.PurchaseActivity;
 import com.example.prm392_v1.ui.main.QuizActivity;
 import com.example.prm392_v1.ui.main.QuizDetailActivity;
+import com.example.prm392_v1.ui.main.ViewDocumentActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +80,7 @@ public class HomeFragment extends Fragment {
 
 
         view.findViewById(R.id.text_see_all_docs).setOnClickListener(v -> {
-            startActivity(new Intent(requireContext(), QuizActivity.class)); // fall back tam quiz =))))))
+            ViewDocumentActivity.start(requireContext());
         });
 
         view.findViewById(R.id.text_see_all_quizzes).setOnClickListener(v -> {
