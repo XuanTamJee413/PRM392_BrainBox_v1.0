@@ -1,7 +1,10 @@
 package com.example.prm392_v1.ui.main;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -12,7 +15,9 @@ import com.example.prm392_v1.data.model.ODataResponse;
 import com.example.prm392_v1.data.network.ApiService;
 import com.example.prm392_v1.data.network.RetrofitClient;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -22,6 +27,8 @@ public class QuestionModeActivity extends AppCompatActivity {
     private TextView textQuizTitle, textQuestion, textResult;
     private Button buttonOptionA, buttonOptionB, buttonOptionC, buttonOptionD, buttonNext, buttonBack;
     private List<Flashcard> flashcardList = new ArrayList<>();
+    private List<Integer> retryIndices = new ArrayList<>(); // Track indices to retry
+    private Set<Integer> correctAnswers = new HashSet<>(); // Track all correct answers
     private int currentCardIndex = 0;
     private boolean isAnswered = false;
 
@@ -62,11 +69,16 @@ public class QuestionModeActivity extends AppCompatActivity {
         buttonOptionD.setOnClickListener(v -> checkAnswer(4));
 
         buttonNext.setOnClickListener(v -> {
-            if (currentCardIndex < flashcardList.size() - 1) {
+            if (!retryIndices.isEmpty()) {
+                currentCardIndex = retryIndices.remove(0); // Move to next retry index
+            } else if (currentCardIndex < flashcardList.size() - 1) {
                 currentCardIndex++;
-                isAnswered = false;
-                updateQuestionView();
+            } else if (retryIndices.isEmpty() && currentCardIndex == flashcardList.size() - 1) {
+                showResults();
+                return;
             }
+            isAnswered = false;
+            updateQuestionView();
         });
 
         buttonBack.setOnClickListener(v -> finish());
@@ -123,6 +135,14 @@ public class QuestionModeActivity extends AppCompatActivity {
         isAnswered = true;
         buttonNext.setEnabled(true);
         buttonNext.setAlpha(1.0f);
+
+        if (selectedAnswer != correctAnswer) {
+            if (!retryIndices.contains(currentCardIndex)) {
+                retryIndices.add(currentCardIndex);
+            }
+        } else if (!correctAnswers.contains(currentCardIndex)) {
+            correctAnswers.add(currentCardIndex);
+        }
     }
 
     private String getCorrectOption(Flashcard card) {
@@ -142,5 +162,35 @@ public class QuestionModeActivity extends AppCompatActivity {
         buttonOptionB.setEnabled(false);
         buttonOptionC.setEnabled(false);
         buttonOptionD.setEnabled(false);
+    }
+
+    private void showResults() {
+        int totalQuestions = flashcardList.size();
+        int correctCount = correctAnswers.size();
+        double percentage = (correctCount * 100.0) / totalQuestions;
+        String resultText = String.format("Kết quả: %d/%d đúng (%.1f%%)", correctCount, totalQuestions, percentage);
+        textResult.setText(resultText);
+        textResult.setVisibility(View.VISIBLE);
+        disableOptions();
+        buttonNext.setVisibility(View.GONE);
+
+        // Show congrats only if all questions are correctly answered
+        if (correctCount == totalQuestions) {
+            showCongratsAnimation();
+        }
+    }
+
+    private void showCongratsAnimation() {
+        AnimatorSet animatorSet = new AnimatorSet();
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(textResult, "scaleX", 1f, 1.2f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(textResult, "scaleY", 1f, 1.2f, 1f);
+        ObjectAnimator rotate = ObjectAnimator.ofFloat(textResult, "rotation", 0f, 360f);
+        rotate.setDuration(1000);
+        scaleX.setDuration(1000);
+        scaleY.setDuration(1000);
+        animatorSet.playTogether(scaleX, scaleY, rotate);
+        animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
+        textResult.setText("Chúc mừng bạn đã hoàn thành xuất sắc!");
+        animatorSet.start();
     }
 }
