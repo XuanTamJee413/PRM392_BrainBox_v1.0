@@ -6,12 +6,16 @@ import androidx.room.PrimaryKey;
 
 @Entity(
         tableName = "flashcards",
-        foreignKeys = @ForeignKey(
-                entity = Quiz.class,
-                parentColumns = "quizId",
-                childColumns = "quizId",
-                onDelete = ForeignKey.CASCADE
-        )
+        foreignKeys = {
+                @ForeignKey(entity = Quiz.class,
+                        parentColumns = "quizId",
+                        childColumns = "quizId",
+                        onDelete = ForeignKey.CASCADE),
+//                @ForeignKey(entity = User.class,
+//                        parentColumns = "id",
+//                        childColumns = "creatorId",
+//                        onDelete = ForeignKey.SET_NULL)
+        }
 )
 public class Flashcard {
     @PrimaryKey(autoGenerate = true)
