@@ -1,8 +1,11 @@
 package com.example.prm392_v1.ui.main;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -58,7 +61,6 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
         quizAdapter.setOnItemClickListener(this); // Gán listener
     }
 
-    // Phương thức này được gọi khi một item được nhấn
     @Override
     public void onItemClick(Quiz quiz) {
         Intent intent = new Intent(this, QuizDetailActivity.class);
@@ -94,14 +96,19 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
     private void setupSearchView() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) { return false; }
+            public boolean onQueryTextSubmit(String query) {
+                return false; // Disable submit action
+            }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                filter(newText);
-                return true;
+                filter(newText); // Call filter method as user types
+                return true; // Indicate the event is handled
             }
         });
+
+        // Clear initial focus to prevent keyboard from opening automatically
+        searchView.clearFocus();
     }
 
     private void filter(String text) {
@@ -116,5 +123,28 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
             }
         }
         quizAdapter.submitList(filteredList);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (searchView.hasFocus()) {
+                int[] location = new int[2];
+                searchView.getLocationOnScreen(location);
+                int left = location[0];
+                int top = location[1];
+                int right = left + searchView.getWidth();
+                int bottom = top + searchView.getHeight();
+
+                float x = event.getRawX();
+                float y = event.getRawY();
+                if (x < left || x > right || y < top || y > bottom) {
+                    searchView.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event);
     }
 }
