@@ -5,6 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context=".ui.main.HomeActivity">
 
     <androidx.appcompat.widget.SearchView
@@ -19,7 +21,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:queryHint="Tìm kiếm doc, quiz, user..." />
 
-    <!-- fragment -->
+    <!-- Fragment -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
         android:layout_width="0dp"
@@ -30,7 +32,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Thanh nav abr -->
+    <!-- Thanh nav bar -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav"
         android:layout_width="0dp"

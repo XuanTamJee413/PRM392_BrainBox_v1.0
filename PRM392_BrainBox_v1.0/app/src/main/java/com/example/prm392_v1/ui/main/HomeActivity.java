@@ -1,8 +1,10 @@
 package com.example.prm392_v1.ui.main;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
+import android.view.MotionEvent;
+import android.view.inputmethod.InputMethodManager;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -10,7 +12,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
-
 import com.example.prm392_v1.R;
 import com.example.prm392_v1.ui.main.fragment.DocFragment;
 import com.example.prm392_v1.ui.main.fragment.DownloadFragment;
@@ -21,6 +22,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeActivity extends AppCompatActivity {
     private BottomNavigationView bottomNav;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +35,8 @@ public class HomeActivity extends AppCompatActivity {
             return insets;
         });
 
-        SearchView searchView = findViewById(R.id.searchView);
+        // Initialize SearchView
+        searchView = findViewById(R.id.searchView);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -49,6 +52,10 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+        // Clear initial focus to prevent keyboard from opening automatically
+        searchView.clearFocus();
+
+        // Initialize BottomNavigationView
         bottomNav = findViewById(R.id.bottom_nav);
         bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
@@ -73,11 +80,39 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+        // Set default fragment
         bottomNav.setSelectedItemId(R.id.nav_home);
     }
+
     private void replaceFragment(Fragment fragment) {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .commit();
     }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (searchView.hasFocus()) {
+                // Get the SearchView's bounds
+                int[] location = new int[2];
+                searchView.getLocationOnScreen(location);
+                int left = location[0];
+                int top = location[1];
+                int right = left + searchView.getWidth();
+                int bottom = top + searchView.getHeight();
+
+                // Check if the touch is outside the SearchView
+                float x = event.getRawX();
+                float y = event.getRawY();
+                if (x < left || x > right || y < top || y > bottom) {
+                    // Clear focus and hide keyboard
+                    searchView.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event);
     }
+}
