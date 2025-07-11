@@ -18,6 +18,8 @@ import retrofit2.http.Path;
 import com.example.prm392_v1.data.model.QuizUpdateDto;
 import com.example.prm392_v1.data.model.ODataResponse;
 import com.example.prm392_v1.data.model.QuizDto;
+import com.example.prm392_v1.data.model.RatingQuiz;
+import com.example.prm392_v1.data.model.RatingQuizRequest;
 import com.example.prm392_v1.data.model.RegisterRequest;
 import com.example.prm392_v1.data.model.UserDto;
 import com.example.prm392_v1.data.model.Flashcard;
@@ -42,7 +44,11 @@ public interface ApiService {
     Call<Quiz> getQuizDetails(@Path("id") int quizId, @Query("$expand") String expand);
     @GET("odata/flashcards")
     Call<ODataResponse<Flashcard>> getFlashcardsByFilter(@Query("$filter") String filter);
+    @GET("api/RatingQuizzes")
+    Call<RatingQuiz> getMyRatingForQuiz(@Query("quizId") int quizId);
 
+    @POST("api/RatingQuizzes")
+    Call<Void> submitRating(@Body RatingQuizRequest request);
     // tamnx get top 5 document & top latest quiz
     @GET("odata/Documents")
     Call<ODataResponse<DocumentDto>> getTopDocuments(
