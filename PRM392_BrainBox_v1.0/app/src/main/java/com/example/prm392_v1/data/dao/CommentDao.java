@@ -16,4 +16,3 @@ public interface CommentDao {
     @Query("SELECT * FROM comments WHERE docDetailId = :docDetailId ORDER BY createdAt DESC")
     List<Comment> getByDocDetail(int docDetailId);
 }
-
