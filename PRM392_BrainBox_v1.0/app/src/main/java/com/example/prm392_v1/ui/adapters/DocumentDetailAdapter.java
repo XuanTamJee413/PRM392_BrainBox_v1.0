@@ -11,19 +11,32 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.prm392_v1.R;
+import com.example.prm392_v1.data.model.Comment;
 import com.example.prm392_v1.data.model.DocumentDetail;
+import com.example.prm392_v1.data.network.ApiService;
+import com.example.prm392_v1.data.network.RetrofitClient;
+import com.example.prm392_v1.data.model.ODataResponse;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DocumentDetailAdapter extends ListAdapter<DocumentDetail, DocumentDetailAdapter.DetailViewHolder> {
+    private final ApiService apiService;
+
     public DocumentDetailAdapter() {
         super(DIFF_CALLBACK);
+        apiService = RetrofitClient.getApiService(null); // Khởi tạo ApiService
     }
 
     private static final DiffUtil.ItemCallback<DocumentDetail> DIFF_CALLBACK = new DiffUtil.ItemCallback<DocumentDetail>() {
@@ -56,11 +69,17 @@ public class DocumentDetailAdapter extends ListAdapter<DocumentDetail, DocumentD
     class DetailViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         TextView caption;
+        RecyclerView recyclerViewComments;
+        CommentAdapter commentAdapter;
 
         public DetailViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.image_detail);
             caption = itemView.findViewById(R.id.text_caption);
+            recyclerViewComments = itemView.findViewById(R.id.recycler_view_comments);
+            recyclerViewComments.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
+            commentAdapter = new CommentAdapter();
+            recyclerViewComments.setAdapter(commentAdapter);
         }
 
         public void bind(DocumentDetail detail) {
@@ -70,10 +89,28 @@ public class DocumentDetailAdapter extends ListAdapter<DocumentDetail, DocumentD
                 imageView.setImageResource(R.drawable.ic_placeholder);
             }
             caption.setText(detail.Caption != null ? detail.Caption : "");
+
+            // Tải danh sách bình luận cho DocumentDetail
+            loadComments(detail.DocDetailId);
+        }
+
+        private void loadComments(int docDetailId) {
+            apiService.getCommentsByDocDetail("DocumentDetail/DocDetailId eq " + docDetailId).enqueue(new Callback<ODataResponse<Comment>>() {
+                @Override
+                public void onResponse(Call<ODataResponse<Comment>> call, Response<ODataResponse<Comment>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        commentAdapter.submitList(response.body().value);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ODataResponse<Comment>> call, Throwable t) {
+                    // Xử lý lỗi (có thể hiển thị Toast hoặc thông báo)
+                }
+            });
         }
     }
 
-    // AsyncTask để tải hình ảnh từ URL
     private static class LoadImageTask extends AsyncTask<String, Void, Bitmap> {
         private final ImageView imageView;
 

@@ -6,32 +6,32 @@
     android:layout_height="wrap_content"
     android:padding="8dp">
 
-    <ImageView
-        android:id="@+id/image_detail"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop"
+    <TextView
+        android:id="@+id/text_comment_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/text_caption"
+        android:id="@+id/text_comment_content"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="?attr/textAppearanceBodyMedium"
-        app:layout_constraintTop_toBottomOf="@id/image_detail"
+        app:layout_constraintTop_toBottomOf="@id/text_comment_user"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="4dp" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_comments"
-        android:layout_width="0dp"
+    <TextView
+        android:id="@+id/text_comment_time"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/text_caption"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        app:layout_constraintTop_toBottomOf="@id/text_comment_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="4dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
