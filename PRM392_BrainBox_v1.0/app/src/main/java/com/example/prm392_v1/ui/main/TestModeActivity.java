@@ -5,40 +5,46 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.prm392_v1.R;
 import com.example.prm392_v1.data.model.Flashcard;
 import com.example.prm392_v1.data.model.ODataResponse;
 import com.example.prm392_v1.data.network.ApiService;
 import com.example.prm392_v1.data.network.RetrofitClient;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class TestModeActivity extends AppCompatActivity {
 
-    private TextView textQuizTitle, textQuestion, textResult;
-    private Button buttonOptionA, buttonOptionB, buttonOptionC, buttonOptionD, buttonSubmit, buttonBack;
+    private TextView textQuizTitle, textFinalTestResult;
+    private RecyclerView recyclerViewTestQuestions;
+    private Button buttonSubmitTest, buttonBack;
+    private com.example.prm392_v1.ui.main.QuestionAdapter testQuestionAdapter; // Using QuestionAdapter for test mode
     private List<Flashcard> flashcardList = new ArrayList<>();
-    private int currentCardIndex = 0;
-    private Map<Integer, Integer> userAnswers = new HashMap<>();
-    private boolean isSubmitted = false;
+    private int quizId;
+    private boolean isTestSubmitted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_mode);
 
-        int quizId = getIntent().getIntExtra("EXTRA_QUIZ_ID", -1);
+        quizId = getIntent().getIntExtra("EXTRA_QUIZ_ID", -1);
         String quizName = getIntent().getStringExtra("EXTRA_QUIZ_NAME");
 
         initializeViews();
         textQuizTitle.setText(quizName);
 
+        setupRecyclerView();
         setupClickListeners();
 
         if (quizId != -1) {
@@ -48,24 +54,19 @@ public class TestModeActivity extends AppCompatActivity {
 
     private void initializeViews() {
         textQuizTitle = findViewById(R.id.text_quiz_title);
-        textQuestion = findViewById(R.id.text_question);
-        textResult = findViewById(R.id.text_result);
-        buttonOptionA = findViewById(R.id.button_option_a);
-        buttonOptionB = findViewById(R.id.button_option_b);
-        buttonOptionC = findViewById(R.id.button_option_c);
-        buttonOptionD = findViewById(R.id.button_option_d);
-        buttonSubmit = findViewById(R.id.button_submit);
+        recyclerViewTestQuestions = findViewById(R.id.recycler_view_test_questions);
+        buttonSubmitTest = findViewById(R.id.button_submit_test);
         buttonBack = findViewById(R.id.button_back);
+        textFinalTestResult = findViewById(R.id.text_final_test_result); // Changed ID to reflect test result
+    }
+
+    private void setupRecyclerView() {
+        recyclerViewTestQuestions.setLayoutManager(new LinearLayoutManager(this));
+        // Adapter will be set after fetching data
     }
 
     private void setupClickListeners() {
-        buttonOptionA.setOnClickListener(v -> selectAnswer(1));
-        buttonOptionB.setOnClickListener(v -> selectAnswer(2));
-        buttonOptionC.setOnClickListener(v -> selectAnswer(3));
-        buttonOptionD.setOnClickListener(v -> selectAnswer(4));
-
-        buttonSubmit.setOnClickListener(v -> submitTest());
-
+        buttonSubmitTest.setOnClickListener(v -> submitTest());
         buttonBack.setOnClickListener(v -> finish());
     }
 
@@ -79,72 +80,57 @@ public class TestModeActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     flashcardList = response.body().value;
                     if (!flashcardList.isEmpty()) {
-                        updateQuestionView();
+                        testQuestionAdapter = new com.example.prm392_v1.ui.main.QuestionAdapter(TestModeActivity.this, flashcardList);
+                        recyclerViewTestQuestions.setAdapter(testQuestionAdapter);
                     } else {
-                        textQuestion.setText("Không có câu hỏi nào.");
-                        disableOptions();
+                        Toast.makeText(TestModeActivity.this, "Không có câu hỏi nào cho bài kiểm tra này.", Toast.LENGTH_SHORT).show();
+                        buttonSubmitTest.setEnabled(false);
                     }
+                } else {
+                    Toast.makeText(TestModeActivity.this, "Không thể tải câu hỏi. Lỗi phản hồi.", Toast.LENGTH_SHORT).show();
+                    buttonSubmitTest.setEnabled(false);
                 }
             }
 
             @Override
             public void onFailure(Call<ODataResponse<Flashcard>> call, Throwable t) {
-                Toast.makeText(TestModeActivity.this, "Lỗi tải câu hỏi", Toast.LENGTH_SHORT).show();
+                Toast.makeText(TestModeActivity.this, "Lỗi tải câu hỏi: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                buttonSubmitTest.setEnabled(false);
             }
         });
     }
 
-    private void updateQuestionView() {
-        if (flashcardList.isEmpty() || isSubmitted) return;
-        Flashcard currentCard = flashcardList.get(currentCardIndex);
-        textQuestion.setText(currentCard.question);
-        buttonOptionA.setText("A. " + currentCard.option1);
-        buttonOptionB.setText("B. " + currentCard.option2);
-        buttonOptionC.setText("C. " + currentCard.option3);
-        buttonOptionD.setText("D. " + currentCard.option4);
-        textResult.setVisibility(View.GONE);
-        enableOptions();
-        Integer userAnswer = userAnswers.get(currentCardIndex);
-        if (userAnswer != null) {
-            selectAnswer(userAnswer); // Pre-select if answered
-        }
-    }
-
-    private void selectAnswer(int answer) {
-        if (isSubmitted) return;
-        Flashcard currentCard = flashcardList.get(currentCardIndex);
-        userAnswers.put(currentCardIndex, answer);
-        disableOptions();
-    }
-
     private void submitTest() {
-        if (isSubmitted || flashcardList.isEmpty()) return;
+        if (isTestSubmitted || testQuestionAdapter == null || flashcardList.isEmpty()) {
+            Toast.makeText(this, "Không có câu hỏi để nộp bài hoặc bài kiểm tra đã được nộp.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         int correctCount = 0;
-        for (int i = 0; i < flashcardList.size(); i++) {
-            Flashcard card = flashcardList.get(i);
-            Integer userAnswer = userAnswers.get(i);
-            if (userAnswer != null && userAnswer == card.answer) {
+        int totalQuestions = flashcardList.size();
+        int[] userAnswers = testQuestionAdapter.getUserAnswers(); // Get answers from the adapter
+
+        for (int i = 0; i < totalQuestions; i++) {
+            Flashcard flashcard = flashcardList.get(i);
+            int userAnswer = userAnswers[i];
+            int correctAnswer = flashcard.answer;
+
+            if (userAnswer == correctAnswer) {
                 correctCount++;
             }
         }
-        textResult.setText(String.format("Kết quả: %d/%d đúng (%.1f%%)", correctCount, flashcardList.size(), (correctCount * 100.0) / flashcardList.size()));
-        textResult.setVisibility(View.VISIBLE);
-        isSubmitted = true;
-        disableOptions();
-        buttonSubmit.setVisibility(View.GONE);
-    }
 
-    private void enableOptions() {
-        buttonOptionA.setEnabled(true);
-        buttonOptionB.setEnabled(true);
-        buttonOptionC.setEnabled(true);
-        buttonOptionD.setEnabled(true);
-    }
+        double percentage = (totalQuestions > 0) ? (correctCount * 100.0) / totalQuestions : 0.0;
+        String resultText = String.format("Kết quả: %d/%d đúng (%.1f%%)", correctCount, totalQuestions, percentage);
 
-    private void disableOptions() {
-        buttonOptionA.setEnabled(false);
-        buttonOptionB.setEnabled(false);
-        buttonOptionC.setEnabled(false);
-        buttonOptionD.setEnabled(false);
+        textFinalTestResult.setText(resultText);
+        textFinalTestResult.setVisibility(View.VISIBLE);
+        buttonSubmitTest.setVisibility(View.GONE); // Hide submit button
+
+        // Inform the adapter to show feedback and disable interaction
+        testQuestionAdapter.setShowFeedback(true);
+        isTestSubmitted = true; // Mark test as submitted
+
+        Toast.makeText(this, "Bạn đã nộp bài kiểm tra. Xem kết quả và phản hồi!", Toast.LENGTH_LONG).show();
     }
 }
