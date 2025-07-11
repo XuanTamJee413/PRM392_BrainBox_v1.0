@@ -70,6 +70,8 @@
         <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="false" />
+        <activity android:name=".ui.main.ViewDocumentActivity" />
+        <activity android:name=".ui.main.ViewDocumentDetailActivity" />
     </application>
 
 </manifest>
