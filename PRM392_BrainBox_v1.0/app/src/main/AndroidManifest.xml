@@ -17,6 +17,18 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".ui.main.MatchModeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.main.TestModeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.main.QuestionModeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.main.FlashcardsModeActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.main.DocumentDetailActivity"
             android:exported="false" />
         <activity

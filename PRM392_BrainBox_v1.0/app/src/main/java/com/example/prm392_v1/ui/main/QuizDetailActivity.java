@@ -1,5 +1,6 @@
 package com.example.prm392_v1.ui.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
@@ -31,6 +32,7 @@ public class QuizDetailActivity extends AppCompatActivity {
     private TextView textQuizTitle, textFlashcardContent, textCardCounter;
     private Button buttonPrev, buttonNext, buttonBack, buttonSubmitRating;
     private RatingBar ratingBar;
+    private Button buttonFlashcards, buttonLearn, buttonTest, buttonMatch;
 
     private List<Flashcard> flashcardList = new ArrayList<>();
     private int currentCardIndex = 0;
@@ -68,10 +70,12 @@ public class QuizDetailActivity extends AppCompatActivity {
         buttonNext = findViewById(R.id.button_next);
         buttonBack = findViewById(R.id.button_back);
         termsRecyclerView = findViewById(R.id.terms_recycler_view);
-
-
         ratingBar = findViewById(R.id.rating_bar);
         buttonSubmitRating = findViewById(R.id.button_submit_rating);
+        buttonFlashcards = findViewById(R.id.button_flashcards);
+        buttonLearn = findViewById(R.id.button_learn);
+        buttonTest = findViewById(R.id.button_test);
+        buttonMatch = findViewById(R.id.button_match);
     }
 
     private void setupClickListeners() {
@@ -100,8 +104,44 @@ public class QuizDetailActivity extends AppCompatActivity {
 
         buttonBack.setOnClickListener(v -> finish());
 
-
         buttonSubmitRating.setOnClickListener(v -> submitRating());
+
+        // Launch mode activities
+        buttonFlashcards.setOnClickListener(v -> {
+            if (quizId != -1) {
+                Intent intent = new Intent(this, FlashcardsModeActivity.class);
+                intent.putExtra("EXTRA_QUIZ_ID", quizId);
+                intent.putExtra("EXTRA_QUIZ_NAME", textQuizTitle.getText().toString());
+                startActivity(intent);
+            }
+        });
+
+        buttonLearn.setOnClickListener(v -> {
+            if (quizId != -1) {
+                Intent intent = new Intent(this, QuestionModeActivity.class);
+                intent.putExtra("EXTRA_QUIZ_ID", quizId);
+                intent.putExtra("EXTRA_QUIZ_NAME", textQuizTitle.getText().toString());
+                startActivity(intent);
+            }
+        });
+
+        buttonTest.setOnClickListener(v -> {
+            if (quizId != -1) {
+                Intent intent = new Intent(this, TestModeActivity.class);
+                intent.putExtra("EXTRA_QUIZ_ID", quizId);
+                intent.putExtra("EXTRA_QUIZ_NAME", textQuizTitle.getText().toString());
+                startActivity(intent);
+            }
+        });
+
+        buttonMatch.setOnClickListener(v -> {
+            if (quizId != -1) {
+                Intent intent = new Intent(this, MatchModeActivity.class);
+                intent.putExtra("EXTRA_QUIZ_ID", quizId);
+                intent.putExtra("EXTRA_QUIZ_NAME", textQuizTitle.getText().toString());
+                startActivity(intent);
+            }
+        });
     }
 
     private void setupTermsRecyclerView() {
