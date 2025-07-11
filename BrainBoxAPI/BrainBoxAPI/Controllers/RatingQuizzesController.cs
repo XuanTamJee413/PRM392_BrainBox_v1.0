@@ -21,6 +21,8 @@ namespace BrainBoxAPI.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
+
         public async Task<IActionResult> Get([FromQuery] int quizId)
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -38,6 +40,22 @@ namespace BrainBoxAPI.Controllers
                 return NotFound();
             }
             return Ok(rating);
+        }
+
+        [HttpGet("getRatingQuizById")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetRatingQuizById([FromQuery] int quizId)
+        {
+            var ratings = await _context.RatingQuizzes
+                .Where(r => r.QuizId == quizId)
+                .ToListAsync();
+
+            if (ratings == null || !ratings.Any()) 
+            {
+                return NotFound("No ratings found for the specified quiz ID.");
+            }
+
+            return Ok(ratings);
         }
 
         [HttpPost]

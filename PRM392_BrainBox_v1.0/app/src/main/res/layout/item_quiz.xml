@@ -21,23 +21,24 @@
             android:layout_height="wrap_content"
             android:textAppearance="?attr/textAppearanceTitleMedium"
             android:textColor="?attr/colorOnSurface"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/download_button"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="8dp"
             tools:text="Tên Quiz" />
 
         <ImageButton
             android:id="@+id/download_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Tải xuống"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
             android:paddingBottom="24dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_download"
-            android:contentDescription="Tải xuống"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBaseline_toBaselineOf="@id/quiz_title_text"/>
+            app:layout_constraintBaseline_toBaselineOf="@id/quiz_title_text" />
 
         <TextView
             android:id="@+id/quiz_description_text"
@@ -60,10 +61,21 @@
             android:gravity="center_vertical"
             android:textAppearance="?attr/textAppearanceLabelLarge"
             android:textColor="?attr/colorOnSurfaceVariant"
-
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/quiz_description_text"
             tools:text="số lượng câu hỏi" />
+
+        <TextView
+            android:id="@+id/text_average_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/quiz_question_count_text"
+            tools:text="Rating: 4.5/5 (10 reviews)" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

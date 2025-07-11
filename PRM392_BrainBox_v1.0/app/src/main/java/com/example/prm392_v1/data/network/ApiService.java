@@ -126,4 +126,7 @@ public interface ApiService {
 
     @GET("odata/Comments")
     Call<ODataResponse<Comment>> getCommentsByDocDetail(@Query("$filter") String filter);
+
+    @GET("api/RatingQuizzes/getRatingQuizById")
+    Call<List<RatingQuiz>> getRatingsForQuiz(@Query("quizId") int quizId);
 }
