@@ -1,4 +1,5 @@
 package com.example.prm392_v1.data.network;
+import com.example.prm392_v1.data.model.DocumentDetail;
 import com.example.prm392_v1.data.model.DocumentDto;
 import com.example.prm392_v1.data.model.LoginRequest;
 import com.example.prm392_v1.data.model.LoginResponse;
@@ -8,6 +9,7 @@ import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
@@ -75,4 +77,43 @@ public interface ApiService {
     // end tamnx
     @GET("odata/flashcards")
     Call<ODataResponse<Flashcard>> getFlashcardsForQuiz(@Query("$filter") String filter);
+    // Documents
+    @GET("odata/Documents")
+    Call<ODataResponse<DocumentDto>> getAllDocuments(
+            @Query("$filter") String filter,
+            @Query("$expand") String expand
+    );
+
+    @GET("odata/Documents({id})")
+    Call<DocumentDto> getDocumentById(
+            @Path("id") int docId,
+            @Query("$expand") String expand
+    );
+
+    @POST("odata/Documents")
+    Call<DocumentDto> createDocument(@Body DocumentDto document);
+
+    @PUT("odata/Documents({id})")
+    Call<Void> updateDocument(@Path("id") int docId, @Body DocumentDto document);
+
+    @PATCH("odata/Documents({id})")
+    Call<Void> patchDocument(@Path("id") int docId, @Body DocumentDto document);
+
+    @DELETE("odata/Documents({id})")
+    Call<Void> deleteDocument(@Path("id") int docId);
+
+    // Document Details
+    @GET("odata/DocumentDetails")
+    Call<ODataResponse<DocumentDetail>> getDocumentDetails(
+            @Query("$filter") String filter
+    );
+
+    @POST("odata/DocumentDetails")
+    Call<DocumentDetail> createDocumentDetail(@Body DocumentDetail detail);
+
+    @PUT("odata/DocumentDetails({id})")
+    Call<Void> updateDocumentDetail(@Path("id") int detailId, @Body DocumentDetail detail);
+
+    @DELETE("odata/DocumentDetails({id})")
+    Call<Void> deleteDocumentDetail(@Path("id") int detailId);
 }
