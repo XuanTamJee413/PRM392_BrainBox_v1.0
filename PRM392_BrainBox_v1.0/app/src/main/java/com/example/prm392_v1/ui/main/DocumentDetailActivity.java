@@ -90,8 +90,8 @@ public class DocumentDetailActivity extends AppCompatActivity {
         loadDocumentDetails();
 
         // Xử lý sự kiện nút
-        btnUpdate.setOnClickListener(v -> updateDocument());
-        btnDelete.setOnClickListener(v -> deleteDocument());
+        btnUpdate.setOnClickListener(v -> updateDocumentDetail());
+        btnDelete.setOnClickListener(v -> deleteDocumentDetail());
         btnBack.setOnClickListener(v -> finish());
         btnNext.setOnClickListener(v -> showNextDetail());
         btnPrevious.setOnClickListener(v -> showPreviousDetail());
@@ -203,46 +203,64 @@ public class DocumentDetailActivity extends AppCompatActivity {
         btnNext.setVisibility(currentIndex < documentDetails.size() - 1 ? View.VISIBLE : View.GONE);
     }
 
-    private void updateDocument() {
-        DocumentDto updatedDoc = new DocumentDto();
-        updatedDoc.DocId = docId;
-        updatedDoc.Title = txtTitle.getText().toString();
-        updatedDoc.Content = txtContent.getText().toString();
+    private void updateDocumentDetail() {
+        if (currentIndex >= 0 && currentIndex < documentDetails.size()) {
+            DocumentDetail updatedDetail = documentDetails.get(currentIndex);
+            updatedDetail.Caption = txtCaption.getText().toString();
 
-        apiService.updateDocument(docId, updatedDoc).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(DocumentDetailActivity.this, "Cập nhật thành công", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(DocumentDetailActivity.this, "Cập nhật thất bại", Toast.LENGTH_SHORT).show();
+            apiService.updateDocumentDetail(updatedDetail.DocDetailId, updatedDetail).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(DocumentDetailActivity.this, "Cập nhật chi tiết tài liệu thành công", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(DocumentDetailActivity.this, "Cập nhật chi tiết tài liệu thất bại", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(DocumentDetailActivity.this, "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Toast.makeText(DocumentDetailActivity.this, "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            Toast.makeText(DocumentDetailActivity.this, "Không có chi tiết tài liệu để cập nhật", Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private void deleteDocument() {
-        apiService.deleteDocument(docId).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(DocumentDetailActivity.this, "Xóa thành công", Toast.LENGTH_SHORT).show();
-                    finish();
-                } else {
-                    Toast.makeText(DocumentDetailActivity.this, "Xóa thất bại", Toast.LENGTH_SHORT).show();
+    private void deleteDocumentDetail() {
+        if (currentIndex >= 0 && currentIndex < documentDetails.size()) {
+            DocumentDetail detail = documentDetails.get(currentIndex);
+            apiService.deleteDocumentDetail(detail.DocDetailId).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        documentDetails.remove(currentIndex);
+                        if (!documentDetails.isEmpty()) {
+                            if (currentIndex >= documentDetails.size()) {
+                                currentIndex--;
+                            }
+                            updateCurrentDetail();
+                        } else {
+                            txtCaption.setText("");
+                            imageDetail.setImageResource(R.drawable.ic_placeholder);
+                            commentAdapter.submitList(new ArrayList<>());
+                            updateButtonVisibility();
+                        }
+                        Toast.makeText(DocumentDetailActivity.this, "Xóa chi tiết tài liệu thành công", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(DocumentDetailActivity.this, "Xóa chi tiết tài liệu thất bại", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(DocumentDetailActivity.this, "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Toast.makeText(DocumentDetailActivity.this, "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            Toast.makeText(DocumentDetailActivity.this, "Không có chi tiết tài liệu để xóa", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private static class LoadImageTask extends AsyncTask<String, Void, Bitmap> {
