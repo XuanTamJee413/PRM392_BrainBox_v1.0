@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,7 @@ import com.example.prm392_v1.data.network.ApiService;
 import com.example.prm392_v1.data.network.RetrofitClient;
 import com.example.prm392_v1.ui.adapters.DocumentActionAdapter;
 import com.example.prm392_v1.ui.main.DocumentDetailActivity;
+import com.example.prm392_v1.utils.AuthUtils;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,6 +30,7 @@ public class DocFragment extends Fragment {
     private RecyclerView recyclerView;
     private DocumentActionAdapter documentAdapter;
     private ApiService apiService;
+    private TextView tvEmpty;
 
     public DocFragment() {}
 
@@ -35,6 +38,7 @@ public class DocFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_doc, container, false);
         recyclerView = view.findViewById(R.id.recycler_view_documents);
+        tvEmpty = view.findViewById(R.id.tv_empty); // Ánh xạ tv_empty
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         documentAdapter = new DocumentActionAdapter();
         recyclerView.setAdapter(documentAdapter);
@@ -63,19 +67,36 @@ public class DocFragment extends Fragment {
     }
 
     private void loadDocuments() {
-        apiService.getAllDocuments(null, "Author").enqueue(new Callback<ODataResponse<DocumentDto>>() {
+        // Lấy ID người dùng từ AuthUtils
+        String currentUserId = AuthUtils.getUserIdFromToken(getContext());
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Toast.makeText(getContext(), "Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show();
+            tvEmpty.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+            return;
+        }
+
+        // Lọc tài liệu theo ID người dùng
+        String filter = "Author/Id eq " + currentUserId;
+        apiService.getAllDocuments(filter, "Author").enqueue(new Callback<ODataResponse<DocumentDto>>() {
             @Override
             public void onResponse(@NonNull Call<ODataResponse<DocumentDto>> call, @NonNull Response<ODataResponse<DocumentDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     documentAdapter.submitList(response.body().value);
+                    tvEmpty.setVisibility(response.body().value.isEmpty() ? View.VISIBLE : View.GONE);
+                    recyclerView.setVisibility(response.body().value.isEmpty() ? View.GONE : View.VISIBLE);
                 } else {
                     Toast.makeText(getContext(), "Lỗi khi tải tài liệu", Toast.LENGTH_SHORT).show();
+                    tvEmpty.setVisibility(View.VISIBLE);
+                    recyclerView.setVisibility(View.GONE);
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ODataResponse<DocumentDto>> call, @NonNull Throwable t) {
                 Toast.makeText(getContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                tvEmpty.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
             }
         });
     }
@@ -102,7 +123,7 @@ public class DocFragment extends Fragment {
                 public void onResponse(Call<Void> call, Response<Void> response) {
                     if (response.isSuccessful()) {
                         Toast.makeText(getContext(), "Cập nhật thành công", Toast.LENGTH_SHORT).show();
-                        loadDocuments(); // Refresh the list
+                        loadDocuments(); // Làm mới danh sách
                     } else {
                         Toast.makeText(getContext(), "Cập nhật thất bại", Toast.LENGTH_SHORT).show();
                     }
@@ -124,7 +145,7 @@ public class DocFragment extends Fragment {
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "Xóa thành công", Toast.LENGTH_SHORT).show();
-                    loadDocuments(); // Refresh the list
+                    loadDocuments(); // Làm mới danh sách
                 } else {
                     Toast.makeText(getContext(), "Xóa thất bại", Toast.LENGTH_SHORT).show();
                 }
