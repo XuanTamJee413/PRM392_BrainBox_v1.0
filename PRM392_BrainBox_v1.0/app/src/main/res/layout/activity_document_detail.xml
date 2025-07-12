@@ -7,121 +7,159 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <ImageButton
-        android:id="@+id/btn_back"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_back"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Quay lại"
+    <!-- Main Content -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="8dp" />
-
-    <TextView
-        android:id="@+id/txt_doc_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textAppearance="?attr/textAppearanceHeadlineSmall"
-        app:layout_constraintTop_toBottomOf="@id/btn_back"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="8dp" />
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <TextView
-        android:id="@+id/txt_doc_author"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textAppearance="?attr/textAppearanceBodyMedium"
-        app:layout_constraintTop_toBottomOf="@id/txt_doc_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="8dp" />
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Quay lại"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginBottom="8dp" />
 
-    <TextView
-        android:id="@+id/txt_doc_views"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?attr/textAppearanceBodySmall"
-        app:layout_constraintTop_toBottomOf="@id/txt_doc_author"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="16dp" />
+        <TextView
+            android:id="@+id/txt_doc_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+            app:layout_constraintTop_toBottomOf="@id/btn_back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="8dp" />
 
-    <EditText
-        android:id="@+id/txt_doc_content"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:minHeight="100dp"
-        android:inputType="textMultiLine"
-        android:textAppearance="?attr/textAppearanceBodyMedium"
-        app:layout_constraintTop_toBottomOf="@id/txt_doc_views"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="16dp" />
+        <TextView
+            android:id="@+id/txt_doc_author"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            app:layout_constraintTop_toBottomOf="@id/txt_doc_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="8dp" />
 
-    <ImageView
-        android:id="@+id/image_detail"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintTop_toBottomOf="@id/txt_doc_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <TextView
+            android:id="@+id/txt_doc_views"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            app:layout_constraintTop_toBottomOf="@id/txt_doc_author"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginBottom="16dp" />
 
-    <Button
-        android:id="@+id/btn_previous"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Previous"
-        app:layout_constraintTop_toBottomOf="@id/image_detail"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="8dp" />
+        <EditText
+            android:id="@+id/txt_doc_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="100dp"
+            android:inputType="textMultiLine"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            app:layout_constraintTop_toBottomOf="@id/txt_doc_views"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="16dp" />
 
-    <Button
-        android:id="@+id/btn_next"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Next"
-        app:layout_constraintTop_toBottomOf="@id/image_detail"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        <ImageView
+            android:id="@+id/image_detail"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintTop_toBottomOf="@id/txt_doc_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-    <TextView
-        android:id="@+id/text_caption"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textAppearance="?attr/textAppearanceBodyMedium"
-        app:layout_constraintTop_toBottomOf="@id/btn_previous"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        <Button
+            android:id="@+id/btn_previous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Previous"
+            app:layout_constraintTop_toBottomOf="@id/image_detail"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="8dp" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_comments"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/text_caption"
-        app:layout_constraintBottom_toTopOf="@id/btn_update"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp" />
+        <Button
+            android:id="@+id/btn_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next"
+            app:layout_constraintTop_toBottomOf="@id/image_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp" />
 
-    <Button
-        android:id="@+id/btn_update"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cập nhật"
-        app:layout_constraintBottom_toTopOf="@id/btn_delete"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="8dp" />
+        <TextView
+            android:id="@+id/text_caption"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            app:layout_constraintTop_toBottomOf="@id/btn_previous"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp" />
 
-    <Button
-        android:id="@+id/btn_delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Xóa"
-        app:layout_constraintBottom_toBottomOf="parent"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_comments"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/text_caption"
+            app:layout_constraintBottom_toTopOf="@id/btn_create"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btn_create"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tạo mới"
+            app:layout_constraintBottom_toTopOf="@id/btn_update"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btn_update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chỉnh sửa"
+            app:layout_constraintBottom_toTopOf="@id/btn_delete"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btn_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Xóa"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Include Create Form -->
+    <include
+        layout="@layout/activity_create_document_detail"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Include Edit Form -->
+    <include
+        layout="@layout/activity_edit_document_detail"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
