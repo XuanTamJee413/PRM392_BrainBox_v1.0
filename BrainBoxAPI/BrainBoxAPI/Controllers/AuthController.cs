@@ -1,5 +1,6 @@
 ﻿using BrainBoxAPI.Data;
 using BrainBoxAPI.DTOs;
+using BrainBoxAPI.Models;
 using BrainBoxAPI.Services;
 using BrainBoxAPI.Utilities;
 using Microsoft.AspNetCore.Http;
@@ -41,5 +42,35 @@ namespace BrainBoxAPI.Controllers
 
             return Ok(new { token });
         }
+
+        [HttpPost("register")]
+        public IActionResult Register([FromBody] LoginDto dto)
+        {
+            Console.WriteLine(">>>> Có request register từ client đến API <<<<");
+            Console.WriteLine(dto.UsernameOrEmail + " ++ " + dto.Password);
+
+            var existed = _context.Users.Any(u => u.Username == dto.UsernameOrEmail);
+            if (existed)
+                return Conflict("Tên người dùng đã tồn tại");
+
+            var user = new User
+            {
+                Username = dto.UsernameOrEmail,
+                Password = HashHelper.Hash(dto.Password),
+                Email = "",                     
+                Role = "user",
+                Status = true,
+                Avatar = "",
+                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                PremiumExpiredAt = 0
+            };
+
+            _context.Users.Add(user);
+            _context.SaveChanges();
+
+            var token = _tokenService.GenerateToken(user);
+            return Ok(new { token });
+        }
+
     }
 }

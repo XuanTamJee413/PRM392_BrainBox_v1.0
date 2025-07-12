@@ -20,6 +20,8 @@ public interface FlashcardDao {
 
     @Delete
     void delete(Flashcard card);
+    @Query("DELETE FROM flashcards WHERE quizId = :quizId")
+    void deleteByQuizId(int quizId);
 
     @Query("SELECT * FROM flashcards WHERE quizId = :quizId")
     List<Flashcard> getByQuizId(int quizId);

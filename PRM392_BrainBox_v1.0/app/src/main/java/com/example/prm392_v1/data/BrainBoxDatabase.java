@@ -70,7 +70,7 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
                                 @Override
                                 public void onCreate(@NonNull SupportSQLiteDatabase db) {
                                     super.onCreate(db);
-                                    seedData(INSTANCE);
+                                    //seedData(INSTANCE);
                                 }
                             })
 

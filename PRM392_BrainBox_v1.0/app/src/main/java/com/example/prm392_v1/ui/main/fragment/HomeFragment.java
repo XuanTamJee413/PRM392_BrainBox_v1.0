@@ -29,6 +29,8 @@ import com.example.prm392_v1.ui.main.PurchaseActivity;
 import com.example.prm392_v1.ui.main.QuizActivity;
 import com.example.prm392_v1.ui.main.QuizDetailActivity;
 import com.example.prm392_v1.ui.main.ViewDocumentActivity;
+import com.example.prm392_v1.utils.DocumentDownloader;
+import com.example.prm392_v1.utils.QuizDownloader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,15 +40,33 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
-    private RecyclerView recyclerDocuments;
-    private RecyclerView recyclerQuizzes;
-    public HomeFragment() {
-    }
+    private RecyclerView recyclerDocuments, recyclerQuizzes;
+    private View rootView;
+
+    public HomeFragment() {}
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
+        rootView = inflater.inflate(R.layout.fragment_home, container, false);
 
-        View.OnClickListener upgradeClickListener = v -> {
+        setupUpgradeButtons();
+        setupSeeAllButtons();
+        setupRecyclerViews();
+        fetchTopDocuments();
+        fetchLatestQuizzes();
+
+        return rootView;
+    }
+
+    private void setupUpgradeButtons() {
+        int[] buttonIds = {
+                R.id.btn_upgrade_lifetime,
+                R.id.btn_upgrade_30days,
+                R.id.btn_upgrade_6months,
+                R.id.btn_upgrade_12months
+        };
+
+        View.OnClickListener listener = v -> {
             String token = requireContext()
                     .getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
                     .getString("jwt_token", null);
@@ -56,9 +76,10 @@ public class HomeFragment extends Fragment {
                 startActivity(new Intent(requireContext(), LoginActivity.class));
                 return;
             }
-            int id = v.getId();
+
             String selectedPackage = "";
 
+            int id = v.getId();
             if (id == R.id.btn_upgrade_lifetime) {
                 selectedPackage = "lifetime";
             } else if (id == R.id.btn_upgrade_30days) {
@@ -69,122 +90,131 @@ public class HomeFragment extends Fragment {
                 selectedPackage = "12months";
             }
 
+
             Intent intent = new Intent(requireContext(), PurchaseActivity.class);
             intent.putExtra("selected_package", selectedPackage);
             startActivity(intent);
         };
-        view.findViewById(R.id.btn_upgrade_lifetime).setOnClickListener(upgradeClickListener);
-        view.findViewById(R.id.btn_upgrade_30days).setOnClickListener(upgradeClickListener);
-        view.findViewById(R.id.btn_upgrade_6months).setOnClickListener(upgradeClickListener);
-        view.findViewById(R.id.btn_upgrade_12months).setOnClickListener(upgradeClickListener);
 
+        for (int id : buttonIds) {
+            rootView.findViewById(id).setOnClickListener(listener);
+        }
+    }
 
-        view.findViewById(R.id.text_see_all_docs).setOnClickListener(v -> {
+    private void setupSeeAllButtons() {
+        rootView.findViewById(R.id.text_see_all_docs).setOnClickListener(v -> {
             ViewDocumentActivity.start(requireContext());
         });
-
-        view.findViewById(R.id.text_see_all_quizzes).setOnClickListener(v -> {
+        rootView.findViewById(R.id.text_see_all_quizzes).setOnClickListener(v -> {
             startActivity(new Intent(requireContext(), QuizActivity.class));
         });
+    }
 
-        recyclerDocuments = view.findViewById(R.id.recycler_top_documents);
-        recyclerQuizzes = view.findViewById(R.id.recycler_latest_quizzes);
+    private void setupRecyclerViews() {
+        recyclerDocuments = rootView.findViewById(R.id.recycler_top_documents);
+        recyclerQuizzes = rootView.findViewById(R.id.recycler_latest_quizzes);
 
         recyclerDocuments.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         recyclerQuizzes.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+    }
 
+    private void fetchTopDocuments() {
         ApiService apiService = RetrofitClient.getApiService(requireContext());
+        apiService.getTopDocuments(null, "Views desc", 5, "Author($select=Username)")
+                .enqueue(new Callback<>() {
+                    @Override
+                    public void onResponse(Call<ODataResponse<DocumentDto>> call, Response<ODataResponse<DocumentDto>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<DocumentDto> docs = response.body().value;
+                            showOrHideRecycler(recyclerDocuments, R.id.text_no_documents, docs);
 
-        apiService.getTopDocuments(null, "Views desc", 5,"Author($select=Username)"
-        ).enqueue(new Callback<ODataResponse<DocumentDto>>() {
-            @Override
-            public void onResponse(Call<ODataResponse<DocumentDto>> call, Response<ODataResponse<DocumentDto>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<DocumentDto> docs = response.body().value;
-                    if (docs == null || docs.isEmpty()) {
-                        recyclerDocuments.setVisibility(View.GONE);
-                        view.findViewById(R.id.text_no_documents).setVisibility(View.VISIBLE);
-                    } else {
-                        recyclerDocuments.setVisibility(View.VISIBLE);
-                        view.findViewById(R.id.text_no_documents).setVisibility(View.GONE);
-                        DocumentAdapter documentAdapter = new DocumentAdapter();
-                        recyclerDocuments.setAdapter(documentAdapter);
-                        documentAdapter.submitList(docs);
-                        documentAdapter.setOnItemClickListener(document -> {
-                            Intent intent = new Intent(requireContext(), DocumentDetailActivity.class);
-                            intent.putExtra("EXTRA_DOC_ID", document.DocId);
-                            intent.putExtra("EXTRA_DOC_TITLE", document.Title);
-                            startActivity(intent);
-                        });
+                            if (docs != null && !docs.isEmpty()) {
+                                DocumentAdapter adapter = new DocumentAdapter();
+                                adapter.submitList(docs);
+                                recyclerDocuments.setAdapter(adapter);
+                                adapter.setOnItemClickListener(document -> {
+                                    Intent intent = new Intent(requireContext(), DocumentDetailActivity.class);
+                                    intent.putExtra("EXTRA_DOC_ID", document.DocId);
+                                    intent.putExtra("EXTRA_DOC_TITLE", document.Title);
+                                    startActivity(intent);
+                                });
+                                adapter.setOnDownloadClickListener(document -> {
+                                    DocumentDownloader.downloadDocumentWithDetails(requireContext(), document);
+                                });
 
-                    }
-                } else {
-                    recyclerDocuments.setVisibility(View.GONE);
-                    view.findViewById(R.id.text_no_documents).setVisibility(View.VISIBLE);
-                    ((TextView) view.findViewById(R.id.text_no_documents)).setText("Không tải được dữ liệu.");
-                }
-            }
 
-            @Override
-            public void onFailure(Call<ODataResponse<DocumentDto>> call, Throwable t) {
-                recyclerDocuments.setVisibility(View.GONE);
-                view.findViewById(R.id.text_no_documents).setVisibility(View.VISIBLE);
-                ((TextView) view.findViewById(R.id.text_no_documents)).setText("Lỗi kết nối.");
-            }
-        });
-
-        apiService.getLatestQuizzes(
-                null,
-                "CreatedAt desc",
-                5,
-                "Creator($select=Username)"
-        ).enqueue(new Callback<ODataResponse<QuizDto>>() {
-            @Override
-            public void onResponse(Call<ODataResponse<QuizDto>> call, Response<ODataResponse<QuizDto>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<QuizDto> quizzes = response.body().value;
-                    if (quizzes == null || quizzes.isEmpty()) {
-                        recyclerQuizzes.setVisibility(View.GONE);
-                        view.findViewById(R.id.text_no_quizzes).setVisibility(View.VISIBLE);
-                    } else {
-                        recyclerQuizzes.setVisibility(View.VISIBLE);
-                        view.findViewById(R.id.text_no_quizzes).setVisibility(View.GONE);
-                        List<Quiz> quizList = new ArrayList<>();
-                        for (QuizDto dto : quizzes) {
-                            Quiz quiz = new Quiz();
-                            quiz.quizId = dto.QuizId;
-                            quiz.quizName = dto.QuizName;
-                            quiz.description = dto.Description;
-                            quizList.add(quiz);
+                            }
+                        } else {
+                            showErrorText(R.id.text_no_documents, "Không tải được dữ liệu.");
                         }
-
-                        QuizAdapter quizAdapter = new QuizAdapter();
-                        recyclerQuizzes.setAdapter(quizAdapter);
-                        quizAdapter.submitList(quizList);
-                        quizAdapter.setOnItemClickListener(quiz -> {
-                            Intent intent = new Intent(requireContext(), QuizDetailActivity.class);
-                            intent.putExtra("EXTRA_QUIZ_ID", quiz.quizId);
-                            intent.putExtra("EXTRA_QUIZ_NAME", quiz.quizName);
-                            startActivity(intent);
-                        });
-
                     }
-                } else {
-                    recyclerQuizzes.setVisibility(View.GONE);
-                    view.findViewById(R.id.text_no_quizzes).setVisibility(View.VISIBLE);
-                    ((TextView) view.findViewById(R.id.text_no_quizzes)).setText("Không tải được dữ liệu.");
-                }
-            }
 
-            @Override
-            public void onFailure(Call<ODataResponse<QuizDto>> call, Throwable t) {
-                recyclerQuizzes.setVisibility(View.GONE);
-                view.findViewById(R.id.text_no_quizzes).setVisibility(View.VISIBLE);
-                ((TextView) view.findViewById(R.id.text_no_quizzes)).setText("Lỗi kết nối.");
-            }
-        });
+                    @Override
+                    public void onFailure(Call<ODataResponse<DocumentDto>> call, Throwable t) {
+                        showErrorText(R.id.text_no_documents, "Lỗi kết nối.");
+                    }
+                });
+    }
 
+    private void fetchLatestQuizzes() {
+        ApiService apiService = RetrofitClient.getApiService(requireContext());
+        apiService.getLatestQuizzes(null, "CreatedAt desc", 5, "Creator($select=Username)")
+                .enqueue(new Callback<>() {
+                    @Override
+                    public void onResponse(Call<ODataResponse<QuizDto>> call, Response<ODataResponse<QuizDto>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<QuizDto> quizDtos = response.body().value;
+                            showOrHideRecycler(recyclerQuizzes, R.id.text_no_quizzes, quizDtos);
 
-        return view;
+                            if (quizDtos != null && !quizDtos.isEmpty()) {
+                                List<Quiz> quizzes = new ArrayList<>();
+                                for (QuizDto dto : quizDtos) {
+                                    Quiz quiz = new Quiz();
+                                    quiz.quizId = dto.QuizId;
+                                    quiz.quizName = dto.QuizName;
+                                    quiz.description = dto.Description;
+                                    quizzes.add(quiz);
+                                }
+
+                                QuizAdapter adapter = new QuizAdapter();
+                                adapter.submitList(quizzes);
+                                recyclerQuizzes.setAdapter(adapter);
+                                adapter.setOnItemClickListener(quiz -> {
+                                    Intent intent = new Intent(requireContext(), QuizDetailActivity.class);
+                                    intent.putExtra("EXTRA_QUIZ_ID", quiz.quizId);
+                                    intent.putExtra("EXTRA_QUIZ_NAME", quiz.quizName);
+                                    startActivity(intent);
+                                });
+                                adapter.setOnDownloadClickListener(quiz -> {
+                                    QuizDownloader.downloadQuizWithFlashcards(requireContext(), quiz);
+                                });
+                            }
+                        } else {
+                            showErrorText(R.id.text_no_quizzes, "Không tải được dữ liệu.");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ODataResponse<QuizDto>> call, Throwable t) {
+                        showErrorText(R.id.text_no_quizzes, "Lỗi kết nối.");
+                    }
+                });
+    }
+
+    private <T> void showOrHideRecycler(RecyclerView recyclerView, int emptyViewId, List<T> list) {
+        if (list == null || list.isEmpty()) {
+            recyclerView.setVisibility(View.GONE);
+            rootView.findViewById(emptyViewId).setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            rootView.findViewById(emptyViewId).setVisibility(View.GONE);
+        }
+    }
+
+    private void showErrorText(int viewId, String message) {
+        TextView textView = rootView.findViewById(viewId);
+        recyclerQuizzes.setVisibility(View.GONE);
+        textView.setVisibility(View.VISIBLE);
+        textView.setText(message);
     }
 }

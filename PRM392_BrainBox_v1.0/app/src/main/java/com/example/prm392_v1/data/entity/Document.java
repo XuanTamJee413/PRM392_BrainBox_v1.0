@@ -4,15 +4,7 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        tableName = "documents",
-        foreignKeys = @ForeignKey(
-                entity = User.class,
-                parentColumns = "id",
-                childColumns = "authorId",
-                onDelete = ForeignKey.CASCADE
-        )
-)
+@Entity(tableName = "documents")
 public class Document {
     @PrimaryKey(autoGenerate = true)
     public int docId;

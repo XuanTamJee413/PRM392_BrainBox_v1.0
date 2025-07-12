@@ -3,6 +3,7 @@ package com.example.prm392_v1.ui.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,10 +18,19 @@ import java.util.List;
 
 public class DocumentAdapter extends ListAdapter<DocumentDto, DocumentAdapter.DocumentViewHolder> {
     private OnItemClickListener listener;
+    private OnDownloadClickListener downloadListener;
     public interface OnItemClickListener {
         void onItemClick(DocumentDto document);
     }
     public void setOnItemClickListener(OnItemClickListener listener) {this.listener = listener;}
+
+    public interface OnDownloadClickListener {
+        void onDownloadClick(DocumentDto document);
+    }
+    public void setOnDownloadClickListener(OnDownloadClickListener listener) {
+        this.downloadListener = listener;
+    }
+
     public DocumentAdapter() {
         super(DIFF_CALLBACK);
     }
@@ -57,12 +67,13 @@ public class DocumentAdapter extends ListAdapter<DocumentDto, DocumentAdapter.Do
 
     class DocumentViewHolder extends RecyclerView.ViewHolder {
         TextView title, author, views;
-
+        ImageButton downloadButton;
         public DocumentViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.text_doc_title);
             author = itemView.findViewById(R.id.text_doc_author);
             views = itemView.findViewById(R.id.text_doc_views);
+            downloadButton = itemView.findViewById(R.id.download_button);
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -70,6 +81,13 @@ public class DocumentAdapter extends ListAdapter<DocumentDto, DocumentAdapter.Do
                     listener.onItemClick(getItem(position));
                 }
             });
+            downloadButton.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (downloadListener != null && position != RecyclerView.NO_POSITION) {
+                    downloadListener.onDownloadClick(getItem(position));
+                }
+            });
+
         }
 
         public void bind(DocumentDto doc) {

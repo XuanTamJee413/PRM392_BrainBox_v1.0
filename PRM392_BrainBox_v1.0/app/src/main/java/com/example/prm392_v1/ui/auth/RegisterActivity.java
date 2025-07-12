@@ -80,8 +80,18 @@ public class RegisterActivity extends AppCompatActivity {
                     AuthUtils.saveToken(RegisterActivity.this, token);
                     AuthUtils.navigateToScreenByRole(RegisterActivity.this, token);
                     Toast.makeText(RegisterActivity.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
+                    finish();
                 } else {
-                    Toast.makeText(RegisterActivity.this, "Đăng ký thất bại: " + response.code(), Toast.LENGTH_LONG).show();
+                    String errorBody = "Không có thông tin lỗi";
+                    try {
+                        if (response.errorBody() != null) {
+                            errorBody = response.errorBody().string();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    String message = "Đăng ký thất bại. Mã lỗi: " + response.code() + "\nLý do: " + errorBody;
+                    Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_LONG).show();
                 }
             }
 

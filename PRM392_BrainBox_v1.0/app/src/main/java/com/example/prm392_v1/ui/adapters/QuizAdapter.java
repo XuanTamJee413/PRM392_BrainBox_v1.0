@@ -15,13 +15,19 @@ import com.example.prm392_v1.data.model.Quiz;
 public class QuizAdapter extends ListAdapter<Quiz, QuizAdapter.QuizViewHolder> {
 
     private OnItemClickListener listener;
-
+    private OnDownloadClickListener downloadClickListener;
     public interface OnItemClickListener {
         void onItemClick(Quiz quiz);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
+    }
+    public interface OnDownloadClickListener {
+        void onDownloadClick(Quiz quiz);
+    }
+    public void setOnDownloadClickListener(OnDownloadClickListener listener) {
+        this.downloadClickListener = listener;
     }
 
     public QuizAdapter() {
@@ -67,18 +73,25 @@ public class QuizAdapter extends ListAdapter<Quiz, QuizAdapter.QuizViewHolder> {
         private final TextView textViewDescription;
         private final TextView textViewQuestionCount; // Renamed for clarity, matches item_quiz.xml
         private final TextView textViewAverageRating; // NEW
-
+        private final View btnDownload;
         public QuizViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewTitle = itemView.findViewById(R.id.quiz_title_text);
             textViewDescription = itemView.findViewById(R.id.quiz_description_text);
             textViewQuestionCount = itemView.findViewById(R.id.quiz_question_count_text); // NEW ID
             textViewAverageRating = itemView.findViewById(R.id.text_average_rating);     // NEW ID
+            btnDownload = itemView.findViewById(R.id.download_button);
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (listener != null && position != RecyclerView.NO_POSITION) {
                     listener.onItemClick(getItem(position));
+                }
+            });
+            btnDownload.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (downloadClickListener != null && position != RecyclerView.NO_POSITION) {
+                    downloadClickListener.onDownloadClick(getItem(position));
                 }
             });
         }

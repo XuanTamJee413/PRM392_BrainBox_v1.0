@@ -80,7 +80,7 @@ public interface ApiService {
     @PATCH("odata/Users({id})")
     Call<Void> updatePremium(@Path("id") int id, @Body Map<String, Object> updates);
 
-    @POST("auth/register")
+    @POST("api/auth/register")
     Call<LoginResponse> register(@Body RegisterRequest request);
 
     @GET("odata/flashcards")
