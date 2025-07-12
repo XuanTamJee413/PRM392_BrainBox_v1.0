@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,6 +29,7 @@ import com.example.prm392_v1.data.model.ODataResponse;
 import com.example.prm392_v1.data.network.ApiService;
 import com.example.prm392_v1.data.network.RetrofitClient;
 import com.example.prm392_v1.ui.adapters.CommentAdapter;
+import com.example.prm392_v1.utils.AuthUtils;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -43,9 +45,10 @@ public class ViewDocumentDetailActivity extends AppCompatActivity {
     private TextView txtTitle, txtContent, txtAuthor, txtViews, txtCaption;
     private ImageView imageDetail;
     private RecyclerView recyclerViewComments;
-    private CommentAdapter commentAdapter;
-    private Button btnNext, btnPrevious;
+    private EditText editComment;
+    private Button btnNext, btnPrevious, btnSubmitComment;
     private ImageButton btnBack;
+    private CommentAdapter commentAdapter;
     private ApiService apiService;
     private int docId;
     private List<DocumentDetail> documentDetails;
@@ -70,8 +73,10 @@ public class ViewDocumentDetailActivity extends AppCompatActivity {
         txtCaption = findViewById(R.id.text_caption);
         imageDetail = findViewById(R.id.image_detail);
         recyclerViewComments = findViewById(R.id.recycler_view_comments);
+        editComment = findViewById(R.id.edit_comment);
         btnNext = findViewById(R.id.btn_next);
         btnPrevious = findViewById(R.id.btn_previous);
+        btnSubmitComment = findViewById(R.id.btn_submit_comment);
         btnBack = findViewById(R.id.btn_back);
 
         // Set up RecyclerView for comments
@@ -91,6 +96,7 @@ public class ViewDocumentDetailActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> finish());
         btnNext.setOnClickListener(v -> showNextDetail());
         btnPrevious.setOnClickListener(v -> showPreviousDetail());
+        btnSubmitComment.setOnClickListener(v -> submitComment());
 
         // Handle WindowInsets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -178,6 +184,43 @@ public class ViewDocumentDetailActivity extends AppCompatActivity {
                 Toast.makeText(ViewDocumentDetailActivity.this, "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void submitComment() {
+        String commentText = editComment.getText().toString().trim();
+        if (commentText.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập nội dung bình luận", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (currentIndex >= 0 && currentIndex < documentDetails.size()) {
+            DocumentDetail detail = documentDetails.get(currentIndex);
+            Comment newComment = new Comment();
+            newComment.DocDetailId = detail.DocDetailId;
+            newComment.Content = commentText;
+            newComment.CreatedAt = System.currentTimeMillis();
+            // User will be set by backend based on JWT token
+
+            apiService.createComment(newComment).enqueue(new Callback<Comment>() {
+                @Override
+                public void onResponse(Call<Comment> call, Response<Comment> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        Toast.makeText(ViewDocumentDetailActivity.this, "Đã gửi bình luận", Toast.LENGTH_SHORT).show();
+                        editComment.setText(""); // Clear input
+                        loadComments(detail.DocDetailId); // Refresh comments
+                    } else {
+                        Toast.makeText(ViewDocumentDetailActivity.this, "Gửi bình luận thất bại", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Comment> call, Throwable t) {
+                    Toast.makeText(ViewDocumentDetailActivity.this, "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            Toast.makeText(this, "Không tìm thấy chi tiết tài liệu để bình luận", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showNextDetail() {
