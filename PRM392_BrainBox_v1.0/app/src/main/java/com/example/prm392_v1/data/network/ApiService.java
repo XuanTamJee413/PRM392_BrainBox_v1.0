@@ -129,4 +129,8 @@ public interface ApiService {
 
     @GET("api/RatingQuizzes/getRatingQuizById")
     Call<List<RatingQuiz>> getRatingsForQuiz(@Query("quizId") int quizId);
+
+    @POST("odata/Comments")
+    Call<Comment> createComment(@Body Comment comment);
+
 }
