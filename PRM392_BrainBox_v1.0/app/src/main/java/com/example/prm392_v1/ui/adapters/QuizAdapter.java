@@ -104,9 +104,8 @@ public class QuizAdapter extends ListAdapter<Quiz, QuizAdapter.QuizViewHolder> {
             int flashcardCount = (quiz.flashcards != null) ? quiz.flashcards.size() : 0;
             textViewQuestionCount.setText(flashcardCount + " Flashcards");
 
-            // NEW: Display average rating
+            // Display average rating
             if (quiz.totalRatings > 0) {
-                // Format to one decimal place
                 textViewAverageRating.setText(String.format("Đánh giá: %.1f/5 (%d đánh giá)", quiz.averageRating, quiz.totalRatings));
             } else {
                 textViewAverageRating.setText("Chưa có đánh giá");
