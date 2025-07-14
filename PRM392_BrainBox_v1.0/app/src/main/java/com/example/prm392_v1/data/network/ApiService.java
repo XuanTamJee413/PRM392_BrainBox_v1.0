@@ -2,6 +2,7 @@ package com.example.prm392_v1.data.network;
 
 import com.example.prm392_v1.data.model.DocumentDetail;
 import com.example.prm392_v1.data.model.DocumentDto;
+import com.example.prm392_v1.data.model.DocumentCreateDto;
 import com.example.prm392_v1.data.model.LoginRequest;
 import com.example.prm392_v1.data.model.LoginResponse;
 import com.example.prm392_v1.data.model.Quiz;
@@ -104,6 +105,14 @@ public interface ApiService {
     @PUT("odata/Documents({id})")
     Call<Void> updateDocument(@Path("id") int docId, @Body DocumentDto document);
 
+    // New method: Added to support DocumentCreateDto for creating documents with the specified request body
+    @POST("odata/Documents")
+    Call<DocumentDto> createDocumentNew(@Body DocumentCreateDto document);
+
+    // New method: Added to support DocumentCreateDto for updating documents with the specified request body
+    @PUT("odata/Documents({id})")
+    Call<Void> updateDocumentNew(@Path("id") int docId, @Body DocumentCreateDto document);
+
     @PATCH("odata/Documents({id})")
     Call<Void> patchDocument(@Path("id") int docId, @Body DocumentDto document);
 
@@ -132,5 +141,4 @@ public interface ApiService {
 
     @POST("odata/Comments")
     Call<Comment> createComment(@Body Comment comment);
-
 }
