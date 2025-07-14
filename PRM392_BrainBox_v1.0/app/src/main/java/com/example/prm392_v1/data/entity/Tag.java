@@ -4,7 +4,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-// giong bang cate nhung ma quan he N-N
 @Entity(tableName = "tags")
 public class Tag {
     @PrimaryKey(autoGenerate = true)

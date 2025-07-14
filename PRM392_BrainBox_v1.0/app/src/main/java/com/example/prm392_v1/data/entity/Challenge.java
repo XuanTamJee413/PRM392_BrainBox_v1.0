@@ -28,11 +28,9 @@ public class Challenge {
     public int quizId;
     public int challengerId;
     public int opponentId;
-
     public int status = 0;
     public int challengerScore = 0;
     public int opponentScore = 0;
-
     public long createdAt = System.currentTimeMillis();
 }
 

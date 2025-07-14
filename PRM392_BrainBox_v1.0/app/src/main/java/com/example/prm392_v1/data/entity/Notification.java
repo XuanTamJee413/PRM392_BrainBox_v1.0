@@ -22,11 +22,8 @@ public class Notification {
     public String content;
 
     public String type;
-
     public int relatedId;
-
     public boolean isRead = false;
-
     public long readAt = 0;
 
     public long createdAt = System.currentTimeMillis();
