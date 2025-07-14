@@ -36,7 +36,7 @@ import retrofit2.Response;
 
 public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnItemClickListener {
 
-    private static final String TAG = "QuizActivity"; // Tag cho Logcat
+    private static final String TAG = "QuizActivity";
 
     private RecyclerView recyclerView;
     private QuizAdapter quizAdapter;
@@ -77,12 +77,7 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
         Intent intent = new Intent(this, QuizDetailActivity.class);
         intent.putExtra("EXTRA_QUIZ_ID", quiz.quizId);
         intent.putExtra("EXTRA_QUIZ_NAME", quiz.quizName);
-        // Để truyền danh sách flashcard, Quiz và Flashcard phải implement Parcelable hoặc Serializable.
-        // Nếu API getAllQuizzes của bạn đã trả về flashcards, bạn có thể truyền chúng đi:
-        // if (quiz.flashcards != null && !quiz.flashcards.isEmpty()) {
-        //     // Đảm bảo Flashcard model của bạn implement Parcelable/Serializable
-        //     intent.putExtra("EXTRA_QUIZ_FLASHCARDS", new ArrayList<>(quiz.flashcards));
-        // }
+
         startActivity(intent);
     }
 

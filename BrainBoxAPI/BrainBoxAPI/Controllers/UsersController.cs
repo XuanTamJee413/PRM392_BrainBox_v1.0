@@ -20,6 +20,7 @@ namespace BrainBoxAPI.Controllers
         {
             _context = context;
         }
+        [AllowAnonymous]
         [EnableQuery]
         public IActionResult Get([FromODataUri] int key)
         {
@@ -27,7 +28,7 @@ namespace BrainBoxAPI.Controllers
             if (user == null) return NotFound();
             return Ok(user);
         }
-
+        [AllowAnonymous]
         [EnableQuery]
         public IActionResult Get()
         {
