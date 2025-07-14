@@ -30,7 +30,7 @@ public class Flashcard {
     public String option3;
     public String option4;
 
-    public int answer; // 1, 2, 3, 4
+    public int answer;
 
     public int creatorId;
 

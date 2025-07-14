@@ -11,9 +11,9 @@ public class DownloadHistory {
     @PrimaryKey(autoGenerate = true)
     public int id;
     public int userId;
-    public int targetId;         // dung thay cho docId hoac quizId
+    public int targetId;
     @NonNull
-    public String targetType;    // "document", "quiz", ...
+    public String targetType;
     public long downloadedAt = System.currentTimeMillis();
 }
 

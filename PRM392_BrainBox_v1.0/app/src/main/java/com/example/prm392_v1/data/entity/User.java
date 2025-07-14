@@ -13,7 +13,7 @@ public class User {
     public boolean status;
     public String avatar;
     public long createAt;
-    public long premiumExpiredAt; // thoi gian het han
+    public long premiumExpiredAt;
 
     public User() {
     }

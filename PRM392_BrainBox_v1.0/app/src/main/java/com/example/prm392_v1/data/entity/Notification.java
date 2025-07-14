@@ -21,9 +21,9 @@ public class Notification {
 
     public String content;
 
-    public String type; // ví dụ: "comment", "challenge", "quiz", v.v.
+    public String type;
 
-    public int relatedId; // liên kết đến quizId, docId... tùy loại
+    public int relatedId;
 
     public boolean isRead = false;
 

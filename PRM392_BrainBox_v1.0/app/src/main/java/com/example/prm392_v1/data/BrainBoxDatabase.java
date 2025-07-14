@@ -37,7 +37,6 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
 
     private static volatile BrainBoxDatabase INSTANCE;
 
-    // ==== DAO declarations ====
     public abstract UserDao userDao();
     public abstract DocumentDao documentDao();
     public abstract CommentDao commentDao();
@@ -51,7 +50,6 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
     public abstract NotificationDao notificationDao();
     public abstract ChallengeDao challengeDao();
 
-    // ==== Singleton builder ====
     public static BrainBoxDatabase getInstance(Context context) {
         if (INSTANCE == null) {
             synchronized (BrainBoxDatabase.class) {
@@ -81,7 +79,6 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
         return INSTANCE;
     }
 
-    // ==== Seed default users ====
     private static void seedData(BrainBoxDatabase db) {
         Executors.newSingleThreadExecutor().execute(() -> {
             UserDao userDao = db.userDao();
@@ -152,7 +149,6 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
         });
     }
 
-    // ==== SHA-256 Hashing ====
     private static String hash(String input) {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");

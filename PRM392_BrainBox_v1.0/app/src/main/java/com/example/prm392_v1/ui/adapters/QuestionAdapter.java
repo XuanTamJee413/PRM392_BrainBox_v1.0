@@ -21,9 +21,9 @@ import java.util.List;
 public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.QuestionViewHolder> { // Renamed to TestAdapter if you prefer
 
     private final List<Flashcard> flashcardList;
-    private final int[] userAnswers; // Store user's selected answer for each question (0 if not answered)
+    private final int[] userAnswers;
     private final Context context;
-    private boolean showFeedback = false; // Flag to control feedback visibility
+    private boolean showFeedback = false;
 
     public QuestionAdapter(Context context, List<Flashcard> flashcardList) {
         this.context = context;

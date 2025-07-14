@@ -26,11 +26,10 @@ public class Challenge {
     public int challengeId;
 
     public int quizId;
-    public int challengerId; // người tạo khiêu chiến
-    public int opponentId;   // đối thủ
+    public int challengerId;
+    public int opponentId;
 
-    public int status = 0; // 0: pending, 1: accepted, 2: finished...
-
+    public int status = 0;
     public int challengerScore = 0;
     public int opponentScore = 0;
 

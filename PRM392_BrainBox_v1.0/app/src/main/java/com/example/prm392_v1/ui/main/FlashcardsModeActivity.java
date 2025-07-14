@@ -36,10 +36,9 @@ public class FlashcardsModeActivity extends AppCompatActivity {
     private int quizId;
     private View cardFlashcard;
 
-    // For card flip animation
     private AnimatorSet mSetRightOut;
     private AnimatorSet mSetLeftIn;
-    private boolean mIsBackVisible = false; // Tracks if the back of the card is visible
+    private boolean mIsBackVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

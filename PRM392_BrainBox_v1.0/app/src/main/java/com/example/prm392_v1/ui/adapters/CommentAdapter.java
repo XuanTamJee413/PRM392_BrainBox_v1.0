@@ -66,7 +66,6 @@ public class CommentAdapter extends ListAdapter<Comment, CommentAdapter.CommentV
         public void bind(Comment comment) {
             userTextView.setText(comment.User != null ? comment.User.username : "Anonymous");
             contentTextView.setText(comment.Content);
-            // Format thời gian
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
             timeTextView.setText(sdf.format(new Date(comment.CreatedAt)));
         }

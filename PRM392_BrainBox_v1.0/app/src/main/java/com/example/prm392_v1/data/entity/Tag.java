@@ -11,8 +11,8 @@ public class Tag {
     public int tagId;
 
     @ColumnInfo(index = true)
-    public String name; // nên unique, index để tìm kiếm nhanh
+    public String name;
 
-    public String description; // tùy chọn
+    public String description;
 }
 
