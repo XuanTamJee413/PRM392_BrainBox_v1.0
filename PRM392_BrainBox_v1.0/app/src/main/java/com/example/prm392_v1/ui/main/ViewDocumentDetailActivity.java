@@ -65,7 +65,6 @@ public class ViewDocumentDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_document_detail);
 
-        // Initialize UI components
         txtTitle = findViewById(R.id.txt_doc_title);
         txtContent = findViewById(R.id.txt_doc_content);
         txtAuthor = findViewById(R.id.txt_doc_author);
@@ -79,26 +78,21 @@ public class ViewDocumentDetailActivity extends AppCompatActivity {
         btnSubmitComment = findViewById(R.id.btn_submit_comment);
         btnBack = findViewById(R.id.btn_back);
 
-        // Set up RecyclerView for comments
         recyclerViewComments.setLayoutManager(new LinearLayoutManager(this));
         commentAdapter = new CommentAdapter();
         recyclerViewComments.setAdapter(commentAdapter);
 
-        // Initialize ApiService and get docId from Intent
         apiService = RetrofitClient.getApiService(this);
         docId = getIntent().getIntExtra("docId", -1);
         documentDetails = new ArrayList<>();
 
-        // Load document and details
         loadDocumentDetails();
 
-        // Handle button events
         btnBack.setOnClickListener(v -> finish());
         btnNext.setOnClickListener(v -> showNextDetail());
         btnPrevious.setOnClickListener(v -> showPreviousDetail());
         btnSubmitComment.setOnClickListener(v -> submitComment());
 
-        // Handle WindowInsets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -107,7 +101,6 @@ public class ViewDocumentDetailActivity extends AppCompatActivity {
     }
 
     private void loadDocumentDetails() {
-        // Load document information
         apiService.getDocumentById(docId, "Author").enqueue(new Callback<DocumentDto>() {
             @Override
             public void onResponse(Call<DocumentDto> call, Response<DocumentDto> response) {
@@ -128,7 +121,6 @@ public class ViewDocumentDetailActivity extends AppCompatActivity {
             }
         });
 
-        // Load document details
         apiService.getDocumentDetails("docId eq " + docId).enqueue(new Callback<ODataResponse<DocumentDetail>>() {
             @Override
             public void onResponse(Call<ODataResponse<DocumentDetail>> call, Response<ODataResponse<DocumentDetail>> response) {
@@ -199,15 +191,26 @@ public class ViewDocumentDetailActivity extends AppCompatActivity {
             newComment.DocDetailId = detail.DocDetailId;
             newComment.Content = commentText;
             newComment.CreatedAt = System.currentTimeMillis();
-            // User will be set by backend based on JWT token
+
+            String userIdStr = AuthUtils.getUserIdFromToken(this);
+            if (userIdStr == null) {
+                Toast.makeText(this, "Vui lòng đăng nhập để bình luận", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            try {
+                newComment.UserId = Integer.parseInt(userIdStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Lỗi: Không thể xác định thông tin người dùng", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             apiService.createComment(newComment).enqueue(new Callback<Comment>() {
                 @Override
                 public void onResponse(Call<Comment> call, Response<Comment> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         Toast.makeText(ViewDocumentDetailActivity.this, "Đã gửi bình luận", Toast.LENGTH_SHORT).show();
-                        editComment.setText(""); // Clear input
-                        loadComments(detail.DocDetailId); // Refresh comments
+                        editComment.setText("");
+                        loadComments(detail.DocDetailId);
                     } else {
                         Toast.makeText(ViewDocumentDetailActivity.this, "Gửi bình luận thất bại", Toast.LENGTH_SHORT).show();
                     }
