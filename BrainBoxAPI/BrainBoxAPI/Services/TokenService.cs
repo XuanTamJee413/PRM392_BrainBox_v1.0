@@ -30,7 +30,7 @@ namespace BrainBoxAPI.Services
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddHours(10),
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
