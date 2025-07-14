@@ -35,41 +35,41 @@
             android:id="@+id/radio_group_options"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:orientation="vertical">
 
-        <RadioButton
-            android:id="@+id/radio_option_a"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="A. Lựa chọn A" />
+            <RadioButton
+                android:id="@+id/radio_option_a"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="A. Lựa chọn A" />
 
-        <RadioButton
-            android:id="@+id/radio_option_b"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="B. Lựa chọn B" />
+            <RadioButton
+                android:id="@+id/radio_option_b"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="B. Lựa chọn B" />
 
             <RadioButton
                 android:id="@+id/radio_option_c"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="C. Lựa chọn C" />
-
-        <RadioButton
-            android:id="@+id/radio_option_d"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-            android:text="D. Lựa chọn D" />
-        />
+                android:text="C. Lựa chọn C" />
+
+            <RadioButton
+                android:id="@+id/radio_option_d"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="D. Lựa chọn D" />
+        </RadioGroup>
 
         <TextView
             android:id="@+id/text_item_feedback"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textAppearance="?attr/textAppearanceBody2"
-        android:visibility="gone"
-        android:textColor="@color/design_default_color_error"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:visibility="gone"
+            android:textColor="@color/design_default_color_error"/>
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>
