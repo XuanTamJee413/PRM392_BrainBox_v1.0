@@ -53,7 +53,7 @@ public class CreateQuizActivity extends AppCompatActivity {
         buttonSaveQuiz = findViewById(R.id.button_save_quiz);
         recyclerAddedFlashcards = findViewById(R.id.recycler_added_flashcards);
 
-        setupRecyclerView(); // ✅ Gọi hàm thiết lập
+        setupRecyclerView();
         setupAnswerDropdown();
 
         // Cài đặt sự kiện

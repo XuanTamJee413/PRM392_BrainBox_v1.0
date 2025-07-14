@@ -21,9 +21,12 @@ public class Quiz {
     @SerializedName("CreatedAt")
     public long createdAt;
 
+
+
     @SerializedName("Flashcards")
     public List<Flashcard> flashcards;
 
-    public float averageRating = 0.0f;
-    public int totalRatings = 0;
+    public float averageRating = 0.0f; // Calculated client-side
+    public int totalRatings = 0;       // Calculated client-side
+
 }
