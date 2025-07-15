@@ -1,5 +1,6 @@
 package com.example.prm392_v1.ui.adapters;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +15,10 @@ import com.example.prm392_v1.data.model.Quiz;
 
 public class QuizAdapter extends ListAdapter<Quiz, QuizAdapter.QuizViewHolder> {
 
+    private static final String TAG = "QuizAdapter";
     private OnItemClickListener listener;
     private OnDownloadClickListener downloadClickListener;
+
     public interface OnItemClickListener {
         void onItemClick(Quiz quiz);
     }
@@ -23,9 +26,11 @@ public class QuizAdapter extends ListAdapter<Quiz, QuizAdapter.QuizViewHolder> {
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }
+
     public interface OnDownloadClickListener {
         void onDownloadClick(Quiz quiz);
     }
+
     public void setOnDownloadClickListener(OnDownloadClickListener listener) {
         this.downloadClickListener = listener;
     }
@@ -42,15 +47,13 @@ public class QuizAdapter extends ListAdapter<Quiz, QuizAdapter.QuizViewHolder> {
 
         @Override
         public boolean areContentsTheSame(@NonNull Quiz oldItem, @NonNull Quiz newItem) {
-            // Compare all relevant fields including the new rating fields
             return oldItem.quizName.equals(newItem.quizName) &&
                     oldItem.description.equals(newItem.description) &&
                     oldItem.isPublic == newItem.isPublic &&
-                    // Check flashcards list size for content change (or a deeper comparison if needed)
                     (oldItem.flashcards != null ? oldItem.flashcards.size() : 0) ==
                             (newItem.flashcards != null ? newItem.flashcards.size() : 0) &&
-                    oldItem.averageRating == newItem.averageRating && // NEW
-                    oldItem.totalRatings == newItem.totalRatings;       // NEW
+                    oldItem.averageRating == newItem.averageRating &&
+                    oldItem.totalRatings == newItem.totalRatings;
         }
     };
 
@@ -71,15 +74,16 @@ public class QuizAdapter extends ListAdapter<Quiz, QuizAdapter.QuizViewHolder> {
     class QuizViewHolder extends RecyclerView.ViewHolder {
         private final TextView textViewTitle;
         private final TextView textViewDescription;
-        private final TextView textViewQuestionCount; // Renamed for clarity, matches item_quiz.xml
-        private final TextView textViewAverageRating; // NEW
+        private final TextView textViewQuestionCount;
+        private final TextView textViewAverageRating;
         private final View btnDownload;
+
         public QuizViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewTitle = itemView.findViewById(R.id.quiz_title_text);
             textViewDescription = itemView.findViewById(R.id.quiz_description_text);
-            textViewQuestionCount = itemView.findViewById(R.id.quiz_question_count_text); // NEW ID
-            textViewAverageRating = itemView.findViewById(R.id.text_average_rating);     // NEW ID
+            textViewQuestionCount = itemView.findViewById(R.id.quiz_question_count_text);
+            textViewAverageRating = itemView.findViewById(R.id.text_average_rating);
             btnDownload = itemView.findViewById(R.id.download_button);
 
             itemView.setOnClickListener(v -> {
@@ -100,16 +104,15 @@ public class QuizAdapter extends ListAdapter<Quiz, QuizAdapter.QuizViewHolder> {
             textViewTitle.setText(quiz.quizName);
             textViewDescription.setText(quiz.description);
 
-            // Display flashcard count
             int flashcardCount = (quiz.flashcards != null) ? quiz.flashcards.size() : 0;
             textViewQuestionCount.setText(flashcardCount + " Flashcards");
 
-            // Display average rating
             if (quiz.totalRatings > 0) {
                 textViewAverageRating.setText(String.format("Đánh giá: %.1f/5 (%d đánh giá)", quiz.averageRating, quiz.totalRatings));
             } else {
                 textViewAverageRating.setText("Chưa có đánh giá");
             }
+            Log.d(TAG, "Binding quizId: " + quiz.quizId + ", averageRating: " + quiz.averageRating + ", totalRatings: " + quiz.totalRatings);
         }
     }
 }
