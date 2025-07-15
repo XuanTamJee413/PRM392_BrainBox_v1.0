@@ -1,7 +1,6 @@
 package com.example.prm392_v1.data.entity;
 
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "quizzes")

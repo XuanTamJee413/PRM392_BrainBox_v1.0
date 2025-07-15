@@ -21,12 +21,9 @@ public class Quiz {
     @SerializedName("CreatedAt")
     public long createdAt;
 
-    // It's good practice to mark this as @SerializedName if your API also returns it
-    // but if it's only on the client-side, it's fine without it.
     @SerializedName("Flashcards")
     public List<Flashcard> flashcards;
 
-    // NEW: Fields to store average rating and total count (not from API directly in this flow)
-    public float averageRating = 0.0f; // Calculated client-side
-    public int totalRatings = 0;       // Calculated client-side
+    public float averageRating = 0.0f;
+    public int totalRatings = 0;
 }

@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.prm392_v1.R;
+import com.example.prm392_v1.data.model.Flashcard;
 import com.example.prm392_v1.data.model.ODataResponse;
 import com.example.prm392_v1.data.model.Quiz;
 import com.example.prm392_v1.data.model.RatingQuiz;
@@ -98,19 +99,18 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
                     Log.d(TAG, "Tải thành công " + fullQuizList.size() + " quiz.");
 
                     if (!fullQuizList.isEmpty()) {
-                        // Nếu có quiz, tiếp tục tải đánh giá cho từng quiz
-                        fetchRatingsForQuizzes(fullQuizList);
+                        // Fetch flashcards and ratings for quizzes
+                        fetchFlashcardsAndRatingsForQuizzes(fullQuizList);
                     } else {
-                        // Nếu không có quiz nào, ẩn progress bar và cập nhật adapter với danh sách trống
                         progressBar.setVisibility(View.GONE);
                         Toast.makeText(QuizActivity.this, "Không có quiz nào để hiển thị.", Toast.LENGTH_SHORT).show();
-                        quizAdapter.submitList(new ArrayList<>()); // Submit danh sách rỗng
+                        quizAdapter.submitList(new ArrayList<>());
                         Log.d(TAG, "Không tìm thấy quiz nào. Adapter được cập nhật với danh sách rỗng.");
                     }
                 } else {
                     progressBar.setVisibility(View.GONE);
                     Toast.makeText(QuizActivity.this, "Không thể tải dữ liệu quiz. Mã lỗi: " + response.code(), Toast.LENGTH_SHORT).show();
-                    quizAdapter.submitList(new ArrayList<>()); // Cập nhật adapter với danh sách rỗng khi có lỗi
+                    quizAdapter.submitList(new ArrayList<>());
                     Log.e(TAG, "Lỗi tải quiz. Mã lỗi: " + response.code() + ", Thông báo: " + response.message());
                 }
             }
@@ -119,12 +119,120 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
             public void onFailure(Call<ODataResponse<Quiz>> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
                 Toast.makeText(QuizActivity.this, "Lỗi kết nối khi tải quiz: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                quizAdapter.submitList(new ArrayList<>()); // Cập nhật adapter với danh sách rỗng khi lỗi kết nối
+                quizAdapter.submitList(new ArrayList<>());
                 Log.e(TAG, "API call getAllQuizzes thất bại: " + t.getMessage(), t);
             }
         });
     }
+    private void fetchFlashcardsAndRatingsForQuizzes(List<Quiz> quizzes) {
+        if (quizzes.isEmpty()) {
+            progressBar.setVisibility(View.GONE);
+            quizAdapter.submitList(new ArrayList<>(fullQuizList));
+            Log.d(TAG, "fetchFlashcardsAndRatingsForQuizzes called with empty list. Updating adapter with current fullQuizList.");
+            return;
+        }
 
+        final CountDownLatch latch = new CountDownLatch(quizzes.size() * 2);
+        Log.d(TAG, "Starting to fetch flashcards and ratings for " + quizzes.size() + " quizzes.");
+
+        for (Quiz quiz : quizzes) {
+            // Fetch flashcards
+            String filter = "QuizId eq " + quiz.quizId;
+            apiService.getFlashcardsForQuiz(filter).enqueue(new Callback<ODataResponse<Flashcard>>() {
+                @Override
+                public void onResponse(Call<ODataResponse<Flashcard>> call, Response<ODataResponse<Flashcard>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        quiz.flashcards = response.body().value;
+                        Log.d(TAG, "Fetched " + (quiz.flashcards != null ? quiz.flashcards.size() : 0) +
+                                " flashcards for quizId: " + quiz.quizId);
+                    } else {
+                        quiz.flashcards = new ArrayList<>();
+                        Log.w(TAG, "Failed to fetch flashcards for quizId " + quiz.quizId +
+                                ". Code: " + response.code() + ", Message: " + response.message());
+                    }
+                    latch.countDown();
+                    Log.d(TAG, "Latch count after flashcards response for quizId " + quiz.quizId + ": " + latch.getCount());
+                }
+
+                @Override
+                public void onFailure(Call<ODataResponse<Flashcard>> call, Throwable t) {
+                    quiz.flashcards = new ArrayList<>();
+                    Log.e(TAG, "API call for flashcards for quizId " + quiz.quizId + " failed: " + t.getMessage(), t);
+                    latch.countDown();
+                    Log.d(TAG, "Latch count after flashcards failure for quizId " + quiz.quizId + ": " + latch.getCount());
+                }
+            });
+
+            // Fetch ratings
+            apiService.getRatingsForQuiz(quiz.quizId).enqueue(new Callback<List<RatingQuiz>>() {
+                @Override
+                public void onResponse(Call<List<RatingQuiz>> call, Response<List<RatingQuiz>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<RatingQuiz> ratings = response.body();
+                        Log.d(TAG, "Fetched " + ratings.size() + " ratings for quizId: " + quiz.quizId);
+                        for (RatingQuiz rating : ratings) {
+                            Log.d(TAG, "Rating details - quizId: " + rating.quizId +
+                                    ", rating: " + rating.rating + ", comment: " +
+                                    (rating.comment != null ? rating.comment : "null") +
+                                    ", ratedAt: " + rating.ratedAt);
+                        }
+                        calculateAndSetAverageRating(quiz, ratings);
+                    } else if (response.code() == 404) {
+                        // Handle 404 as a valid case: no ratings exist
+                        quiz.averageRating = 0.0f;
+                        quiz.totalRatings = 0;
+                        Log.d(TAG, "No ratings found for quizId: " + quiz.quizId + " (HTTP 404, expected for unrated quizzes)");
+                    } else {
+                        // Handle unexpected HTTP errors
+                        quiz.averageRating = 0.0f;
+                        quiz.totalRatings = 0;
+                        Log.e(TAG, "Unexpected error fetching ratings for quizId " + quiz.quizId +
+                                ". Code: " + response.code() + ", Message: " + response.message());
+                    }
+                    latch.countDown();
+                    Log.d(TAG, "Latch count after ratings response for quizId " + quiz.quizId + ": " + latch.getCount());
+                }
+
+                @Override
+                public void onFailure(Call<List<RatingQuiz>> call, Throwable t) {
+                    quiz.averageRating = 0.0f;
+                    quiz.totalRatings = 0;
+                    Log.e(TAG, "API call for ratings for quizId " + quiz.quizId + " failed: " + t.getMessage(), t);
+                    latch.countDown();
+                    Log.d(TAG, "Latch count after ratings failure for quizId " + quiz.quizId + ": " + latch.getCount());
+                }
+            });
+        }
+
+        new Thread(() -> {
+            try {
+                boolean allDone = latch.await(30, TimeUnit.SECONDS);
+                if (!allDone) {
+                    Log.w(TAG, "Timeout while fetching flashcards or ratings. Data may be incomplete.");
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        Toast.makeText(QuizActivity.this, "Tải dữ liệu bị gián đoạn, dữ liệu có thể không đầy đủ.",
+                                Toast.LENGTH_LONG).show();
+                    });
+                }
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Latch await interrupted: " + e.getMessage());
+                Thread.currentThread().interrupt();
+            } finally {
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    progressBar.setVisibility(View.GONE);
+                    quizAdapter.submitList(new ArrayList<>(fullQuizList));
+                    // Log final quiz data for debugging
+                    for (Quiz quiz : fullQuizList) {
+                        Log.d(TAG, "Quiz: " + quiz.quizName + ", quizId: " + quiz.quizId +
+                                ", avgRating: " + quiz.averageRating +
+                                ", totalRatings: " + quiz.totalRatings +
+                                ", flashcardCount: " + (quiz.flashcards != null ? quiz.flashcards.size() : 0));
+                    }
+                    Log.d(TAG, "Adapter updated with " + fullQuizList.size() + " quizzes.");
+                });
+            }
+        }).start();
+    }
     private void fetchRatingsForQuizzes(List<Quiz> quizzes) {
         if (quizzes.isEmpty()) {
             progressBar.setVisibility(View.GONE);
@@ -196,16 +304,33 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
         if (ratings == null || ratings.isEmpty()) {
             quiz.averageRating = 0.0f;
             quiz.totalRatings = 0;
+            Log.d(TAG, "No ratings for quizId: " + quiz.quizId + ", setting averageRating to 0.0, totalRatings to 0");
             return;
         }
 
         float totalRating = 0;
+        int validRatingsCount = 0;
         for (RatingQuiz rating : ratings) {
-            totalRating += rating.rating; // Cộng dồn giá trị rating
+            if (rating != null && rating.rating >= 0 && rating.rating <= 5) { // Validate rating
+                totalRating += rating.rating;
+                validRatingsCount++;
+                Log.d(TAG, "Rating for quizId: " + quiz.quizId + ", rating value: " + rating.rating +
+                        ", comment: " + (rating.comment != null ? rating.comment : "null"));
+            } else {
+                Log.w(TAG, "Invalid rating for quizId: " + quiz.quizId + ", rating: " +
+                        (rating != null ? rating.rating : "null"));
+            }
         }
-        quiz.averageRating = totalRating / ratings.size(); // Tính trung bình
-        quiz.totalRatings = ratings.size();
-        Log.d(TAG, "QuizId: " + quiz.quizId + ", AvgRating: " + quiz.averageRating + ", TotalReviews: " + quiz.totalRatings);
+
+        if (validRatingsCount > 0) {
+            quiz.averageRating = totalRating / validRatingsCount;
+            quiz.totalRatings = validRatingsCount;
+        } else {
+            quiz.averageRating = 0.0f;
+            quiz.totalRatings = 0;
+        }
+        Log.d(TAG, "Calculated for quizId: " + quiz.quizId + ", averageRating: " + quiz.averageRating +
+                ", totalRatings: " + quiz.totalRatings + ", totalRatingSum: " + totalRating);
     }
 
     private void setupSearchView() {

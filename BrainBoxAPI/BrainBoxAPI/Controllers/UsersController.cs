@@ -21,6 +21,7 @@ namespace BrainBoxAPI.Controllers
             _context = context;
         }
         [EnableQuery]
+        [AllowAnonymous]
         public IActionResult Get([FromODataUri] int key)
         {
             var user = _context.Users.FirstOrDefault(u => u.Id == key);
@@ -29,6 +30,7 @@ namespace BrainBoxAPI.Controllers
         }
 
         [EnableQuery]
+        [AllowAnonymous]
         public IActionResult Get()
         {
             return Ok(_context.Users.AsQueryable());

@@ -33,7 +33,6 @@ public interface QuizDao {
     @Query("SELECT * FROM quizzes ORDER BY createdAt DESC")
     List<Quiz> getAll();
 
-
     @Query("SELECT * FROM quizzes WHERE quizName LIKE '%' || :searchText || '%'")
     List<Quiz> searchByName(String searchText);
 

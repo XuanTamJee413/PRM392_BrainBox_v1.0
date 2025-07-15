@@ -21,12 +21,9 @@ public class Notification {
 
     public String content;
 
-    public String type; // ví dụ: "comment", "challenge", "quiz", v.v.
-
-    public int relatedId; // liên kết đến quizId, docId... tùy loại
-
+    public String type;
+    public int relatedId;
     public boolean isRead = false;
-
     public long readAt = 0;
 
     public long createdAt = System.currentTimeMillis();

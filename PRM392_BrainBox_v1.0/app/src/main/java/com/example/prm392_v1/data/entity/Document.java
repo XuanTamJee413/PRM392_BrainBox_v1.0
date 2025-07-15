@@ -13,7 +13,7 @@ public class Document {
 
     public String content;
 
-    public int authorId; // liên kết đến User
+    public int authorId;
 
     public boolean isPublic = true;
 

@@ -14,12 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.prm392_v1.R;
 import com.example.prm392_v1.data.model.DocumentDto;
 
-public class DocumentActionAdapter extends ListAdapter<DocumentDto, DocumentActionAdapter.DocumentViewHolder> {
+public class DocumentActionNewAdapter extends ListAdapter<DocumentDto, DocumentActionNewAdapter.DocumentViewHolder> {
     private OnItemClickListener itemClickListener;
     private OnUpdateClickListener updateClickListener;
     private OnDeleteClickListener deleteClickListener;
 
-    public DocumentActionAdapter() {
+    public DocumentActionNewAdapter() {
         super(DIFF_CALLBACK);
     }
 
