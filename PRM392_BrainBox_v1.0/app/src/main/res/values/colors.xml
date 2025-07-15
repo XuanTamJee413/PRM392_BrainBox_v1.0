@@ -20,4 +20,5 @@
     <color name="promo_gradient_end">#3F51B5</color>
     <color name="button_accent_color">#FF9800</color>
     <color name="see_all_text_color">?attr/colorPrimary</color>
+    <color name="background_light">#F8FAFC</color>
 </resources>
