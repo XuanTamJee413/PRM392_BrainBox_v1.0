@@ -52,8 +52,9 @@
         android:layout_gravity="top|end"
         android:layout_margin="16dp"
         android:contentDescription="Trợ lý AI"
-        android:src="@android:drawable/btn_radio"
         app:backgroundTint="?attr/colorAccent"
-        app:tint="@android:color/white" />
+        app:tint="@android:color/white"
+        android:src="@mipmap/n"
+        />
 
 </FrameLayout>
