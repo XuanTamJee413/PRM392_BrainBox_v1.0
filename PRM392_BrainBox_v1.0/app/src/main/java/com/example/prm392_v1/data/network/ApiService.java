@@ -104,12 +104,9 @@ public interface ApiService {
 
     @PUT("odata/Documents({id})")
     Call<Void> updateDocument(@Path("id") int docId, @Body DocumentDto document);
-
-    // New method: Added to support DocumentCreateDto for creating documents with the specified request body
     @POST("odata/Documents")
     Call<DocumentDto> createDocumentNew(@Body DocumentCreateDto document);
 
-    // New method: Added to support DocumentCreateDto for updating documents with the specified request body
     @PUT("odata/Documents({id})")
     Call<Void> updateDocumentNew(@Path("id") int docId, @Body DocumentCreateDto document);
 
