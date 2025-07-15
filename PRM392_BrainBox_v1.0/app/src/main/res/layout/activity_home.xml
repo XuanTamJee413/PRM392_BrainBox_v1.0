@@ -9,43 +9,34 @@
     android:focusableInTouchMode="true"
     tools:context=".ui.main.HomeActivity">
 
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/searchView"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/top_bar_container"
+        android:name="com.example.prm392_v1.ui.main.fragment.TopBarFragment"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp"
-        app:iconifiedByDefault="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:queryHint="Tìm kiếm doc, quiz, user..." />
+        tools:layout="@layout/fragment_top_bar" />
 
-    <!-- Fragment Container -->
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragment_container"
+        android:id="@+id/main_content_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        tools:layout="@layout/fragment_home"
-        app:layout_constraintTop_toBottomOf="@id/searchView"
-        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/top_bar_container"
+        tools:layout="@layout/fragment_home" />
 
-    <!-- Thanh nav bar -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_nav"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/bottom_nav_container"
+        android:name="com.example.prm392_v1.ui.main.fragment.BottomNavFragment"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="?android:attr/windowBackground"
-        android:fitsSystemWindows="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_nav_menu"
-        android:clipToPadding="false"
-        app:paddingBottomSystemWindowInsets="false"
-        android:padding="0dp"
-        />
+        tools:layout="@layout/fragment_bottom_nav" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

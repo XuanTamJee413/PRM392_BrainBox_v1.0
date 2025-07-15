@@ -21,6 +21,7 @@ import com.example.prm392_v1.data.model.ODataResponse;
 import com.example.prm392_v1.data.model.UserDto;
 import com.example.prm392_v1.data.network.ApiService;
 import com.example.prm392_v1.data.network.RetrofitClient;
+import com.example.prm392_v1.ui.auth.ChangePasswordActivity;
 import com.example.prm392_v1.ui.auth.LoginActivity;
 import com.example.prm392_v1.ui.main.DashboardActivity;
 import com.example.prm392_v1.utils.JwtUtils;
@@ -33,15 +34,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SettingFragment extends Fragment {
+public class ProfileFragment extends Fragment {
     private TextView txtUsername, txtEmail, txtRole, txtStatus, txtPremium, txtCreatedAt;
-    Button btnDashboard;
-    public SettingFragment() {}
+    private Button btnDashboard, btnChangePassword;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_setting, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         SharedPreferences prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE);
         String token = prefs.getString("jwt_token", null);
@@ -66,6 +65,7 @@ public class SettingFragment extends Fragment {
         txtStatus = view.findViewById(R.id.txtStatus);
         txtPremium = view.findViewById(R.id.txtPremium);
         btnDashboard = view.findViewById(R.id.btnDashboard);
+        btnChangePassword = view.findViewById(R.id.btnChangePassword);
         Button btnLogout = view.findViewById(R.id.btnLogout);
 
         loadUserInfo(user.id);
@@ -74,10 +74,13 @@ public class SettingFragment extends Fragment {
             SharedPreferences.Editor editor = prefs.edit();
             editor.remove("jwt_token");
             editor.apply();
-
             Toast.makeText(requireContext(), "Đăng xuất", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(requireContext(), LoginActivity.class));
             requireActivity().finish();
+        });
+
+        btnChangePassword.setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), ChangePasswordActivity.class));
         });
 
         return view;

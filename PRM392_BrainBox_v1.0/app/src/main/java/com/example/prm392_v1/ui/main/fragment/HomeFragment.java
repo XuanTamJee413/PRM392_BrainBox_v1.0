@@ -3,22 +3,26 @@ package com.example.prm392_v1.ui.main.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.prm392_v1.R;
 import com.example.prm392_v1.data.model.DocumentDto;
+import com.example.prm392_v1.data.model.Flashcard;
 import com.example.prm392_v1.data.model.ODataResponse;
 import com.example.prm392_v1.data.model.Quiz;
 import com.example.prm392_v1.data.model.QuizDto;
+import com.example.prm392_v1.data.model.RatingQuiz;
 import com.example.prm392_v1.data.network.ApiService;
 import com.example.prm392_v1.data.network.RetrofitClient;
 import com.example.prm392_v1.ui.adapters.DocumentAdapter;
@@ -34,12 +38,15 @@ import com.example.prm392_v1.utils.QuizDownloader;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
+    private static final String TAG = "HomeFragment";
     private RecyclerView recyclerDocuments, recyclerQuizzes;
     private View rootView;
 
@@ -78,7 +85,6 @@ public class HomeFragment extends Fragment {
             }
 
             String selectedPackage = "";
-
             int id = v.getId();
             if (id == R.id.btn_upgrade_lifetime) {
                 selectedPackage = "lifetime";
@@ -89,7 +95,6 @@ public class HomeFragment extends Fragment {
             } else if (id == R.id.btn_upgrade_12months) {
                 selectedPackage = "12months";
             }
-
 
             Intent intent = new Intent(requireContext(), PurchaseActivity.class);
             intent.putExtra("selected_package", selectedPackage);
@@ -141,8 +146,6 @@ public class HomeFragment extends Fragment {
                                 adapter.setOnDownloadClickListener(document -> {
                                     DocumentDownloader.downloadDocumentWithDetails(requireContext(), document);
                                 });
-
-
                             }
                         } else {
                             showErrorText(R.id.text_no_documents, "Không tải được dữ liệu.");
@@ -173,21 +176,14 @@ public class HomeFragment extends Fragment {
                                     quiz.quizId = dto.QuizId;
                                     quiz.quizName = dto.QuizName;
                                     quiz.description = dto.Description;
+                                    quiz.flashcards = new ArrayList<>();
                                     quizzes.add(quiz);
                                 }
 
-                                QuizAdapter adapter = new QuizAdapter();
-                                adapter.submitList(quizzes);
-                                recyclerQuizzes.setAdapter(adapter);
-                                adapter.setOnItemClickListener(quiz -> {
-                                    Intent intent = new Intent(requireContext(), QuizDetailActivity.class);
-                                    intent.putExtra("EXTRA_QUIZ_ID", quiz.quizId);
-                                    intent.putExtra("EXTRA_QUIZ_NAME", quiz.quizName);
-                                    startActivity(intent);
-                                });
-                                adapter.setOnDownloadClickListener(quiz -> {
-                                    QuizDownloader.downloadQuizWithFlashcards(requireContext(), quiz);
-                                });
+                                // Fetch flashcards and ratings for each quiz
+                                fetchFlashcardsAndRatingsForQuizzes(quizzes);
+                            } else {
+                                showErrorText(R.id.text_no_quizzes, "Không có quiz nào.");
                             }
                         } else {
                             showErrorText(R.id.text_no_quizzes, "Không tải được dữ liệu.");
@@ -199,6 +195,152 @@ public class HomeFragment extends Fragment {
                         showErrorText(R.id.text_no_quizzes, "Lỗi kết nối.");
                     }
                 });
+    }
+
+    private void fetchFlashcardsAndRatingsForQuizzes(List<Quiz> quizzes) {
+        if (quizzes.isEmpty()) {
+            recyclerQuizzes.setVisibility(View.GONE);
+            rootView.findViewById(R.id.text_no_quizzes).setVisibility(View.VISIBLE);
+            Log.d(TAG, "fetchFlashcardsAndRatingsForQuizzes called with empty list.");
+            return;
+        }
+
+        final CountDownLatch latch = new CountDownLatch(quizzes.size() * 2); // Two API calls per quiz
+        ApiService apiService = RetrofitClient.getApiService(requireContext());
+        Log.d(TAG, "Starting to fetch flashcards and ratings for " + quizzes.size() + " quizzes.");
+
+        for (Quiz quiz : quizzes) {
+            // Fetch flashcards
+            String filter = "QuizId eq " + quiz.quizId;
+            apiService.getFlashcardsForQuiz(filter).enqueue(new Callback<ODataResponse<Flashcard>>() {
+                @Override
+                public void onResponse(Call<ODataResponse<Flashcard>> call, Response<ODataResponse<Flashcard>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        quiz.flashcards = response.body().value;
+                        Log.d(TAG, "Fetched " + (quiz.flashcards != null ? quiz.flashcards.size() : 0) +
+                                " flashcards for quizId: " + quiz.quizId);
+                    } else {
+                        quiz.flashcards = new ArrayList<>();
+                        Log.w(TAG, "Failed to fetch flashcards for quizId " + quiz.quizId +
+                                ". Code: " + response.code() + ", Message: " + response.message());
+                    }
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Call<ODataResponse<Flashcard>> call, Throwable t) {
+                    quiz.flashcards = new ArrayList<>();
+                    Log.e(TAG, "API call for flashcards for quizId " + quiz.quizId + " failed: " + t.getMessage(), t);
+                    latch.countDown();
+                }
+            });
+
+            // Fetch ratings
+            apiService.getRatingsForQuiz(quiz.quizId).enqueue(new Callback<List<RatingQuiz>>() {
+                @Override
+                public void onResponse(Call<List<RatingQuiz>> call, Response<List<RatingQuiz>> response) {
+                    Log.d(TAG, "Raw response for ratings quizId " + quiz.quizId + ": " + response.body());
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<RatingQuiz> ratings = response.body();
+                        Log.d(TAG, "Fetched " + ratings.size() + " ratings for quizId: " + quiz.quizId);
+                        for (RatingQuiz rating : ratings) {
+                            Log.d(TAG, "Rating: quizId=" + rating.quizId + ", rating=" + rating.rating +
+                                    ", comment=" + (rating.comment != null ? rating.comment : "null"));
+                        }
+                        calculateAndSetAverageRating(quiz, ratings);
+                    } else if (response.code() == 404) {
+                        quiz.averageRating = 0.0f;
+                        quiz.totalRatings = 0;
+                        Log.d(TAG, "No ratings found for quizId: " + quiz.quizId + " (HTTP 404)");
+                    } else {
+                        quiz.averageRating = 0.0f;
+                        quiz.totalRatings = 0;
+                        Log.e(TAG, "Failed to fetch ratings for quizId " + quiz.quizId +
+                                ". Code: " + response.code() + ", Message: " + response.message());
+                    }
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Call<List<RatingQuiz>> call, Throwable t) {
+                    quiz.averageRating = 0.0f;
+                    quiz.totalRatings = 0;
+                    Log.e(TAG, "API call for ratings for quizId " + quiz.quizId + " failed: " + t.getMessage(), t);
+                    latch.countDown();
+                }
+            });
+        }
+
+        new Thread(() -> {
+            try {
+                boolean allDone = latch.await(10, TimeUnit.SECONDS);
+                if (!allDone) {
+                    Log.w(TAG, "Timeout while fetching flashcards or ratings. Data may be incomplete.");
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        Toast.makeText(requireContext(), "Data loading interrupted, some data may be incomplete.",
+                                Toast.LENGTH_LONG).show();
+                    });
+                }
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Latch await interrupted: " + e.getMessage());
+                Thread.currentThread().interrupt();
+            } finally {
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    QuizAdapter adapter = new QuizAdapter();
+                    adapter.submitList(new ArrayList<>(quizzes));
+                    recyclerQuizzes.setAdapter(adapter);
+                    adapter.setOnItemClickListener(quiz -> {
+                        Intent intent = new Intent(requireContext(), QuizDetailActivity.class);
+                        intent.putExtra("EXTRA_QUIZ_ID", quiz.quizId);
+                        intent.putExtra("EXTRA_QUIZ_NAME", quiz.quizName);
+                        startActivity(intent);
+                    });
+                    adapter.setOnDownloadClickListener(quiz -> {
+                        QuizDownloader.downloadQuizWithFlashcards(requireContext(), quiz);
+                    });
+                    for (Quiz quiz : quizzes) {
+                        Log.d(TAG, "Quiz: " + quiz.quizName + ", quizId: " + quiz.quizId +
+                                ", avgRating: " + quiz.averageRating +
+                                ", totalRatings: " + quiz.totalRatings +
+                                ", flashcardCount: " + (quiz.flashcards != null ? quiz.flashcards.size() : 0));
+                    }
+                    Log.d(TAG, "Quiz adapter updated with " + quizzes.size() + " quizzes.");
+                });
+            }
+        }).start();
+    }
+
+    private void calculateAndSetAverageRating(Quiz quiz, List<RatingQuiz> ratings) {
+        if (ratings == null || ratings.isEmpty()) {
+            quiz.averageRating = 0.0f;
+            quiz.totalRatings = 0;
+            Log.d(TAG, "No ratings for quizId: " + quiz.quizId + ", setting averageRating to 0.0, totalRatings to 0");
+            return;
+        }
+
+        float totalRating = 0;
+        int validRatingsCount = 0;
+        for (RatingQuiz rating : ratings) {
+            if (rating != null && rating.rating >= 0 && rating.rating <= 5) {
+                totalRating += rating.rating;
+                validRatingsCount++;
+                Log.d(TAG, "Processed rating for quizId: " + quiz.quizId + ", rating value: " + rating.rating +
+                        ", comment: " + (rating.comment != null ? rating.comment : "null"));
+            } else {
+                Log.w(TAG, "Invalid rating for quizId: " + quiz.quizId + ", rating: " +
+                        (rating != null ? rating.rating : "null"));
+            }
+        }
+
+        if (validRatingsCount > 0) {
+            quiz.averageRating = totalRating / validRatingsCount;
+            quiz.totalRatings = validRatingsCount;
+        } else {
+            quiz.averageRating = 0.0f;
+            quiz.totalRatings = 0;
+        }
+        Log.d(TAG, "Calculated for quizId: " + quiz.quizId + ", averageRating: " + quiz.averageRating +
+                ", totalRatings: " + quiz.totalRatings + ", totalRatingSum: " + totalRating);
     }
 
     private <T> void showOrHideRecycler(RecyclerView recyclerView, int emptyViewId, List<T> list) {

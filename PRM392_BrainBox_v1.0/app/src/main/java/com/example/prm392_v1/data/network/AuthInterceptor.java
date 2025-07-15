@@ -23,6 +23,9 @@ public class AuthInterceptor implements Interceptor {
 
         if (token != null && !token.isEmpty()) {
             requestBuilder.addHeader("Authorization", "Bearer " + token);
+            android.util.Log.d("AuthInterceptor", "Adding Authorization header with token: " + token);
+        } else {
+            android.util.Log.d("AuthInterceptor", "No token found in SharedPreferences");
         }
 
         return chain.proceed(requestBuilder.build());

@@ -1,36 +1,44 @@
 package com.example.prm392_v1.ui.main;
 
+import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.prm392_v1.R;
 import com.example.prm392_v1.data.model.Flashcard;
 import com.example.prm392_v1.data.model.ODataResponse;
 import com.example.prm392_v1.data.network.ApiService;
 import com.example.prm392_v1.data.network.RetrofitClient;
+
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class QuestionModeActivity extends AppCompatActivity {
 
+    private static final String TAG = "QuestionModeActivity";
     private TextView textQuizTitle, textQuestion, textResult;
     private Button buttonOptionA, buttonOptionB, buttonOptionC, buttonOptionD, buttonNext, buttonBack;
+
     private List<Flashcard> flashcardList = new ArrayList<>();
-    private List<Integer> retryIndices = new ArrayList<>(); // Track indices to retry
-    private Set<Integer> correctAnswers = new HashSet<>(); // Track all correct answers
-    private int currentCardIndex = 0;
-    private boolean isAnswered = false;
+    // NEW: A single queue to manage which questions to ask.
+    private List<Integer> questionsToAsk = new ArrayList<>();
+    private int currentCardIndex = -1;
+    private int totalQuestions = 0; // To calculate final percentage
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +55,9 @@ public class QuestionModeActivity extends AppCompatActivity {
 
         if (quizId != -1) {
             fetchFlashcards(quizId);
+        } else {
+            Toast.makeText(this, "Không tìm thấy ID quiz.", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
@@ -68,18 +79,8 @@ public class QuestionModeActivity extends AppCompatActivity {
         buttonOptionC.setOnClickListener(v -> checkAnswer(3));
         buttonOptionD.setOnClickListener(v -> checkAnswer(4));
 
-        buttonNext.setOnClickListener(v -> {
-            if (!retryIndices.isEmpty()) {
-                currentCardIndex = retryIndices.remove(0); // Move to next retry index
-            } else if (currentCardIndex < flashcardList.size() - 1) {
-                currentCardIndex++;
-            } else if (retryIndices.isEmpty() && currentCardIndex == flashcardList.size() - 1) {
-                showResults();
-                return;
-            }
-            isAnswered = false;
-            updateQuestionView();
-        });
+        // CHANGED: Next button's role is simplified to just load the next question.
+        buttonNext.setOnClickListener(v -> loadNextQuestion());
 
         buttonBack.setOnClickListener(v -> finish());
     }
@@ -94,55 +95,87 @@ public class QuestionModeActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     flashcardList = response.body().value;
                     if (!flashcardList.isEmpty()) {
-                        updateQuestionView();
+                        // CHANGED: Initialize the quiz state here.
+                        totalQuestions = flashcardList.size();
+                        // Create a list of indices [0, 1, 2, ..., n-1]
+                        questionsToAsk = IntStream.range(0, totalQuestions).boxed().collect(Collectors.toList());
+                        loadNextQuestion(); // Load the first question
+                        Log.d(TAG, "Fetched " + flashcardList.size() + " flashcards.");
                     } else {
                         textQuestion.setText("Không có câu hỏi nào.");
                         disableOptions();
+                        buttonNext.setVisibility(View.GONE);
+                        Log.d(TAG, "No flashcards found for quizId: " + quizId);
                     }
+                } else {
+                    Toast.makeText(QuestionModeActivity.this, "Không tìm thấy câu hỏi hoặc lỗi phản hồi.", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Failed to fetch flashcards. Code: " + response.code() + ", Message: " + response.message());
                 }
             }
 
             @Override
             public void onFailure(Call<ODataResponse<Flashcard>> call, Throwable t) {
-                Toast.makeText(QuestionModeActivity.this, "Lỗi tải câu hỏi", Toast.LENGTH_SHORT).show();
+                Toast.makeText(QuestionModeActivity.this, "Lỗi tải câu hỏi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "API call for flashcards failed: " + t.getMessage(), t);
             }
         });
     }
 
+    // NEW: Handles the logic for loading the next question from the queue.
+    private void loadNextQuestion() {
+        if (questionsToAsk.isEmpty()) {
+            // No more questions to ask, all were answered correctly.
+            showResults(true); // Show congrats
+            return;
+        }
+
+        // Get the next question index from the front of the queue.
+        currentCardIndex = questionsToAsk.remove(0);
+        updateQuestionView();
+    }
+
     private void updateQuestionView() {
-        if (flashcardList.isEmpty()) return;
         Flashcard currentCard = flashcardList.get(currentCardIndex);
         textQuestion.setText(currentCard.question);
         buttonOptionA.setText("A. " + currentCard.option1);
         buttonOptionB.setText("B. " + currentCard.option2);
         buttonOptionC.setText("C. " + currentCard.option3);
         buttonOptionD.setText("D. " + currentCard.option4);
+
         textResult.setVisibility(View.GONE);
         enableOptions();
-        isAnswered = false;
+
+        // The "Next" button should be disabled until an answer is provided.
         buttonNext.setEnabled(false);
         buttonNext.setAlpha(0.3f);
+
+        Log.d(TAG, "Displaying question index: " + currentCardIndex + ". Questions remaining in queue: " + (questionsToAsk.size() + 1));
     }
 
     private void checkAnswer(int selectedAnswer) {
-        if (isAnswered || flashcardList.isEmpty()) return;
-        Flashcard currentCard = flashcardList.get(currentCardIndex);
-        int correctAnswer = currentCard.answer;
-        String result = (selectedAnswer == correctAnswer) ? "Đúng!" : "Sai. Đáp án đúng: " + getCorrectOption(currentCard);
-        textResult.setText(result);
-        textResult.setVisibility(View.VISIBLE);
+        // Disable options to prevent multiple answers
         disableOptions();
-        isAnswered = true;
+        // Enable the "Next" button so the user can proceed.
         buttonNext.setEnabled(true);
         buttonNext.setAlpha(1.0f);
 
-        if (selectedAnswer != correctAnswer) {
-            if (!retryIndices.contains(currentCardIndex)) {
-                retryIndices.add(currentCardIndex);
-            }
-        } else if (!correctAnswers.contains(currentCardIndex)) {
-            correctAnswers.add(currentCardIndex);
+        Flashcard currentCard = flashcardList.get(currentCardIndex);
+        int correctAnswer = currentCard.answer;
+
+        if (selectedAnswer == correctAnswer) {
+            // Correct answer. The question is now considered "mastered" and is not added back to the queue.
+            textResult.setText("Đúng!");
+            textResult.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+            Log.d(TAG, "Index " + currentCardIndex + " answered correctly.");
+        } else {
+            // Incorrect answer. Add the index to the back of the queue to be asked again later.
+            questionsToAsk.add(currentCardIndex);
+            String result = "Sai. Đáp án đúng: " + getCorrectOption(currentCard);
+            textResult.setText(result);
+            textResult.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+            Log.d(TAG, "Index " + currentCardIndex + " answered incorrectly. Added back to queue. New queue size: " + questionsToAsk.size());
         }
+        textResult.setVisibility(View.VISIBLE);
     }
 
     private String getCorrectOption(Flashcard card) {
@@ -164,19 +197,22 @@ public class QuestionModeActivity extends AppCompatActivity {
         buttonOptionD.setEnabled(false);
     }
 
-    private void showResults() {
-        int totalQuestions = flashcardList.size();
-        int correctCount = correctAnswers.size();
-        double percentage = (correctCount * 100.0) / totalQuestions;
-        String resultText = String.format("Kết quả: %d/%d đúng (%.1f%%)", correctCount, totalQuestions, percentage);
-        textResult.setText(resultText);
-        textResult.setVisibility(View.VISIBLE);
+    // CHANGED: Renamed and simplified.
+    private void showResults(boolean allCorrect) {
+        textQuestion.setVisibility(View.GONE);
         disableOptions();
         buttonNext.setVisibility(View.GONE);
 
-        // Show congrats only if all questions are correctly answered
-        if (correctCount == totalQuestions) {
+        if (allCorrect) {
+            Log.d(TAG, "Showing congrats animation.");
             showCongratsAnimation();
+        } else {
+            // This case would be for quitting early, which isn't implemented here,
+            // but the logic remains for completeness.
+            String resultText = "Bạn đã hoàn thành!";
+            textResult.setText(resultText);
+            textResult.setVisibility(View.VISIBLE);
+            Log.d(TAG, "Showing results without 100%.");
         }
     }
 
@@ -185,12 +221,29 @@ public class QuestionModeActivity extends AppCompatActivity {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(textResult, "scaleX", 1f, 1.2f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(textResult, "scaleY", 1f, 1.2f, 1f);
         ObjectAnimator rotate = ObjectAnimator.ofFloat(textResult, "rotation", 0f, 360f);
-        rotate.setDuration(1000);
-        scaleX.setDuration(1000);
-        scaleY.setDuration(1000);
+
+        animatorSet.setDuration(1200);
         animatorSet.playTogether(scaleX, scaleY, rotate);
         animatorSet.setInterpolator(new AccelerateDecelerateInterpolator());
+
         textResult.setText("Chúc mừng bạn đã hoàn thành xuất sắc!");
+        textResult.setVisibility(View.VISIBLE);
         animatorSet.start();
+        Log.d(TAG, "Congrats animation started");
+
+        // Finish activity after animation
+        animatorSet.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                Log.d(TAG, "Congrats animation ended, finishing activity");
+                finish();
+            }
+            @Override
+            public void onAnimationStart(Animator animation) {}
+            @Override
+            public void onAnimationCancel(Animator animation) {}
+            @Override
+            public void onAnimationRepeat(Animator animation) {}
+        });
     }
 }
