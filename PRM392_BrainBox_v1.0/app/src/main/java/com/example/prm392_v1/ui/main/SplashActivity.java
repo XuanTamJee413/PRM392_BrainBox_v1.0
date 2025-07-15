@@ -7,12 +7,16 @@ import android.os.Looper;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.prm392_v1.ui.auth.LoginActivity;
 import com.example.prm392_v1.utils.AuthUtils;
+import com.example.prm392_v1.utils.NotificationScheduler;
 
 public class SplashActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Đặt lịch nhắc nhở hàng ngày khi ứng dụng khởi chạy
+        NotificationScheduler.setDailyReminders(this);
 
         // Optional: Add a short delay for splash screen effect
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
