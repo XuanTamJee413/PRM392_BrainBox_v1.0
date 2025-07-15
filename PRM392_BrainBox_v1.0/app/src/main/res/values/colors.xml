@@ -16,4 +16,8 @@
     <color name="md_theme_onSurfaceVariant">#49454F</color>
     <color name="md_theme_outline">#79747E</color>
     <color name="md_theme_background">#FFFBFE</color>
+    <color name="promo_gradient_start">#673AB7</color>
+    <color name="promo_gradient_end">#3F51B5</color>
+    <color name="button_accent_color">#FF9800</color>
+    <color name="see_all_text_color">?attr/colorPrimary</color>
 </resources>

@@ -5,6 +5,7 @@
     android:id="@+id/home_scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F5F5F5"
     android:padding="16dp">
 
     <LinearLayout
@@ -13,45 +14,53 @@
         android:layout_height="wrap_content"
         android:divider="?android:attr/dividerHorizontal"
         android:showDividers="middle"
-        android:dividerPadding="8dp">
+        android:dividerPadding="12dp">
 
         <!-- Ưu đãi tài khoản mới -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="8dp">
+            android:layout_marginBottom="16dp"
+            app:cardElevation="6dp"
+            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="#7E57C2">
 
             <LinearLayout
                 android:orientation="vertical"
-                android:padding="16dp"
-                android:background="#7E57C2"
+                android:padding="20dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:background="@drawable/gradient_purple">
 
                 <TextView
                     android:text="Ưu đãi tài khoản mới"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textColor="@color/white"
                     android:textStyle="bold"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="12dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
                 <TextView
-                    android:text="Khi nạp gói này, bạn sẽ nhận được toàn bộ chức năng Premium vô thời hạn. Ưu đãi áp dụng cho tài khoản được tạo ít hơn 1 tháng."
-                    android:layout_marginBottom="8dp"
-                    android:textColor="@color/white"
+                    android:text="Nâng cấp ngay để nhận toàn bộ chức năng Premium vô thời hạn. Ưu đãi chỉ áp dụng cho tài khoản mới trong 30 ngày!"
+                    android:layout_marginBottom="16dp"
+                    android:textColor="#EDE7F6"
+                    android:textSize="16sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
                 <Button
                     android:id="@+id/btn_upgrade_lifetime"
-                    android:text="Nâng cấp ngay 89k"
-                    android:backgroundTint="#F57C00"
+                    android:text="Nâng cấp ngay - 89k"
+                    android:backgroundTint="#FFCA28"
+                    android:textColor="#1A1A1A"
+                    android:paddingHorizontal="24dp"
+                    android:paddingVertical="12dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:elevation="2dp" />
+
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -59,62 +68,105 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="8dp">
+            android:layout_marginBottom="16dp"
+            app:cardElevation="6dp"
+            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="#FFF3E0"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="Nếu bỏ lỡ ưu đãi tài khoản mới"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:layout_marginBottom="16dp"
+                    android:text="Các gói Premium khác"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A1A" />
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="30 Ngày - 10k" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
 
-                <Button
-                    android:id="@+id/btn_upgrade_30days"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="#F57C00"
-                    android:text="Mua gói" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="30 Ngày - 10k"
+                        android:textSize="16sp"
+                        android:textColor="#1A1A1A" />
 
-                <TextView
+                    <Button
+                        android:id="@+id/btn_upgrade_30days"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#FFCA28"
+                        android:text="Mua gói"
+                        android:textColor="#1A1A1A"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="6 Tháng - 49k" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
 
-                <Button
-                    android:id="@+id/btn_upgrade_6months"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="#F57C00"
-                    android:text="Mua gói" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="6 Tháng - 49k"
+                        android:textSize="16sp"
+                        android:textColor="#1A1A1A" />
 
-                <TextView
+                    <Button
+                        android:id="@+id/btn_upgrade_6months"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#FFCA28"
+                        android:text="Mua gói"
+                        android:textColor="#1A1A1A"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="12 Tháng - 99k" />
+                    android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/btn_upgrade_12months"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="#F57C00"
-                    android:text="Mua gói" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="12 Tháng - 99k"
+                        android:textSize="16sp"
+                        android:textColor="#1A1A1A" />
+
+                    <Button
+                        android:id="@+id/btn_upgrade_12months"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#FFCA28"
+                        android:text="Mua gói"
+                        android:textColor="#1A1A1A"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -124,12 +176,14 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="4dp">
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
 
             <TextView
-                android:text="Tài liệu"
-                android:textSize="18sp"
+                android:text="Tài liệu nổi bật"
+                android:textSize="20sp"
                 android:textStyle="bold"
+                android:textColor="#1A1A1A"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content" />
@@ -137,42 +191,54 @@
             <TextView
                 android:id="@+id/text_see_all_docs"
                 android:text="Xem tất cả"
-                android:textColor="#1565C0"
-                android:textSize="17sp"
+                android:textColor="#1976D2"
+                android:textSize="16sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="12dp"
                 android:clickable="true"
-                android:focusable="true" />
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackground" />
+
         </LinearLayout>
 
         <!-- CardView tài liệu hiển thị ngang -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="8dp">
+            android:layout_marginBottom="16dp"
+            app:cardElevation="6dp"
+            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="#FFFFFF">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_top_documents"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:clipToPadding="false"
-                android:scrollbars="horizontal"
-                tools:layoutManager="LinearLayoutManager"
-                tools:orientation="horizontal"
-                tools:listitem="@layout/item_document"/>
-            <TextView
-                android:id="@+id/text_no_documents"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Đang tải tài liệu..."
-                android:textSize="16sp"
-                android:padding="8dp"
-                android:gravity="center"
-                android:visibility="gone" />
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_top_documents"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:clipToPadding="false"
+                    android:scrollbars="horizontal"
+                    tools:layoutManager="LinearLayoutManager"
+                    tools:orientation="horizontal"
+                    tools:listitem="@layout/item_document"/>
+
+                <TextView
+                    android:id="@+id/text_no_documents"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Đang tải tài liệu..."
+                    android:textSize="16sp"
+                    android:padding="12dp"
+                    android:gravity="center"
+                    android:textColor="#757575"
+                    android:visibility="gone" />
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <!-- Header Quiz -->
@@ -181,12 +247,14 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="4dp">
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
 
             <TextView
-                android:text="Quiz"
-                android:textSize="18sp"
+                android:text="Quiz mới nhất"
+                android:textSize="20sp"
                 android:textStyle="bold"
+                android:textColor="#1A1A1A"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content" />
@@ -194,42 +262,54 @@
             <TextView
                 android:id="@+id/text_see_all_quizzes"
                 android:text="Xem tất cả"
-                android:textColor="#1565C0"
-                android:textSize="17sp"
+                android:textColor="#1976D2"
+                android:textSize="16sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="12dp"
                 android:clickable="true"
-                android:focusable="true" />
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackground" />
+
         </LinearLayout>
 
         <!-- CardView quiz hiển thị ngang -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="8dp">
+            android:layout_marginBottom="16dp"
+            app:cardElevation="6dp"
+            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="#FFFFFF">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_latest_quizzes"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:clipToPadding="false"
-                android:scrollbars="horizontal"
-                tools:layoutManager="LinearLayoutManager"
-                tools:orientation="horizontal"
-                tools:listitem="@layout/item_quiz"/>
-            <TextView
-                android:id="@+id/text_no_quizzes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Đang tải quiz..."
-                android:textSize="16sp"
-                android:visibility="gone"
-                android:gravity="center"
-                android:padding="8dp" />
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_latest_quizzes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:clipToPadding="false"
+                    android:scrollbars="horizontal"
+                    tools:layoutManager="LinearLayoutManager"
+                    tools:orientation="horizontal"
+                    tools:listitem="@layout/item_quiz"/>
+
+                <TextView
+                    android:id="@+id/text_no_quizzes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Đang tải quiz..."
+                    android:textSize="16sp"
+                    android:padding="12dp"
+                    android:gravity="center"
+                    android:textColor="#757575"
+                    android:visibility="gone" />
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
     </LinearLayout>
