@@ -48,6 +48,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("com.android.billingclient:billing:4.0.0")
+    implementation("com.google.android.material:material:1.12.0")
 
     // Testing
     testImplementation(libs.junit)

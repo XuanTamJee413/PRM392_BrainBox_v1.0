@@ -9,13 +9,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import com.example.prm392_v1.R;
+import com.example.prm392_v1.ui.main.fragment.ChatAiDialogFragment; // THÊM IMPORT
 import com.example.prm392_v1.ui.main.fragment.DocFragment;
 import com.example.prm392_v1.ui.main.fragment.DownloadFragment;
 import com.example.prm392_v1.ui.main.fragment.HomeFragment;
 import com.example.prm392_v1.ui.main.fragment.QuizFragment;
-import com.example.prm392_v1.ui.main.fragment.ProfileFragment;
+import com.example.prm392_v1.ui.main.fragment.ProfileFragment; // SỬA IMPORT
 import com.example.prm392_v1.ui.main.fragment.TopBarFragment;
 import com.example.prm392_v1.ui.main.fragment.BottomNavFragment;
+import com.example.prm392_v1.ui.views.DraggableFloatingActionButton; // THÊM IMPORT
 
 public class HomeActivity extends AppCompatActivity implements BottomNavFragment.OnNavigationItemSelectedListener {
 
@@ -24,6 +26,17 @@ public class HomeActivity extends AppCompatActivity implements BottomNavFragment
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
+
+        // --- BẮT ĐẦU PHẦN THÊM MỚI ---
+        // Tìm icon AI nổi và thiết lập sự kiện click
+        DraggableFloatingActionButton fabAi = findViewById(R.id.fab_ai_assistant);
+        fabAi.setOnClickListener(view -> {
+            // Tạo một instance của DialogFragment chat
+            ChatAiDialogFragment dialogFragment = new ChatAiDialogFragment();
+            // Hiển thị dialog
+            dialogFragment.show(getSupportFragmentManager(), "ChatAiDialog");
+        });
+        // --- KẾT THÚC PHẦN THÊM MỚI ---
     }
 
     @Override

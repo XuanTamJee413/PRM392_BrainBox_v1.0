@@ -52,4 +52,17 @@ public class RetrofitClient {
             throw new RuntimeException(e);
         }
     }
+
+    private static final String GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/";
+    private static Retrofit geminiRetrofit = null;
+
+    public static GeminiApiService getGeminiApiService() {
+        if (geminiRetrofit == null) {
+            geminiRetrofit = new Retrofit.Builder()
+                    .baseUrl(GEMINI_BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+        return geminiRetrofit.create(GeminiApiService.class);
+    }
 }
