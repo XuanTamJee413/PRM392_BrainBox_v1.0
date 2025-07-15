@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.prm392_v1.BrainBoxApp;
 import com.example.prm392_v1.data.entity.User;
 import com.example.prm392_v1.ui.auth.LoginActivity;
+import com.example.prm392_v1.ui.main.DashboardActivity; // Import the new DashboardActivity
 import com.example.prm392_v1.ui.main.HomeActivity;
 
 public class AuthUtils {
@@ -16,19 +17,20 @@ public class AuthUtils {
     private static final String PREFS_NAME = "auth_prefs";
     private static final String KEY_TOKEN = "jwt_token";
 
+    // ... (saveToken, getToken, clearToken methods remain the same) ...
     public static void saveToken(Context context, String token) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(KEY_TOKEN, token);
         editor.apply();
-        BrainBoxApp.setJwtToken(token); // Keep for backward compatibility
+        BrainBoxApp.setJwtToken(token);
     }
 
     public static String getToken(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         String token = prefs.getString(KEY_TOKEN, null);
         if (token != null) {
-            BrainBoxApp.setJwtToken(token); // Sync with BrainBoxApp
+            BrainBoxApp.setJwtToken(token);
         }
         return token;
     }
@@ -55,13 +57,19 @@ public class AuthUtils {
         }
 
         Intent intent;
+        // Check user role and navigate accordingly
         switch (user.role.toLowerCase()) {
             case "admin":
+                // Admins go to the Dashboard
+                intent = new Intent(context, DashboardActivity.class);
+                break;
             case "teacher":
             case "user":
+                // Other roles go to the Home screen
                 intent = new Intent(context, HomeActivity.class);
                 break;
             default:
+                // Fallback to login
                 intent = new Intent(context, LoginActivity.class);
                 break;
         }
@@ -72,7 +80,6 @@ public class AuthUtils {
             ((AppCompatActivity) context).finish();
         }
     }
-
     public static String getUserIdFromToken(Context context) {
         String token = getToken(context);
         if (token == null) {

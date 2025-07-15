@@ -146,4 +146,10 @@ public interface ApiService {
 
     @POST("api/auth/forgot-password")
     Call<Void> forgotPassword(@Body ForgotPasswordRequest request);
+
+    @GET("odata/Users")
+    Call<ODataResponse<UserDto>> getAllUsers();
+    @PATCH("odata/Users({id})")
+    Call<Void> updateUser(@Path("id") int userId, @Body Map<String, Object> updates);
+
 }
