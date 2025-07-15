@@ -17,9 +17,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
-
     private EditText edtUsername, edtPassword;
-    private Button btnLogin, btnRegister;
+    private Button btnLogin, btnRegister, btnForgotPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,11 +29,17 @@ public class LoginActivity extends AppCompatActivity {
         edtPassword = findViewById(R.id.edtPassword);
         btnLogin = findViewById(R.id.btnLogin);
         btnRegister = findViewById(R.id.btnRegister);
+        btnForgotPassword = findViewById(R.id.btnForgotPassword);
 
         btnLogin.setOnClickListener(v -> handleApiLogin());
 
         btnRegister.setOnClickListener(v -> {
             Intent intent = new Intent(this, RegisterActivity.class);
+            startActivity(intent);
+        });
+
+        btnForgotPassword.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ForgotPasswordActivity.class);
             startActivity(intent);
         });
     }

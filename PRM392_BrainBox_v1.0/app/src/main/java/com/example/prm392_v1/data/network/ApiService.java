@@ -1,8 +1,10 @@
 package com.example.prm392_v1.data.network;
 
+import com.example.prm392_v1.data.model.ChangePasswordRequest;
 import com.example.prm392_v1.data.model.DocumentDetail;
 import com.example.prm392_v1.data.model.DocumentDto;
 import com.example.prm392_v1.data.model.DocumentCreateDto;
+import com.example.prm392_v1.data.model.ForgotPasswordRequest;
 import com.example.prm392_v1.data.model.LoginRequest;
 import com.example.prm392_v1.data.model.LoginResponse;
 import com.example.prm392_v1.data.model.Quiz;
@@ -138,4 +140,10 @@ public interface ApiService {
 
     @POST("odata/Comments")
     Call<Comment> createComment(@Body Comment comment);
+
+    @POST("api/auth/change-password")
+    Call<Void> changePassword(@Body ChangePasswordRequest request);
+
+    @POST("api/auth/forgot-password")
+    Call<Void> forgotPassword(@Body ForgotPasswordRequest request);
 }
