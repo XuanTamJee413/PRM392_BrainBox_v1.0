@@ -105,11 +105,9 @@ public class SettingFragment extends Fragment {
                         });
                     }
 
-                    // Định dạng ngày
                     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                     Date now = new Date();
 
-                    // Ngày tạo tài khoản + ưu đãi 1 tháng
                     Date createdAt = new Date(user.CreatedAt);
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(createdAt);
@@ -126,7 +124,6 @@ public class SettingFragment extends Fragment {
 
                     txtCreatedAt.setText(createText);
 
-                    // Premium
                     if (user.PremiumExpiredAt > 0) {
                         Date premiumDate = new Date(user.PremiumExpiredAt);
                         if (premiumDate.after(now)) {
@@ -139,7 +136,8 @@ public class SettingFragment extends Fragment {
                         txtPremium.setText("Premium: Chưa đăng ký");
                     }
                 } else {
-                    txtUsername.setText("Không tải được thông tin.");
+                    startActivity(new Intent(requireContext(), LoginActivity.class));
+                    Toast.makeText(requireContext(), "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại", Toast.LENGTH_LONG).show();
                 }
             }
 
