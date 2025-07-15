@@ -3,7 +3,6 @@ package com.example.prm392_v1.ui.main;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,7 +13,7 @@ import com.example.prm392_v1.ui.main.fragment.DocFragment;
 import com.example.prm392_v1.ui.main.fragment.DownloadFragment;
 import com.example.prm392_v1.ui.main.fragment.HomeFragment;
 import com.example.prm392_v1.ui.main.fragment.QuizFragment;
-import com.example.prm392_v1.ui.main.fragment.SettingFragment;
+import com.example.prm392_v1.ui.main.fragment.ProfileFragment;
 import com.example.prm392_v1.ui.main.fragment.TopBarFragment;
 import com.example.prm392_v1.ui.main.fragment.BottomNavFragment;
 
@@ -38,8 +37,8 @@ public class HomeActivity extends AppCompatActivity implements BottomNavFragment
             selectedFragment = new QuizFragment();
         } else if (itemId == R.id.nav_download) {
             selectedFragment = new DownloadFragment();
-        } else if (itemId == R.id.nav_setting) {
-            selectedFragment = new SettingFragment();
+        } else if (itemId == R.id.nav_profile) {
+            selectedFragment = new ProfileFragment();
         }
 
         if (selectedFragment != null) {

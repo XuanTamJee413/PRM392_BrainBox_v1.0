@@ -33,15 +33,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SettingFragment extends Fragment {
+public class ProfileFragment extends Fragment {
     private TextView txtUsername, txtEmail, txtRole, txtStatus, txtPremium, txtCreatedAt;
     Button btnDashboard;
-    public SettingFragment() {}
+    public ProfileFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_setting, container, false);
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         SharedPreferences prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE);
         String token = prefs.getString("jwt_token", null);

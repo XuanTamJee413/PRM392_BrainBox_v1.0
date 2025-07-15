@@ -16,59 +16,31 @@
         android:theme="@style/Theme.PRM392_V1"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
         <activity
-            android:name=".ui.main.MatchModeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.main.TestModeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.main.QuestionModeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.main.FlashcardsModeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.main.DocumentDetailActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.main.PurchaseActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.main.SearchResultActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.main.DashboardActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.main.HomeActivity"
+            android:name=".ui.main.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.main.QuizActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.auth.RegisterActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.main.MainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.main.QuizDetailActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.main.CreateQuizActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.main.EditQuizActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.auth.LoginActivity"
-            android:exported="false" />
+
+        <activity android:name=".ui.main.MatchModeActivity" android:exported="false" />
+        <activity android:name=".ui.main.TestModeActivity" android:exported="false" />
+        <activity android:name=".ui.main.QuestionModeActivity" android:exported="false" />
+        <activity android:name=".ui.main.FlashcardsModeActivity" android:exported="false" />
+        <activity android:name=".ui.main.DocumentDetailActivity" android:exported="false" />
+        <activity android:name=".ui.main.PurchaseActivity" android:exported="false" />
+        <activity android:name=".ui.main.SearchResultActivity" android:exported="false" />
+        <activity android:name=".ui.main.DashboardActivity" android:exported="false" />
+        <activity android:name=".ui.main.HomeActivity" android:exported="false" />
+        <activity android:name=".ui.main.QuizActivity" android:exported="false" />
+        <activity android:name=".ui.auth.RegisterActivity" android:exported="false" />
+        <activity android:name=".ui.main.QuizDetailActivity" android:exported="false" />
+        <activity android:name=".ui.main.CreateQuizActivity" android:exported="false" />
+        <activity android:name=".ui.main.EditQuizActivity" android:exported="false" />
+        <activity android:name=".ui.auth.LoginActivity" android:exported="false" />
         <activity android:name=".ui.main.ViewDocumentActivity" />
         <activity android:name=".ui.main.ViewDocumentDetailActivity" />
     </application>

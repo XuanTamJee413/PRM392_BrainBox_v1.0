@@ -37,7 +37,6 @@ public class RetrofitClient {
             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
             final javax.net.ssl.SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
-
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
