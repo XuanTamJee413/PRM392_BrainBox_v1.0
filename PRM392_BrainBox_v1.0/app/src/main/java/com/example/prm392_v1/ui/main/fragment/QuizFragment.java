@@ -24,9 +24,7 @@ import com.example.prm392_v1.ui.adapters.ManageQuizAdapter;
 import com.example.prm392_v1.ui.main.EditQuizActivity;
 import com.example.prm392_v1.utils.JwtUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -81,7 +79,7 @@ public class QuizFragment extends Fragment {
 
             @Override
             public void onDeleteClick(Quiz quiz) {
-                Toast.makeText(getContext(), "Xóa Quiz ID: " + quiz.quizId, Toast.LENGTH_SHORT).show();
+                deleteQuiz(quiz.quizId);
             }
         });
     }
@@ -101,7 +99,6 @@ public class QuizFragment extends Fragment {
         }
         int userId = user.id;
 
-
         ApiService apiService = RetrofitClient.getApiService(requireContext());
         String filter = "CreatorId eq " + userId;
 
@@ -117,6 +114,34 @@ public class QuizFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ODataResponse<Quiz>> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void deleteQuiz(int quizId) {
+        SharedPreferences prefs = requireActivity().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE);
+        String token = prefs.getString("jwt_token", null);
+        if (token == null) {
+            Toast.makeText(getContext(), "Lỗi xác thực", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ApiService apiService = RetrofitClient.getApiService(requireContext());
+        Call<Void> call = apiService.deleteQuiz(quizId); // Không cần truyền token trực tiếp, Retrofit sẽ xử lý nếu có interceptor
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Xóa quiz thành công", Toast.LENGTH_SHORT).show();
+                    fetchMyQuizzes(); // Cập nhật danh sách sau khi xóa
+                } else {
+                    Toast.makeText(getContext(), "Xóa thất bại. Mã lỗi: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
                 Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

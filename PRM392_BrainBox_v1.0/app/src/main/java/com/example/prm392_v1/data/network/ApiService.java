@@ -58,6 +58,8 @@ public interface ApiService {
     @GET("api/RatingQuizzes")
     Call<RatingQuiz> getMyRatingForQuiz(@Query("quizId") int quizId);
 
+    @DELETE("odata/quizzes({id})")
+    Call<Void> deleteQuiz(@Path("id") int quizId);
     @POST("api/RatingQuizzes")
     Call<Void> submitRating(@Body RatingQuizRequest request);
 

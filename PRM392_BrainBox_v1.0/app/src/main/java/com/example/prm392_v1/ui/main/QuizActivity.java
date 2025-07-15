@@ -25,6 +25,8 @@ import com.example.prm392_v1.data.model.RatingQuiz;
 import com.example.prm392_v1.data.network.ApiService;
 import com.example.prm392_v1.data.network.RetrofitClient;
 import com.example.prm392_v1.ui.adapters.QuizAdapter;
+import com.example.prm392_v1.ui.main.fragment.ChatAiDialogFragment;
+import com.example.prm392_v1.ui.views.DraggableFloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +52,17 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
+
+        // --- BẮT ĐẦU PHẦN THÊM MỚI ---
+        // Tìm icon AI nổi và thiết lập sự kiện click
+        DraggableFloatingActionButton fabAi = findViewById(R.id.fab_ai_assistant);
+        fabAi.setOnClickListener(view -> {
+            // Tạo một instance của DialogFragment chat
+            ChatAiDialogFragment dialogFragment = new ChatAiDialogFragment();
+            // Hiển thị dialog
+            dialogFragment.show(getSupportFragmentManager(), "ChatAiDialog");
+        });
+        // --- KẾT THÚC PHẦN THÊM MỚI ---
 
         progressBar = findViewById(R.id.progress_bar);
         searchView = findViewById(R.id.search_view);
