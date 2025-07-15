@@ -46,11 +46,8 @@ public class DashboardActivity extends AppCompatActivity implements UserAdapter.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        // --- BẮT ĐẦU PHẦN THÊM MỚI ---
-        // Thiết lập Toolbar làm Action Bar cho Activity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // --- KẾT THÚC PHẦN THÊM MỚI ---
 
         rvUsers = findViewById(R.id.rvUsers);
         progressBar = findViewById(R.id.progressBar);
@@ -60,7 +57,6 @@ public class DashboardActivity extends AppCompatActivity implements UserAdapter.
         fetchUsers();
     }
 
-    // --- BẮT ĐẦU CÁC PHƯƠNG THỨC ĐƯỢC THÊM MỚI ---
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -71,7 +67,6 @@ public class DashboardActivity extends AppCompatActivity implements UserAdapter.
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        // Xử lý sự kiện khi một item trên menu được chọn
         if (item.getItemId() == R.id.action_logout) {
             performLogout();
             return true;
@@ -80,18 +75,13 @@ public class DashboardActivity extends AppCompatActivity implements UserAdapter.
     }
 
     private void performLogout() {
-        // Xóa token đã lưu trên thiết bị
         AuthUtils.clearToken(this);
-
-        // Tạo Intent để quay về màn hình Login
         Intent intent = new Intent(this, LoginActivity.class);
         // Xóa tất cả các activity trước đó khỏi stack để người dùng không thể quay lại
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        finish(); // Đóng DashboardActivity
+        finish();
     }
-
-    // --- KẾT THÚC CÁC PHƯƠNG THỨC ĐƯỢC THÊM MỚI ---
 
     private void setupRecyclerView() {
         userAdapter = new UserAdapter(userList, this);

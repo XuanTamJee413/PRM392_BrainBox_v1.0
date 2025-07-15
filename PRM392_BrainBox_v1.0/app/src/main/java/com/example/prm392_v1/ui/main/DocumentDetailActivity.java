@@ -94,20 +94,16 @@ public class DocumentDetailActivity extends AppCompatActivity {
         btnBackCreate = findViewById(R.id.btn_back_create);
         btnBackEdit = findViewById(R.id.btn_back_edit);
 
-        // Thiết lập RecyclerView cho bình luận
         recyclerViewComments.setLayoutManager(new LinearLayoutManager(this));
         commentAdapter = new CommentAdapter();
         recyclerViewComments.setAdapter(commentAdapter);
 
-        // Khởi tạo ApiService và lấy docId từ Intent
         apiService = RetrofitClient.getApiService(this);
         docId = getIntent().getIntExtra("docId", -1);
         documentDetails = new ArrayList<>();
 
-        // Tải dữ liệu tài liệu và chi tiết
         loadDocumentDetails();
 
-        // Xử lý sự kiện nút
         btnCreate.setOnClickListener(v -> showCreateForm());
         btnUpdate.setOnClickListener(v -> showEditForm());
         btnDelete.setOnClickListener(v -> deleteDocumentDetail());

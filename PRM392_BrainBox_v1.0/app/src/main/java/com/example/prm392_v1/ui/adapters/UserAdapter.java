@@ -17,7 +17,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     private final List<UserDto> userList;
     private final OnUserActionListener listener;
 
-    // Interface to handle button clicks in the activity
     public interface OnUserActionListener {
         void onChangeRoleClicked(UserDto user);
         void onBlockStatusChanged(UserDto user);
@@ -63,20 +62,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             tvUsername.setText(user.Username);
             tvUserRole.setText("Role: " + user.Role);
 
-            // Update status text and color
             if (user.Status) {
                 tvUserStatus.setText("Status: Active");
-                tvUserStatus.setTextColor(Color.parseColor("#4CAF50")); // Green
+                tvUserStatus.setTextColor(Color.parseColor("#4CAF50"));
                 btnBlockUser.setText("Block");
                 btnBlockUser.setTextColor(Color.RED);
             } else {
                 tvUserStatus.setText("Status: Blocked");
                 tvUserStatus.setTextColor(Color.RED);
                 btnBlockUser.setText("Unblock");
-                btnBlockUser.setTextColor(Color.parseColor("#4CAF50")); // Green
+                btnBlockUser.setTextColor(Color.parseColor("#4CAF50"));
             }
 
-            // Set click listeners
             btnChangeRole.setOnClickListener(v -> listener.onChangeRoleClicked(user));
             btnBlockUser.setOnClickListener(v -> listener.onBlockStatusChanged(user));
         }

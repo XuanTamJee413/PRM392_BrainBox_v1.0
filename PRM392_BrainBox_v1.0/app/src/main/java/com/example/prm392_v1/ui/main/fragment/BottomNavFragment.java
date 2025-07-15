@@ -13,7 +13,6 @@ import com.example.prm392_v1.R;
 
 public class BottomNavFragment extends Fragment {
 
-    // Interface để giao tiếp với Activity
     public interface OnNavigationItemSelectedListener {
         void onNavigationItemSelected(int itemId);
     }
@@ -24,7 +23,6 @@ public class BottomNavFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        // Đảm bảo Activity đã implement interface
         if (context instanceof OnNavigationItemSelectedListener) {
             listener = (OnNavigationItemSelectedListener) context;
         } else {
@@ -43,12 +41,10 @@ public class BottomNavFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         bottomNav = view.findViewById(R.id.bottom_nav);
         bottomNav.setOnItemSelectedListener(item -> {
-            // Thông báo cho Activity biết mục nào đã được chọn
             listener.onNavigationItemSelected(item.getItemId());
             return true;
         });
 
-        // Set mục mặc định
         bottomNav.setSelectedItemId(R.id.nav_home);
     }
 }

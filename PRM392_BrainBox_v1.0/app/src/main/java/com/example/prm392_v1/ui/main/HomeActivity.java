@@ -27,16 +27,11 @@ public class HomeActivity extends AppCompatActivity implements BottomNavFragment
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
 
-        // --- BẮT ĐẦU PHẦN THÊM MỚI ---
-        // Tìm icon AI nổi và thiết lập sự kiện click
         DraggableFloatingActionButton fabAi = findViewById(R.id.fab_ai_assistant);
         fabAi.setOnClickListener(view -> {
-            // Tạo một instance của DialogFragment chat
             ChatAiDialogFragment dialogFragment = new ChatAiDialogFragment();
-            // Hiển thị dialog
             dialogFragment.show(getSupportFragmentManager(), "ChatAiDialog");
         });
-        // --- KẾT THÚC PHẦN THÊM MỚI ---
     }
 
     @Override

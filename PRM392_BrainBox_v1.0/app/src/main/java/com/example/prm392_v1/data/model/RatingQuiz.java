@@ -5,11 +5,11 @@ import com.google.gson.annotations.SerializedName;
 public class RatingQuiz {
     @SerializedName("RatingId")
     public int ratingId;
-    @SerializedName("quizId") // Changed from "QuizId" to match JSON key
+    @SerializedName("quizId")
     public int quizId;
     @SerializedName("UserId")
     public int userId;
-    @SerializedName("rating") // Changed from "Rating" to match JSON key
+    @SerializedName("rating")
     public int rating;
     @SerializedName("Comment")
     public String comment;

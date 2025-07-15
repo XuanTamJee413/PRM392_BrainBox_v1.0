@@ -27,12 +27,11 @@ public class TopBarFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         searchView = view.findViewById(R.id.searchView);
-        searchView.clearFocus(); // Ngăn keyboard tự động mở
+        searchView.clearFocus();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                // Giao tiếp với Activity để xử lý tìm kiếm
                 Intent intent = new Intent(getActivity(), SearchResultActivity.class);
                 intent.putExtra("query", query);
                 startActivity(intent);
@@ -46,7 +45,6 @@ public class TopBarFragment extends Fragment {
         });
     }
 
-    // Activity có thể gọi phương thức này nếu cần
     public SearchView getSearchView() {
         return searchView;
     }

@@ -40,7 +40,7 @@ public class FlashcardsModeActivity extends AppCompatActivity {
     private View cardFlashcard;
     private AnimatorSet mSetRightOut;
     private AnimatorSet mSetLeftIn;
-    private boolean isAnimating = false; // Flag to prevent double clicks
+    private boolean isAnimating = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +53,8 @@ public class FlashcardsModeActivity extends AppCompatActivity {
         initializeViews();
         textQuizTitle.setText(quizName);
 
-        // Load animations
         loadAnimations();
 
-        // Set camera distance for flip animation
         float distance = 8000;
         float scale = getResources().getDisplayMetrics().density * distance;
         cardFlashcard.setCameraDistance(scale);
@@ -84,8 +82,7 @@ public class FlashcardsModeActivity extends AppCompatActivity {
     private void loadAnimations() {
         mSetRightOut = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.card_flip_right_out);
         mSetLeftIn = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.card_flip_left_in);
-        // Ensure animations have a consistent duration
-        mSetRightOut.setDuration(300); // Adjust duration for smoother flip
+        mSetRightOut.setDuration(300);
         mSetLeftIn.setDuration(300);
     }
 
@@ -195,7 +192,6 @@ public class FlashcardsModeActivity extends AppCompatActivity {
         }
         textCardCounter.setText(String.format("%d / %d", currentCardIndex + 1, flashcardList.size()));
 
-        // Enable/disable navigation buttons and adjust alpha
         buttonPrev.setEnabled(currentCardIndex > 0);
         buttonNext.setEnabled(currentCardIndex < flashcardList.size() - 1 || isShowingQuestion);
         buttonPrev.setAlpha(buttonPrev.isEnabled() ? 1.0f : 0.5f);
@@ -209,7 +205,6 @@ public class FlashcardsModeActivity extends AppCompatActivity {
             return;
         }
 
-        // Set animation flag and disable interaction
         isAnimating = true;
         cardFlashcard.setClickable(false);
         buttonPrev.setEnabled(false);
@@ -220,9 +215,8 @@ public class FlashcardsModeActivity extends AppCompatActivity {
         mSetRightOut.setTarget(cardFlashcard);
         mSetLeftIn.setTarget(cardFlashcard);
 
-        // Update state before starting animation to ensure content is ready
         isShowingQuestion = !isShowingQuestion;
-        updateCardView(); // Update content immediately
+        updateCardView();
 
         mSetRightOut.start();
         mSetRightOut.addListener(new Animator.AnimatorListener() {
@@ -250,7 +244,6 @@ public class FlashcardsModeActivity extends AppCompatActivity {
                         buttonNext.setAlpha(buttonNext.isEnabled() ? 1.0f : 0.5f);
                         Log.d(TAG, "Flip animation completed: isShowingQuestion=" + isShowingQuestion);
 
-                        // Check if at the last card and showing the answer
                         if (currentCardIndex == flashcardList.size() - 1 && !isShowingQuestion) {
                             showCompletionMessage();
                         }

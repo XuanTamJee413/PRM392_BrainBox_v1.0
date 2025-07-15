@@ -7,7 +7,6 @@ public class ForgotPasswordRequest {
         this.email = email;
     }
 
-    // Getters and setters
     public String getEmail() {
         return email;
     }

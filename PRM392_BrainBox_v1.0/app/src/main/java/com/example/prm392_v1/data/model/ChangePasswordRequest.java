@@ -11,7 +11,6 @@ public class ChangePasswordRequest {
         this.confirmPassword = confirmPassword;
     }
 
-    // Getters and setters
     public String getCurrentPassword() {
         return currentPassword;
     }

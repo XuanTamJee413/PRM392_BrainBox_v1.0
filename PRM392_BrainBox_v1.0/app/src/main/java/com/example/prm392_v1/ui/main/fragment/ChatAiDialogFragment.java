@@ -36,7 +36,6 @@ public class ChatAiDialogFragment extends DialogFragment {
     private ChatAdapter chatAdapter;
     private List<Message> messageList = new ArrayList<>();
     private GeminiApiService geminiApiService;
-    // THAY THẾ BẰNG API KEY CỦA BẠN
     private final String API_KEY = "AIzaSyCiTLq7zVklDWLMdQa-cI-m7e2imAUJaXM";
 
     @Nullable
@@ -63,7 +62,6 @@ public class ChatAiDialogFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        // Thiết lập kích thước cho dialog
         if (getDialog() != null && getDialog().getWindow() != null) {
             getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
@@ -79,12 +77,10 @@ public class ChatAiDialogFragment extends DialogFragment {
         String messageText = etMessage.getText().toString().trim();
         if (messageText.isEmpty()) return;
 
-        // Thêm tin nhắn của người dùng vào danh sách
         addMessage(messageText, true);
         etMessage.setText("");
         progressBar.setVisibility(View.VISIBLE);
 
-        // Tạo request và gọi API
         GeminiRequest.Part part = new GeminiRequest.Part(messageText);
         GeminiRequest.Content content = new GeminiRequest.Content(Collections.singletonList(part));
         GeminiRequest request = new GeminiRequest(Collections.singletonList(content));

@@ -55,7 +55,6 @@ public class DocumentActionNewAdapter extends ListAdapter<DocumentDto, DocumentA
 
         @Override
         public boolean areContentsTheSame(@NonNull DocumentDto oldItem, @NonNull DocumentDto newItem) {
-            // Explicitly compare fields to avoid relying on equals()
             return (oldItem.Title != null ? oldItem.Title.equals(newItem.Title) : newItem.Title == null) &&
                     (oldItem.Content != null ? oldItem.Content.equals(newItem.Content) : newItem.Content == null) &&
                     oldItem.IsPublic == newItem.IsPublic &&

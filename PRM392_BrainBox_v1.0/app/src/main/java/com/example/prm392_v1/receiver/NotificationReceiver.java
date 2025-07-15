@@ -18,10 +18,8 @@ public class NotificationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        // Tạo NotificationManager
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // Tạo Notification Channel (bắt buộc từ Android 8.0 Oreo trở lên)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Study Reminder Channel";
             String description = "Channel for daily study reminders";
@@ -31,20 +29,17 @@ public class NotificationReceiver extends BroadcastReceiver {
             notificationManager.createNotificationChannel(channel);
         }
 
-        // Tạo Intent để mở ứng dụng khi người dùng nhấn vào thông báo
         Intent notificationIntent = new Intent(context, SplashActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        // Xây dựng thông báo
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.mipmap.ic_launcher) // Thay bằng icon của bạn
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Đến giờ học rồi! ⏰")
                 .setContentText("Mở BrainBox và củng cố kiến thức nào!")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
-                .setAutoCancel(true); // Tự động xóa thông báo khi người dùng nhấn vào
+                .setAutoCancel(true);
 
-        // Hiển thị thông báo
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 }
