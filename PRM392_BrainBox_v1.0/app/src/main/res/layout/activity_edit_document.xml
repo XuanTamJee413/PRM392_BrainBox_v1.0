@@ -10,7 +10,6 @@
         android:id="@+id/txt_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Chỉnh Sửa Tài Liệu"
         android:textAppearance="?attr/textAppearanceHeadlineSmall"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
