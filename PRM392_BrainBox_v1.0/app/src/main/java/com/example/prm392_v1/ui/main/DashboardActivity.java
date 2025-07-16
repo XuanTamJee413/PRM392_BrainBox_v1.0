@@ -23,6 +23,7 @@ import com.example.prm392_v1.data.network.RetrofitClient;
 import com.example.prm392_v1.ui.adapters.UserAdapter;
 import com.example.prm392_v1.ui.auth.LoginActivity;
 import com.example.prm392_v1.utils.AuthUtils;
+import com.google.android.material.floatingactionbutton.FloatingActionButton; // THÊM IMPORT
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,6 +53,13 @@ public class DashboardActivity extends AppCompatActivity implements UserAdapter.
         rvUsers = findViewById(R.id.rvUsers);
         progressBar = findViewById(R.id.progressBar);
         apiService = RetrofitClient.getApiService(this);
+
+        // THÊM LOGIC XỬ LÝ SỰ KIỆN CLICK CHO BUTTON
+        FloatingActionButton fabGoToHome = findViewById(R.id.fab_go_to_home);
+        fabGoToHome.setOnClickListener(v -> {
+            Intent intent = new Intent(DashboardActivity.this, HomeActivity.class);
+            startActivity(intent);
+        });
 
         setupRecyclerView();
         fetchUsers();

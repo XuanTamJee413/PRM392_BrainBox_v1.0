@@ -28,7 +28,6 @@ import com.example.prm392_v1.data.network.RetrofitClient;
 import com.example.prm392_v1.ui.adapters.DocumentAdapter;
 import com.example.prm392_v1.ui.adapters.QuizAdapter;
 import com.example.prm392_v1.ui.auth.LoginActivity;
-import com.example.prm392_v1.ui.main.DocumentDetailActivity;
 import com.example.prm392_v1.ui.main.PurchaseActivity;
 import com.example.prm392_v1.ui.main.QuizActivity;
 import com.example.prm392_v1.ui.main.QuizDetailActivity;
@@ -39,7 +38,6 @@ import com.example.prm392_v1.utils.QuizDownloader;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -48,12 +46,18 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements DocumentAdapter.OnItemClickListener {
     private static final String TAG = "HomeFragment";
     private RecyclerView recyclerDocuments, recyclerQuizzes;
+    private DocumentAdapter documentAdapter;
     private View rootView;
 
     public HomeFragment() {}
+
+    public static void start(Context context) {
+        Intent intent = new Intent(context, ViewDocumentActivity.class);
+        context.startActivity(intent);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -123,6 +127,9 @@ public class HomeFragment extends Fragment {
         recyclerQuizzes = rootView.findViewById(R.id.recycler_latest_quizzes);
 
         recyclerDocuments.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        documentAdapter = new DocumentAdapter();
+        recyclerDocuments.setAdapter(documentAdapter);
+        documentAdapter.setOnItemClickListener(this);
         recyclerQuizzes.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
     }
 
@@ -157,17 +164,15 @@ public class HomeFragment extends Fragment {
                     showOrHideRecycler(recyclerDocuments, R.id.text_no_documents, topDocs);
 
                     if (topDocs != null && !topDocs.isEmpty()) {
-                        DocumentAdapter adapter = new DocumentAdapter();
-                        adapter.submitList(topDocs);
-                        recyclerDocuments.setAdapter(adapter);
-                        adapter.setOnItemClickListener(document -> {
-                            Bundle bundle = new Bundle();
-                            bundle.putInt("docId", document.DocId);
-                            bundle.putString("title", document.Title); // Pass title for display
-                            ViewDocumentDetailActivity.start(requireContext(), bundle);
-                        });
-                        adapter.setOnDownloadClickListener(document -> {
-                            DocumentDownloader.downloadDocumentWithDetails(requireContext(), document);
+                        documentAdapter.submitList(topDocs);
+                        // Remove redundant listener setting to avoid overriding
+                        documentAdapter.setOnDownloadClickListener(document -> {
+                            if (document != null && document.DocId > 0) {
+                                DocumentDownloader.downloadDocumentWithDetails(requireContext(), document);
+                            } else {
+                                Log.e(TAG, "Invalid document for download: " + (document != null ? document.DocId : "null"));
+                                Toast.makeText(requireContext(), "Không thể tải tài liệu", Toast.LENGTH_SHORT).show();
+                            }
                         });
                     }
                 } else {
@@ -188,6 +193,7 @@ public class HomeFragment extends Fragment {
             }
         });
     }
+
     private void fetchLatestQuizzes() {
         ApiService apiService = RetrofitClient.getApiService(requireContext());
         apiService.getLatestQuizzes(null, "CreatedAt desc", 5, "Creator($select=Username)")
@@ -281,8 +287,6 @@ public class HomeFragment extends Fragment {
                         quiz.totalRatings = 0;
                         Log.d(TAG, "No ratings found for quizId: " + quiz.quizId + " (HTTP 404)");
                     } else {
-                        quiz.averageRating = 0.0f;
-                        quiz.totalRatings = 0;
                         Log.e(TAG, "Failed to fetch ratings for quizId " + quiz.quizId +
                                 ". Code: " + response.code() + ", Message: " + response.message());
                     }
@@ -384,8 +388,22 @@ public class HomeFragment extends Fragment {
 
     private void showErrorText(int viewId, String message) {
         TextView textView = rootView.findViewById(viewId);
-        recyclerDocuments.setVisibility(View.GONE); // Updated to hide documents RecyclerView
+        recyclerDocuments.setVisibility(View.GONE);
         textView.setVisibility(View.VISIBLE);
         textView.setText(message);
+    }
+
+    @Override
+    public void onItemClick(DocumentDto document) {
+        if (document != null && document.DocId > 0) {
+            Bundle bundle = new Bundle();
+            bundle.putInt("docId", document.DocId);
+            bundle.putString("title", document.Title != null ? document.Title : "");
+            Log.d(TAG, "Navigating to ViewDocumentDetailActivity with docId: " + document.DocId);
+            ViewDocumentDetailActivity.start(requireContext(), bundle);
+        } else {
+            Log.e(TAG, "Invalid document or docId: " + (document != null ? document.DocId : "null"));
+            Toast.makeText(requireContext(), "Tài liệu không hợp lệ", Toast.LENGTH_SHORT).show();
+        }
     }
 }
