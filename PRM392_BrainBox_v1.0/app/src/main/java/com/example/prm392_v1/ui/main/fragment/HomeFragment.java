@@ -33,10 +33,13 @@ import com.example.prm392_v1.ui.main.PurchaseActivity;
 import com.example.prm392_v1.ui.main.QuizActivity;
 import com.example.prm392_v1.ui.main.QuizDetailActivity;
 import com.example.prm392_v1.ui.main.ViewDocumentActivity;
+import com.example.prm392_v1.ui.main.ViewDocumentDetailActivity;
 import com.example.prm392_v1.utils.DocumentDownloader;
 import com.example.prm392_v1.utils.QuizDownloader;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -124,45 +127,71 @@ public class HomeFragment extends Fragment {
     }
 
     private void fetchTopDocuments() {
+        String token = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                .getString("jwt_token", null);
+        if (token == null || token.isEmpty()) {
+            showErrorText(R.id.text_no_documents, "Vui lòng đăng nhập để tải tài liệu.");
+            Toast.makeText(requireContext(), "Bạn phải đăng nhập trước", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(requireContext(), LoginActivity.class));
+            return;
+        }
+
         ApiService apiService = RetrofitClient.getApiService(requireContext());
-        apiService.getTopDocuments(null, "Views desc", 5, "Author($select=Username)")
-                .enqueue(new Callback<>() {
-                    @Override
-                    public void onResponse(Call<ODataResponse<DocumentDto>> call, Response<ODataResponse<DocumentDto>> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            List<DocumentDto> docs = response.body().value;
-                            showOrHideRecycler(recyclerDocuments, R.id.text_no_documents, docs);
+        Call<ODataResponse<DocumentDto>> call = apiService.getAllDocuments(null, "Author");
+        Log.d(TAG, "Request URL: " + call.request().url());
 
-                            if (docs != null && !docs.isEmpty()) {
-                                DocumentAdapter adapter = new DocumentAdapter();
-                                adapter.submitList(docs);
-                                recyclerDocuments.setAdapter(adapter);
-                                adapter.setOnItemClickListener(document -> {
-                                    Intent intent = new Intent(requireContext(), DocumentDetailActivity.class);
-                                    intent.putExtra("EXTRA_DOC_ID", document.DocId);
-                                    intent.putExtra("EXTRA_DOC_TITLE", document.Title);
-                                    startActivity(intent);
-                                });
-                                adapter.setOnDownloadClickListener(document -> {
-                                    DocumentDownloader.downloadDocumentWithDetails(requireContext(), document);
-                                });
-                            }
-                        } else {
-                            showErrorText(R.id.text_no_documents, "Không tải được dữ liệu.");
-                        }
+        call.enqueue(new Callback<ODataResponse<DocumentDto>>() {
+            @Override
+            public void onResponse(Call<ODataResponse<DocumentDto>> call, Response<ODataResponse<DocumentDto>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<DocumentDto> docs = response.body().value;
+                    Log.d(TAG, "Fetched " + (docs != null ? docs.size() : 0) + " documents");
+
+                    // Sort by Views in descending order and limit to 5
+                    List<DocumentDto> topDocs = docs != null ? new ArrayList<>(docs) : new ArrayList<>();
+                    if (!topDocs.isEmpty()) {
+                        Collections.sort(topDocs, (doc1, doc2) -> Integer.compare(doc2.Views, doc1.Views));
+                        topDocs = topDocs.size() > 5 ? topDocs.subList(0, 5) : topDocs;
                     }
 
-                    @Override
-                    public void onFailure(Call<ODataResponse<DocumentDto>> call, Throwable t) {
-                        showErrorText(R.id.text_no_documents, "Lỗi kết nối.");
+                    showOrHideRecycler(recyclerDocuments, R.id.text_no_documents, topDocs);
+
+                    if (topDocs != null && !topDocs.isEmpty()) {
+                        DocumentAdapter adapter = new DocumentAdapter();
+                        adapter.submitList(topDocs);
+                        recyclerDocuments.setAdapter(adapter);
+                        adapter.setOnItemClickListener(document -> {
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("docId", document.DocId);
+                            bundle.putString("title", document.Title); // Pass title for display
+                            ViewDocumentDetailActivity.start(requireContext(), bundle);
+                        });
+                        adapter.setOnDownloadClickListener(document -> {
+                            DocumentDownloader.downloadDocumentWithDetails(requireContext(), document);
+                        });
                     }
-                });
+                } else {
+                    Log.e(TAG, "Failed to fetch documents. Code: " + response.code() + ", Message: " + response.message());
+                    try {
+                        Log.e(TAG, "Error body: " + response.errorBody().string());
+                    } catch (Exception e) {
+                        Log.e(TAG, "Could not parse error body: " + e.getMessage());
+                    }
+                    showErrorText(R.id.text_no_documents, "Không tải được dữ liệu. Mã lỗi: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ODataResponse<DocumentDto>> call, Throwable t) {
+                Log.e(TAG, "API call failed: " + t.getMessage(), t);
+                showErrorText(R.id.text_no_documents, "Lỗi kết nối: " + t.getMessage());
+            }
+        });
     }
-
     private void fetchLatestQuizzes() {
         ApiService apiService = RetrofitClient.getApiService(requireContext());
         apiService.getLatestQuizzes(null, "CreatedAt desc", 5, "Creator($select=Username)")
-                .enqueue(new Callback<>() {
+                .enqueue(new Callback<ODataResponse<QuizDto>>() {
                     @Override
                     public void onResponse(Call<ODataResponse<QuizDto>> call, Response<ODataResponse<QuizDto>> response) {
                         if (response.isSuccessful() && response.body() != null) {
@@ -180,19 +209,20 @@ public class HomeFragment extends Fragment {
                                     quizzes.add(quiz);
                                 }
 
-                                // Fetch flashcards and ratings for each quiz
                                 fetchFlashcardsAndRatingsForQuizzes(quizzes);
                             } else {
                                 showErrorText(R.id.text_no_quizzes, "Không có quiz nào.");
                             }
                         } else {
-                            showErrorText(R.id.text_no_quizzes, "Không tải được dữ liệu.");
+                            Log.e(TAG, "Failed to fetch quizzes. Code: " + response.code() + ", Message: " + response.message());
+                            showErrorText(R.id.text_no_quizzes, "Không tải được dữ liệu. Mã lỗi: " + response.code());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<ODataResponse<QuizDto>> call, Throwable t) {
-                        showErrorText(R.id.text_no_quizzes, "Lỗi kết nối.");
+                        Log.e(TAG, "API call failed: " + t.getMessage(), t);
+                        showErrorText(R.id.text_no_quizzes, "Lỗi kết nối: " + t.getMessage());
                     }
                 });
     }
@@ -205,12 +235,11 @@ public class HomeFragment extends Fragment {
             return;
         }
 
-        final CountDownLatch latch = new CountDownLatch(quizzes.size() * 2); // Two API calls per quiz
+        final CountDownLatch latch = new CountDownLatch(quizzes.size() * 2);
         ApiService apiService = RetrofitClient.getApiService(requireContext());
         Log.d(TAG, "Starting to fetch flashcards and ratings for " + quizzes.size() + " quizzes.");
 
         for (Quiz quiz : quizzes) {
-            // Fetch flashcards
             String filter = "QuizId eq " + quiz.quizId;
             apiService.getFlashcardsForQuiz(filter).enqueue(new Callback<ODataResponse<Flashcard>>() {
                 @Override
@@ -235,7 +264,6 @@ public class HomeFragment extends Fragment {
                 }
             });
 
-            // Fetch ratings
             apiService.getRatingsForQuiz(quiz.quizId).enqueue(new Callback<List<RatingQuiz>>() {
                 @Override
                 public void onResponse(Call<List<RatingQuiz>> call, Response<List<RatingQuiz>> response) {
@@ -347,6 +375,7 @@ public class HomeFragment extends Fragment {
         if (list == null || list.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             rootView.findViewById(emptyViewId).setVisibility(View.VISIBLE);
+            ((TextView) rootView.findViewById(emptyViewId)).setText("Không có tài liệu nào.");
         } else {
             recyclerView.setVisibility(View.VISIBLE);
             rootView.findViewById(emptyViewId).setVisibility(View.GONE);
@@ -355,7 +384,7 @@ public class HomeFragment extends Fragment {
 
     private void showErrorText(int viewId, String message) {
         TextView textView = rootView.findViewById(viewId);
-        recyclerQuizzes.setVisibility(View.GONE);
+        recyclerDocuments.setVisibility(View.GONE); // Updated to hide documents RecyclerView
         textView.setVisibility(View.VISIBLE);
         textView.setText(message);
     }
