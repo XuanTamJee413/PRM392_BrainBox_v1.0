@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -13,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.Insets;
@@ -30,11 +34,15 @@ import com.example.prm392_v1.data.network.ApiService;
 import com.example.prm392_v1.data.network.RetrofitClient;
 import com.example.prm392_v1.ui.adapters.CommentAdapter;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -48,14 +56,17 @@ public class DocumentDetailActivity extends AppCompatActivity {
     private Button btnUpdate, btnDelete, btnNext, btnPrevious, btnCreate;
     private ImageButton btnBack;
     private ConstraintLayout mainContent, createForm, editForm;
-    private TextView txtCaptionCreate, txtImageUrlCreate, txtCaptionEdit, txtImageUrlEdit;
-    private Button btnCreateSubmit, btnUpdateSubmit;
+    private TextView txtCaptionCreate, txtImageUrlCreate, txtCaptionEdit;
+    private ImageView imagePreviewEdit;
+    private Button btnCreateSubmit, btnUpdateSubmit, btnSelectImage;
     private ImageButton btnBackCreate, btnBackEdit;
     private ApiService apiService;
     private int docId;
     private List<DocumentDetail> documentDetails;
     private int currentIndex = 0;
     private int editingDocDetailId = -1;
+    private String selectedImageName;
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
 
     public static void start(Context context, Bundle bundle) {
         Intent intent = new Intent(context, DocumentDetailActivity.class);
@@ -88,9 +99,10 @@ public class DocumentDetailActivity extends AppCompatActivity {
         txtCaptionCreate = findViewById(R.id.txt_caption_create);
         txtImageUrlCreate = findViewById(R.id.txt_image_url_create);
         txtCaptionEdit = findViewById(R.id.txt_caption_edit);
-        txtImageUrlEdit = findViewById(R.id.txt_image_url_edit);
+        imagePreviewEdit = findViewById(R.id.image_preview_edit);
         btnCreateSubmit = findViewById(R.id.btn_create_submit);
         btnUpdateSubmit = findViewById(R.id.btn_update_submit);
+        btnSelectImage = findViewById(R.id.btn_select_image);
         btnBackCreate = findViewById(R.id.btn_back_create);
         btnBackEdit = findViewById(R.id.btn_back_edit);
 
@@ -101,6 +113,21 @@ public class DocumentDetailActivity extends AppCompatActivity {
         apiService = RetrofitClient.getApiService(this);
         docId = getIntent().getIntExtra("docId", -1);
         documentDetails = new ArrayList<>();
+
+        // Khởi tạo launcher để chọn hình ảnh
+        imagePickerLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                Uri imageUri = result.getData().getData();
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                    imagePreviewEdit.setImageBitmap(bitmap);
+                    selectedImageName = UUID.randomUUID().toString() + ".jpg";
+                    saveImageToInternalStorage(bitmap, selectedImageName);
+                } catch (IOException e) {
+                    Toast.makeText(this, "Lỗi khi chọn hình ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         loadDocumentDetails();
 
@@ -114,6 +141,7 @@ public class DocumentDetailActivity extends AppCompatActivity {
         btnUpdateSubmit.setOnClickListener(v -> updateDocumentDetail());
         btnBackCreate.setOnClickListener(v -> showMainContent());
         btnBackEdit.setOnClickListener(v -> showMainContent());
+        btnSelectImage.setOnClickListener(v -> selectImage());
 
         // Xử lý WindowInsets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -121,6 +149,23 @@ public class DocumentDetailActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+    }
+
+    private void selectImage() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        imagePickerLauncher.launch(intent);
+    }
+
+    private void saveImageToInternalStorage(Bitmap bitmap, String fileName) {
+        try {
+            File file = new File(getFilesDir(), fileName);
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            Toast.makeText(this, "Lỗi khi lưu hình ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showCreateForm() {
@@ -138,7 +183,12 @@ public class DocumentDetailActivity extends AppCompatActivity {
             createForm.setVisibility(View.GONE);
             editForm.setVisibility(View.VISIBLE);
             txtCaptionEdit.setText(detail.Caption != null ? detail.Caption : "");
-            txtImageUrlEdit.setText(detail.ImageUrl != null ? detail.ImageUrl : "");
+            selectedImageName = detail.ImageUrl != null ? detail.ImageUrl : "";
+            if (detail.ImageUrl != null && !detail.ImageUrl.isEmpty()) {
+                new LoadImageTask(imagePreviewEdit).execute(detail.ImageUrl);
+            } else {
+                imagePreviewEdit.setImageResource(R.drawable.ic_placeholder);
+            }
             editingDocDetailId = detail.DocDetailId;
         } else {
             Toast.makeText(this, "Không có chi tiết tài liệu để chỉnh sửa", Toast.LENGTH_SHORT).show();
@@ -188,7 +238,6 @@ public class DocumentDetailActivity extends AppCompatActivity {
 
     private void updateDocumentDetail() {
         String caption = txtCaptionEdit.getText().toString().trim();
-        String imageUrl = txtImageUrlEdit.getText().toString().trim();
 
         if (caption.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập chú thích", Toast.LENGTH_SHORT).show();
@@ -199,14 +248,14 @@ public class DocumentDetailActivity extends AppCompatActivity {
         updatedDetail.DocDetailId = editingDocDetailId;
         updatedDetail.DocId = docId;
         updatedDetail.Caption = caption;
-        updatedDetail.ImageUrl = imageUrl.isEmpty() ? null : imageUrl;
+        updatedDetail.ImageUrl = selectedImageName.isEmpty() ? null : selectedImageName;
 
         apiService.updateDocumentDetail(editingDocDetailId, updatedDetail).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     documentDetails.get(currentIndex).Caption = caption;
-                    documentDetails.get(currentIndex).ImageUrl = imageUrl;
+                    documentDetails.get(currentIndex).ImageUrl = selectedImageName;
                     updateCurrentDetail();
                     showMainContent();
                     Toast.makeText(DocumentDetailActivity.this, "Cập nhật chi tiết tài liệu thành công", Toast.LENGTH_SHORT).show();
@@ -368,13 +417,18 @@ public class DocumentDetailActivity extends AppCompatActivity {
             String url = urls[0];
             Bitmap bitmap = null;
             try {
-                HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-                connection.setDoInput(true);
-                connection.connect();
-                InputStream input = connection.getInputStream();
-                bitmap = BitmapFactory.decodeStream(input);
-                input.close();
-                connection.disconnect();
+                File file = new File(imageView.getContext().getFilesDir(), url);
+                if (file.exists()) {
+                    bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                } else {
+                    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+                    connection.setDoInput(true);
+                    connection.connect();
+                    InputStream input = connection.getInputStream();
+                    bitmap = BitmapFactory.decodeStream(input);
+                    input.close();
+                    connection.disconnect();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
