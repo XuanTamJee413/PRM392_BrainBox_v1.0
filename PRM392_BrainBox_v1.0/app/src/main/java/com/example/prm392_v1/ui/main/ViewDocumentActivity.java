@@ -21,6 +21,7 @@ import com.example.prm392_v1.data.model.ODataResponse;
 import com.example.prm392_v1.data.network.ApiService;
 import com.example.prm392_v1.data.network.RetrofitClient;
 import com.example.prm392_v1.ui.adapters.DocumentAdapter;
+import com.example.prm392_v1.utils.DocumentDownloader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +65,10 @@ public class ViewDocumentActivity extends AppCompatActivity implements DocumentA
         documentAdapter = new DocumentAdapter();
         recyclerView.setAdapter(documentAdapter);
         documentAdapter.setOnItemClickListener(this);
+
+        documentAdapter.setOnDownloadClickListener(document -> {
+            DocumentDownloader.downloadDocumentWithDetails(ViewDocumentActivity.this, document);
+        });
     }
 
     @Override

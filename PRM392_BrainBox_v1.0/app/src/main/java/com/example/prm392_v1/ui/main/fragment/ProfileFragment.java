@@ -146,7 +146,7 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ODataResponse<UserDto>> call, Throwable t) {
-                txtUsername.setText("Không tải được thông tin.");
+                txtUsername.setText("Không thể kết nối với máy chủ.");
             }
         });
     }

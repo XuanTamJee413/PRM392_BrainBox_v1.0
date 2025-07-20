@@ -27,6 +27,7 @@ import com.example.prm392_v1.data.network.RetrofitClient;
 import com.example.prm392_v1.ui.adapters.QuizAdapter;
 import com.example.prm392_v1.ui.main.fragment.ChatAiDialogFragment;
 import com.example.prm392_v1.ui.views.DraggableFloatingActionButton;
+import com.example.prm392_v1.utils.QuizDownloader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,12 +133,17 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
     }
 
     private void fetchFlashcardsAndRatingsForQuizzes(List<Quiz> quizzes) {
+        quizAdapter.setOnDownloadClickListener(quiz -> {
+            QuizDownloader.downloadQuizWithFlashcards(QuizActivity.this, quiz);
+        });
         if (quizzes.isEmpty()) {
             progressBar.setVisibility(View.GONE);
             quizAdapter.submitList(new ArrayList<>(fullQuizList));
             Log.d(TAG, "fetchFlashcardsAndRatingsForQuizzes called with empty list. Updating adapter.");
+
             return;
         }
+
 
         final CountDownLatch latch = new CountDownLatch(quizzes.size() * 2);
         Log.d(TAG, "Starting to fetch flashcards and ratings for " + quizzes.size() + " quizzes.");
