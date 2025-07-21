@@ -30,7 +30,6 @@ public class CreateQuizActivity extends AppCompatActivity {
     private AutoCompleteTextView autoCompleteCorrectAnswer;
     private Button buttonAddFlashcard, buttonSaveQuiz;
 
-    // ✅ THÊM CÁC BIẾN CHO RECYCLERVIEW
     private RecyclerView recyclerAddedFlashcards;
     private AddedFlashcardAdapter addedFlashcardAdapter;
     private List<Flashcard> newFlashcards = new ArrayList<>();
@@ -40,7 +39,6 @@ public class CreateQuizActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_quiz);
 
-        // Ánh xạ View
         editQuizName = findViewById(R.id.edit_quiz_name);
         editQuizDescription = findViewById(R.id.edit_quiz_description);
         editQuestion = findViewById(R.id.edit_flashcard_question);
@@ -96,7 +94,7 @@ public class CreateQuizActivity extends AppCompatActivity {
         flashcard.answer = Integer.parseInt(answerStr);
 
         newFlashcards.add(flashcard);
-        addedFlashcardAdapter.notifyItemInserted(newFlashcards.size() - 1); // ✅ Cập nhật UI
+        addedFlashcardAdapter.notifyItemInserted(newFlashcards.size() - 1);
 
 
         editQuestion.setText("");

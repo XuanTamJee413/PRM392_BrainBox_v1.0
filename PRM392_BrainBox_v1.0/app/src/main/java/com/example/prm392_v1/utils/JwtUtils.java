@@ -15,6 +15,12 @@
                 String payload = new String(Base64.decode(parts[1], Base64.URL_SAFE));
                 JSONObject json = new JSONObject(payload);
 
+                // Check token expiration
+                long exp = json.optLong("exp") * 1000; // Convert to milliseconds
+                if (exp < System.currentTimeMillis()) {
+                    return null; // Token expired
+                }
+
                 User user = new User();
                 user.id = json.optInt("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
                 user.username = json.optString("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name");

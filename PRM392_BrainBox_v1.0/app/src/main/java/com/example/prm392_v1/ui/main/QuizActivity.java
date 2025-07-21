@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log; // Import Log
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -25,11 +25,14 @@ import com.example.prm392_v1.data.model.RatingQuiz;
 import com.example.prm392_v1.data.network.ApiService;
 import com.example.prm392_v1.data.network.RetrofitClient;
 import com.example.prm392_v1.ui.adapters.QuizAdapter;
+import com.example.prm392_v1.ui.main.fragment.ChatAiDialogFragment;
+import com.example.prm392_v1.ui.views.DraggableFloatingActionButton;
+import com.example.prm392_v1.utils.QuizDownloader;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit; // Import TimeUnit
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -43,7 +46,7 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
     private QuizAdapter quizAdapter;
     private ProgressBar progressBar;
     private SearchView searchView;
-    private List<Quiz> fullQuizList = new ArrayList<>(); // Danh sách này sẽ chứa quiz với thông tin rating đã cập nhật
+    private List<Quiz> fullQuizList = new ArrayList<>();
     private ApiService apiService;
 
     @Override
@@ -51,11 +54,22 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
 
+        // --- BẮT ĐẦU PHẦN THÊM MỚI ---
+        // Tìm icon AI nổi và thiết lập sự kiện click
+        DraggableFloatingActionButton fabAi = findViewById(R.id.fab_ai_assistant);
+        fabAi.setOnClickListener(view -> {
+            // Tạo một instance của DialogFragment chat
+            ChatAiDialogFragment dialogFragment = new ChatAiDialogFragment();
+            // Hiển thị dialog
+            dialogFragment.show(getSupportFragmentManager(), "ChatAiDialog");
+        });
+        // --- KẾT THÚC PHẦN THÊM MỚI ---
+
         progressBar = findViewById(R.id.progress_bar);
         searchView = findViewById(R.id.search_view);
         Button btnBackHome = findViewById(R.id.btn_back_home);
 
-        apiService = RetrofitClient.getApiService(this); // Khởi tạo ApiService
+        apiService = RetrofitClient.getApiService(this);
 
         setupRecyclerView();
         setupSearchView();
@@ -84,48 +98,53 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
 
     private void loadQuizzesFromApi() {
         progressBar.setVisibility(View.VISIBLE);
-        Log.d(TAG, "Bắt đầu tải danh sách quiz từ API.");
+        Log.d(TAG, "Starting to load quizzes from API.");
 
         apiService.getAllQuizzes().enqueue(new Callback<ODataResponse<Quiz>>() {
             @Override
             public void onResponse(Call<ODataResponse<Quiz>> call, Response<ODataResponse<Quiz>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     fullQuizList = response.body().value;
-                    Log.d(TAG, "Tải thành công " + fullQuizList.size() + " quiz.");
+                    Log.d(TAG, "Successfully loaded " + fullQuizList.size() + " quizzes.");
 
                     if (!fullQuizList.isEmpty()) {
-                        // Fetch flashcards and ratings for quizzes
                         fetchFlashcardsAndRatingsForQuizzes(fullQuizList);
                     } else {
                         progressBar.setVisibility(View.GONE);
-                        Toast.makeText(QuizActivity.this, "Không có quiz nào để hiển thị.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(QuizActivity.this, "No quizzes found.", Toast.LENGTH_SHORT).show();
                         quizAdapter.submitList(new ArrayList<>());
-                        Log.d(TAG, "Không tìm thấy quiz nào. Adapter được cập nhật với danh sách rỗng.");
+                        Log.d(TAG, "No quizzes found. Adapter updated with empty list.");
                     }
                 } else {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(QuizActivity.this, "Không thể tải dữ liệu quiz. Mã lỗi: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(QuizActivity.this, "Failed to load quizzes. Error code: " + response.code(), Toast.LENGTH_SHORT).show();
                     quizAdapter.submitList(new ArrayList<>());
-                    Log.e(TAG, "Lỗi tải quiz. Mã lỗi: " + response.code() + ", Thông báo: " + response.message());
+                    Log.e(TAG, "Failed to load quizzes. Code: " + response.code() + ", Message: " + response.message());
                 }
             }
 
             @Override
             public void onFailure(Call<ODataResponse<Quiz>> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
-                Toast.makeText(QuizActivity.this, "Lỗi kết nối khi tải quiz: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(QuizActivity.this, "Connection error while loading quizzes: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 quizAdapter.submitList(new ArrayList<>());
-                Log.e(TAG, "API call getAllQuizzes thất bại: " + t.getMessage(), t);
+                Log.e(TAG, "API call getAllQuizzes failed: " + t.getMessage(), t);
             }
         });
     }
+
     private void fetchFlashcardsAndRatingsForQuizzes(List<Quiz> quizzes) {
+        quizAdapter.setOnDownloadClickListener(quiz -> {
+            QuizDownloader.downloadQuizWithFlashcards(QuizActivity.this, quiz);
+        });
         if (quizzes.isEmpty()) {
             progressBar.setVisibility(View.GONE);
             quizAdapter.submitList(new ArrayList<>(fullQuizList));
-            Log.d(TAG, "fetchFlashcardsAndRatingsForQuizzes called with empty list. Updating adapter with current fullQuizList.");
+            Log.d(TAG, "fetchFlashcardsAndRatingsForQuizzes called with empty list. Updating adapter.");
+
             return;
         }
+
 
         final CountDownLatch latch = new CountDownLatch(quizzes.size() * 2);
         Log.d(TAG, "Starting to fetch flashcards and ratings for " + quizzes.size() + " quizzes.");
@@ -146,7 +165,6 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
                                 ". Code: " + response.code() + ", Message: " + response.message());
                     }
                     latch.countDown();
-                    Log.d(TAG, "Latch count after flashcards response for quizId " + quiz.quizId + ": " + latch.getCount());
                 }
 
                 @Override
@@ -154,7 +172,6 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
                     quiz.flashcards = new ArrayList<>();
                     Log.e(TAG, "API call for flashcards for quizId " + quiz.quizId + " failed: " + t.getMessage(), t);
                     latch.countDown();
-                    Log.d(TAG, "Latch count after flashcards failure for quizId " + quiz.quizId + ": " + latch.getCount());
                 }
             });
 
@@ -162,30 +179,26 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
             apiService.getRatingsForQuiz(quiz.quizId).enqueue(new Callback<List<RatingQuiz>>() {
                 @Override
                 public void onResponse(Call<List<RatingQuiz>> call, Response<List<RatingQuiz>> response) {
+                    Log.d(TAG, "Raw response for ratings quizId " + quiz.quizId + ": " + response.body());
                     if (response.isSuccessful() && response.body() != null) {
                         List<RatingQuiz> ratings = response.body();
                         Log.d(TAG, "Fetched " + ratings.size() + " ratings for quizId: " + quiz.quizId);
                         for (RatingQuiz rating : ratings) {
-                            Log.d(TAG, "Rating details - quizId: " + rating.quizId +
-                                    ", rating: " + rating.rating + ", comment: " +
-                                    (rating.comment != null ? rating.comment : "null") +
-                                    ", ratedAt: " + rating.ratedAt);
+                            Log.d(TAG, "Rating: quizId=" + rating.quizId + ", rating=" + rating.rating +
+                                    ", comment=" + (rating.comment != null ? rating.comment : "null"));
                         }
                         calculateAndSetAverageRating(quiz, ratings);
                     } else if (response.code() == 404) {
-                        // Handle 404 as a valid case: no ratings exist
                         quiz.averageRating = 0.0f;
                         quiz.totalRatings = 0;
-                        Log.d(TAG, "No ratings found for quizId: " + quiz.quizId + " (HTTP 404, expected for unrated quizzes)");
+                        Log.d(TAG, "No ratings found for quizId: " + quiz.quizId + " (HTTP 404)");
                     } else {
-                        // Handle unexpected HTTP errors
                         quiz.averageRating = 0.0f;
                         quiz.totalRatings = 0;
-                        Log.e(TAG, "Unexpected error fetching ratings for quizId " + quiz.quizId +
+                        Log.e(TAG, "Failed to fetch ratings for quizId " + quiz.quizId +
                                 ". Code: " + response.code() + ", Message: " + response.message());
                     }
                     latch.countDown();
-                    Log.d(TAG, "Latch count after ratings response for quizId " + quiz.quizId + ": " + latch.getCount());
                 }
 
                 @Override
@@ -194,18 +207,17 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
                     quiz.totalRatings = 0;
                     Log.e(TAG, "API call for ratings for quizId " + quiz.quizId + " failed: " + t.getMessage(), t);
                     latch.countDown();
-                    Log.d(TAG, "Latch count after ratings failure for quizId " + quiz.quizId + ": " + latch.getCount());
                 }
             });
         }
 
         new Thread(() -> {
             try {
-                boolean allDone = latch.await(30, TimeUnit.SECONDS);
+                boolean allDone = latch.await(10, TimeUnit.SECONDS);
                 if (!allDone) {
                     Log.w(TAG, "Timeout while fetching flashcards or ratings. Data may be incomplete.");
                     new Handler(Looper.getMainLooper()).post(() -> {
-                        Toast.makeText(QuizActivity.this, "Tải dữ liệu bị gián đoạn, dữ liệu có thể không đầy đủ.",
+                        Toast.makeText(QuizActivity.this, "Data loading interrupted, some data may be incomplete.",
                                 Toast.LENGTH_LONG).show();
                     });
                 }
@@ -216,7 +228,6 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
                 new Handler(Looper.getMainLooper()).post(() -> {
                     progressBar.setVisibility(View.GONE);
                     quizAdapter.submitList(new ArrayList<>(fullQuizList));
-                    // Log final quiz data for debugging
                     for (Quiz quiz : fullQuizList) {
                         Log.d(TAG, "Quiz: " + quiz.quizName + ", quizId: " + quiz.quizId +
                                 ", avgRating: " + quiz.averageRating +
@@ -224,72 +235,6 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
                                 ", flashcardCount: " + (quiz.flashcards != null ? quiz.flashcards.size() : 0));
                     }
                     Log.d(TAG, "Adapter updated with " + fullQuizList.size() + " quizzes.");
-                });
-            }
-        }).start();
-    }
-    private void fetchRatingsForQuizzes(List<Quiz> quizzes) {
-        if (quizzes.isEmpty()) {
-            progressBar.setVisibility(View.GONE);
-            quizAdapter.submitList(new ArrayList<>(fullQuizList)); // Cập nhật ngay nếu danh sách rỗng
-            Log.d(TAG, "fetchRatingsForQuizzes được gọi với danh sách rỗng. Đang cập nhật fullQuizList hiện tại.");
-            return;
-        }
-
-        final CountDownLatch latch = new CountDownLatch(quizzes.size());
-        Log.d(TAG, "Bắt đầu tải đánh giá cho " + quizzes.size() + " quiz.");
-
-        for (Quiz quiz : quizzes) {
-            apiService.getRatingsForQuiz(quiz.quizId).enqueue(new Callback<List<RatingQuiz>>() {
-                @Override
-                public void onResponse(Call<List<RatingQuiz>> call, Response<List<RatingQuiz>> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        List<RatingQuiz> ratings = response.body();
-                        calculateAndSetAverageRating(quiz, ratings);
-                        Log.d(TAG, "Tải đánh giá thành công cho quizId: " + quiz.quizId + ". Số lượng: " + ratings.size());
-                    } else {
-                        // Xử lý lỗi hoặc không có đánh giá, quiz sẽ có rating mặc định 0.0
-                        quiz.averageRating = 0.0f;
-                        quiz.totalRatings = 0;
-                        Log.e(TAG, "Lỗi tải đánh giá cho quizId " + quiz.quizId + ". Mã lỗi: " + response.code() + ", Thông báo: " + response.message());
-                    }
-                    latch.countDown(); // Giảm số lượng đếm của latch
-                    Log.d(TAG, "Latch count sau response cho quizId " + quiz.quizId + ": " + latch.getCount());
-                }
-
-                @Override
-                public void onFailure(Call<List<RatingQuiz>> call, Throwable t) {
-                    // Xử lý lỗi, quiz sẽ có rating mặc định 0.0
-                    quiz.averageRating = 0.0f;
-                    quiz.totalRatings = 0;
-                    Log.e(TAG, "API call tải đánh giá cho quizId " + quiz.quizId + " thất bại: " + t.getMessage(), t);
-                    latch.countDown(); // Giảm số lượng đếm của latch ngay cả khi thất bại
-                    Log.d(TAG, "Latch count sau failure cho quizId " + quiz.quizId + ": " + latch.getCount());
-                }
-            });
-        }
-
-        // Bắt đầu một luồng mới để chờ latch, tránh block luồng chính (UI)
-        new Thread(() -> {
-            try {
-                // Chờ tất cả các cuộc gọi mạng hoàn thành, với thời gian chờ tối đa
-                boolean allDone = latch.await(30, TimeUnit.SECONDS); // Chờ tối đa 30 giây
-                if (!allDone) {
-                    Log.w(TAG, "Thời gian tải đánh giá đã hết. Một số đánh giá có thể không được tải.");
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        Toast.makeText(QuizActivity.this, "Tải đánh giá bị gián đoạn, dữ liệu có thể không đầy đủ.", Toast.LENGTH_LONG).show();
-                    });
-                }
-            } catch (InterruptedException e) {
-                Log.e(TAG, "Latch await bị gián đoạn: " + e.getMessage());
-                Thread.currentThread().interrupt(); // Khôi phục trạng thái ngắt
-            } finally {
-                // Luôn đảm bảo cập nhật UI được đăng lên luồng chính
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    progressBar.setVisibility(View.GONE);
-                    // QUAN TRỌNG: Cần submit một instance mới của List cho DiffUtil để cập nhật đúng cách
-                    quizAdapter.submitList(new ArrayList<>(fullQuizList));
-                    Log.d(TAG, "Tất cả các lượt tải đánh giá đã hoàn thành (hoặc hết thời gian chờ). Adapter đã được cập nhật.");
                 });
             }
         }).start();
@@ -306,10 +251,10 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
         float totalRating = 0;
         int validRatingsCount = 0;
         for (RatingQuiz rating : ratings) {
-            if (rating != null && rating.rating >= 0 && rating.rating <= 5) { // Validate rating
+            if (rating != null && rating.rating >= 0 && rating.rating <= 5) {
                 totalRating += rating.rating;
                 validRatingsCount++;
-                Log.d(TAG, "Rating for quizId: " + quiz.quizId + ", rating value: " + rating.rating +
+                Log.d(TAG, "Processed rating for quizId: " + quiz.quizId + ", rating value: " + rating.rating +
                         ", comment: " + (rating.comment != null ? rating.comment : "null"));
             } else {
                 Log.w(TAG, "Invalid rating for quizId: " + quiz.quizId + ", rating: " +
@@ -347,7 +292,7 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
     private void filter(String text) {
         List<Quiz> filteredList = new ArrayList<>();
         if (text.isEmpty()) {
-            filteredList.addAll(fullQuizList); // Sử dụng danh sách đầy đủ đã có ratings
+            filteredList.addAll(fullQuizList);
         } else {
             for (Quiz item : fullQuizList) {
                 if (item.quizName.toLowerCase().contains(text.toLowerCase())) {
@@ -355,8 +300,8 @@ public class QuizActivity extends AppCompatActivity implements QuizAdapter.OnIte
                 }
             }
         }
-        quizAdapter.submitList(new ArrayList<>(filteredList)); // Submit một instance mới
-        Log.d(TAG, "Danh sách đã lọc được cập nhật. Kích thước: " + filteredList.size());
+        quizAdapter.submitList(new ArrayList<>(filteredList));
+        Log.d(TAG, "Filtered list updated. Size: " + filteredList.size());
     }
 
     @Override

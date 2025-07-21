@@ -185,6 +185,11 @@ public class ViewDocumentDetailActivity extends AppCompatActivity {
             return;
         }
 
+        if (documentDetails == null || documentDetails.isEmpty()) {
+            Toast.makeText(this, "Không có chi tiết tài liệu để bình luận", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (currentIndex >= 0 && currentIndex < documentDetails.size()) {
             DocumentDetail detail = documentDetails.get(currentIndex);
             Comment newComment = new Comment();

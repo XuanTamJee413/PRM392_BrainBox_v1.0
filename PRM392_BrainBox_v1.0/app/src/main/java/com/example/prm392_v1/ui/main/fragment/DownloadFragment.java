@@ -20,6 +20,8 @@ import com.example.prm392_v1.data.model.DocumentDto;
 import com.example.prm392_v1.data.model.UserDto;
 import com.example.prm392_v1.ui.adapters.DocumentAdapter;
 import com.example.prm392_v1.ui.adapters.QuizAdapter;
+import com.example.prm392_v1.ui.main.DownloadedDocumentDetailActivity;
+import com.example.prm392_v1.ui.main.DownloadedQuizDetailActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +66,20 @@ public class DownloadFragment extends Fragment {
         recyclerQuizzes.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
         documentAdapter = new DocumentAdapter();
+        documentAdapter.setOnItemClickListener(doc -> {
+            Intent intent = new Intent(requireContext(), DownloadedDocumentDetailActivity.class);
+            intent.putExtra("docId", doc.DocId);
+            intent.putExtra("title", doc.Title);
+            startActivity(intent);
+        });
+
         quizAdapter = new QuizAdapter();
+        quizAdapter.setOnItemClickListener(quiz -> {
+            Intent intent = new Intent(requireContext(), DownloadedQuizDetailActivity.class);
+            intent.putExtra("quiz_id", quiz.quizId);
+            intent.putExtra("quiz_title", quiz.quizName);
+            startActivity(intent);
+        });
 
         recyclerDocuments.setAdapter(documentAdapter);
         recyclerQuizzes.setAdapter(quizAdapter);

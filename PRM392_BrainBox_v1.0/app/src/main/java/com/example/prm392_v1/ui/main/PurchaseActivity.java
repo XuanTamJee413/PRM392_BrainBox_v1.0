@@ -81,14 +81,12 @@ public class PurchaseActivity extends AppCompatActivity {
 
         btnPay.setOnClickListener(v -> {
             String selected = getSelectedOption();
-
-            // TODO: Gọi Google Billing để thanh toán
-
+            // chua goi dc vn pay fall back tam la da dang ky dc
             long millis = 0;
             if (selected.contains("30 ngày")) millis = 32L * 24 * 60 * 60 * 1000;
             else if (selected.contains("6 tháng")) millis = 182L * 24 * 60 * 60 * 1000;
             else if (selected.contains("12 tháng")) millis = 367L * 24 * 60 * 60 * 1000;
-            else if (selected.contains("vĩnh viễn")) millis = 100L * 365L * 24 * 60 * 60 * 1000;
+            else if (selected.contains("vĩnh viễn")) millis = 1463L * 365L * 24 * 60 * 60 * 1000;
 
             String token = getSharedPreferences("auth_prefs", MODE_PRIVATE).getString("jwt_token", null);
             User user = JwtUtils.parseUserFromToken(token);

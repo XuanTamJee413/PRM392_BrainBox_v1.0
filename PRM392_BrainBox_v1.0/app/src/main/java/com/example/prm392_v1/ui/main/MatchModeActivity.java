@@ -41,32 +41,31 @@ public class MatchModeActivity extends AppCompatActivity {
     private GridLayout gridLayoutMatchCards;
     private Button buttonPlayAgain, buttonBack;
 
-    private List<Flashcard> allAvailableFlashcards = new ArrayList<>(); // Stores all flashcards fetched from API
-    private List<Flashcard> unplayedFlashcards = new ArrayList<>();     // Flashcards not yet put into a round
+    private List<Flashcard> allAvailableFlashcards = new ArrayList<>();
+    private List<Flashcard> unplayedFlashcards = new ArrayList<>();
 
-    private List<MatchCard> currentMatchCards = new ArrayList<>(); // Cards currently in the grid for the current round
+    private List<MatchCard> currentMatchCards = new ArrayList<>();
 
     private View firstSelectedCardView = null;
-    private int firstSelectedCardIndexInGrid = -1; // Index in the currentMatchCards list
+    private int firstSelectedCardIndexInGrid = -1;
     private MatchCard firstSelectedMatchCard = null;
 
-    private View secondSelectedCardView = null; // To store the second selected card view
-    private int secondSelectedCardIndexInGrid = -1; // Index in the currentMatchCards list
+    private View secondSelectedCardView = null;
+    private int secondSelectedCardIndexInGrid = -1;
 
-    private int correctMatchesCount = 0;        // Total matched pairs across all rounds
-    private int matchedPairsInCurrentRound = 0; // Tracks matches within the current set of visible cards
-    private int currentRoundFlashcardCount = 4; // Number of flashcards (pairs) to display in one round (e.g., 4 pairs = 8 cards)
+    private int correctMatchesCount = 0;
+    private int matchedPairsInCurrentRound = 0;
+    private int currentRoundFlashcardCount = 4;
 
     private CountDownTimer gameTimer;
-    private long timeLeftInMillis = 30000; // 30 seconds
+    private long timeLeftInMillis = 30000;
     private boolean timerRunning;
-    private boolean isProcessingClick = false; // Flag to prevent multiple rapid clicks
+    private boolean isProcessingClick = false;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
-    // Helper class to hold card data and state
     private static class MatchCard {
-        int flashcardId; // Use actual flashcard ID from API to identify pairs
+        int flashcardId;
         String content;
         boolean isQuestion;
         boolean isMatched;
@@ -97,7 +96,7 @@ public class MatchModeActivity extends AppCompatActivity {
             fetchFlashcards(quizId);
         } else {
             textInstructions.setText("Không có Quiz ID.");
-            buttonPlayAgain.setVisibility(View.GONE); // Ensure button is hidden if no quiz ID
+            buttonPlayAgain.setVisibility(View.GONE);
         }
     }
 
@@ -107,7 +106,6 @@ public class MatchModeActivity extends AppCompatActivity {
         if (gameTimer != null) {
             gameTimer.cancel();
         }
-        // Crucial: Remove all pending callbacks to prevent crashes if activity is destroyed
         handler.removeCallbacksAndMessages(null);
     }
 
@@ -120,11 +118,11 @@ public class MatchModeActivity extends AppCompatActivity {
         buttonPlayAgain = findViewById(R.id.button_play_again);
         buttonBack = findViewById(R.id.button_back);
 
-        textResult.setText("Số cặp đúng: 0"); // Initial score display
+        textResult.setText("Số cặp đúng: 0");
     }
 
     private void setupClickListeners() {
-        buttonPlayAgain.setOnClickListener(v -> startGame()); // Restart the game
+        buttonPlayAgain.setOnClickListener(v -> startGame());
         buttonBack.setOnClickListener(v -> finish());
     }
 
@@ -136,16 +134,15 @@ public class MatchModeActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ODataResponse<Flashcard>> call, Response<ODataResponse<Flashcard>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    allAvailableFlashcards = response.body().value; // Store all fetched flashcards
+                    allAvailableFlashcards = response.body().value;
                     if (allAvailableFlashcards != null && !allAvailableFlashcards.isEmpty()) {
-                        // Ensure we have enough flashcards for at least one round
                         if (allAvailableFlashcards.size() < currentRoundFlashcardCount) {
                             Toast.makeText(MatchModeActivity.this, "Cần ít nhất " + currentRoundFlashcardCount + " flashcard để chơi chế độ ghép đôi (cho một lượt chơi).", Toast.LENGTH_LONG).show();
                             textInstructions.setText("Không đủ flashcard để chơi.");
                             buttonPlayAgain.setVisibility(View.GONE);
                             return;
                         }
-                        startGame(); // Start the game after fetching data
+                        startGame();
                     } else {
                         textInstructions.setText("Không có flashcard nào.");
                         buttonPlayAgain.setVisibility(View.GONE);
@@ -167,8 +164,8 @@ public class MatchModeActivity extends AppCompatActivity {
     }
 
     private void startGame() {
-        resetGameState(); // Reset scores, timer, selected cards etc.
-        startNewRound(); // Start the first round
+        resetGameState();
+        startNewRound();
         startTimer();
     }
 
@@ -176,11 +173,11 @@ public class MatchModeActivity extends AppCompatActivity {
         if (gameTimer != null) {
             gameTimer.cancel();
         }
-        handler.removeCallbacksAndMessages(null); // Clear any pending runnables
+        handler.removeCallbacksAndMessages(null);
 
         currentMatchCards.clear();
-        correctMatchesCount = 0;        // Reset total game score
-        matchedPairsInCurrentRound = 0; // Reset for the new round
+        correctMatchesCount = 0;
+        matchedPairsInCurrentRound = 0;
 
         textResult.setText("Số cặp đúng: 0");
         resetSelectionState();
@@ -190,29 +187,25 @@ public class MatchModeActivity extends AppCompatActivity {
         setGridClickable(true);
         isProcessingClick = false;
 
-        // Populate unplayedFlashcards with all available flashcards for a new game
         unplayedFlashcards.clear();
         if (allAvailableFlashcards != null) {
             unplayedFlashcards.addAll(allAvailableFlashcards);
-            Collections.shuffle(unplayedFlashcards); // Shuffle the entire pool of flashcards
+            Collections.shuffle(unplayedFlashcards);
         }
     }
 
     private void startNewRound() {
-        gridLayoutMatchCards.removeAllViews(); // Clear previous cards from the grid
-        currentMatchCards.clear();             // Clear the list for the new round
-        matchedPairsInCurrentRound = 0;        // Reset matches for this round
+        gridLayoutMatchCards.removeAllViews();
+        currentMatchCards.clear();
+        matchedPairsInCurrentRound = 0;
 
         List<Flashcard> roundFlashcards = new ArrayList<>();
 
-        // Take up to `currentRoundFlashcardCount` unique flashcards for this round
         for (int i = 0; i < currentRoundFlashcardCount && !unplayedFlashcards.isEmpty(); i++) {
-            roundFlashcards.add(unplayedFlashcards.remove(0)); // Remove from unplayed list
+            roundFlashcards.add(unplayedFlashcards.remove(0));
         }
 
         if (roundFlashcards.isEmpty()) {
-            // No more flashcards to play for a new round, game should truly end.
-            // This case handles if the last round was played and now there are no more cards.
             endGame();
             return;
         }
@@ -220,27 +213,22 @@ public class MatchModeActivity extends AppCompatActivity {
         List<MatchCard> allCardsInRound = new ArrayList<>();
         for (int i = 0; i < roundFlashcards.size(); i++) {
             Flashcard flashcard = roundFlashcards.get(i);
-            // Use flashcard.flashcardId to identify pairs uniquely
             allCardsInRound.add(new MatchCard(flashcard.cardId, flashcard.question, true));
             String correctAnswer = getCorrectOption(flashcard);
             allCardsInRound.add(new MatchCard(flashcard.cardId, correctAnswer, false));
         }
 
-        // Shuffle cards for the current round
         Collections.shuffle(allCardsInRound, new Random());
         currentMatchCards.addAll(allCardsInRound);
 
-        // Update grid layout properties (columns and rows)
         gridLayoutMatchCards.setColumnCount(2);
-        gridLayoutMatchCards.setRowCount(currentMatchCards.size() / 2); // E.g., 4 rows for 8 cards
+        gridLayoutMatchCards.setRowCount(currentMatchCards.size() / 2);
 
-        // Recalculate card dimensions based on the new number of cards if necessary
         int paddingPx = (int) (16 * getResources().getDisplayMetrics().density);
         int marginPx = (int) (4 * getResources().getDisplayMetrics().density);
         int gridTotalWidth = getResources().getDisplayMetrics().widthPixels - (2 * paddingPx);
         int desiredCardWidth = (gridTotalWidth / gridLayoutMatchCards.getColumnCount()) - (2 * marginPx);
 
-        // Calculate height based on total cards in round, ensuring at least one row
         int numRows = Math.max(1, currentMatchCards.size() / gridLayoutMatchCards.getColumnCount());
         int gridTotalHeight = gridLayoutMatchCards.getHeight(); // Get current measured height of grid
         if (gridTotalHeight == 0) { // Fallback if height not yet measured (e.g. on first call)

@@ -6,6 +6,8 @@ import android.animation.AnimatorSet;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -28,6 +30,7 @@ import retrofit2.Response;
 
 public class FlashcardsModeActivity extends AppCompatActivity {
 
+    private static final String TAG = "FlashcardsModeActivity";
     private TextView textQuizTitle, textFlashcardContent, textCardCounter;
     private Button buttonPrev, buttonNext, buttonBack;
     private List<Flashcard> flashcardList = new ArrayList<>();
@@ -35,10 +38,9 @@ public class FlashcardsModeActivity extends AppCompatActivity {
     private boolean isShowingQuestion = true;
     private int quizId;
     private View cardFlashcard;
-
     private AnimatorSet mSetRightOut;
     private AnimatorSet mSetLeftIn;
-    private boolean mIsBackVisible = false;
+    private boolean isAnimating = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,13 +53,19 @@ public class FlashcardsModeActivity extends AppCompatActivity {
         initializeViews();
         textQuizTitle.setText(quizName);
 
-        // Load animations
         loadAnimations();
+
+        float distance = 8000;
+        float scale = getResources().getDisplayMetrics().density * distance;
+        cardFlashcard.setCameraDistance(scale);
 
         setupClickListeners();
 
         if (quizId != -1) {
             fetchFlashcards(quizId);
+        } else {
+            Toast.makeText(this, "Không tìm thấy ID quiz.", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
@@ -74,47 +82,56 @@ public class FlashcardsModeActivity extends AppCompatActivity {
     private void loadAnimations() {
         mSetRightOut = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.card_flip_right_out);
         mSetLeftIn = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.card_flip_left_in);
+        mSetRightOut.setDuration(300);
+        mSetLeftIn.setDuration(300);
     }
 
     private void setupClickListeners() {
         buttonNext.setOnClickListener(v -> {
+            if (flashcardList.isEmpty()) {
+                Toast.makeText(this, "Không có flashcard nào.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (currentCardIndex < flashcardList.size() - 1) {
-                // If currently showing answer, flip back to question before moving to next
+                // Move to next card
                 if (!isShowingQuestion) {
                     isShowingQuestion = true;
-                    flipCardForNavigation(false); // Flip back to question
-                } else {
-                    currentCardIndex++;
-                    updateCardView();
                 }
+                currentCardIndex++;
+                updateCardView();
+                Log.d(TAG, "Moved to next card: index=" + currentCardIndex);
+            } else if (isShowingQuestion) {
+                // On last card, flip to answer
+                flipCard();
             } else {
-                // If already at the last card and next is pressed, and it's showing the question, flip to answer
-                if (isShowingQuestion && !flashcardList.isEmpty()) {
-                    flipCard(); // This will trigger the completion message if it's the last card
-                } else {
-                    Toast.makeText(this, "Bạn đã hoàn thành tất cả flashcard.", Toast.LENGTH_SHORT).show();
-                }
+                // On last card, showing answer: trigger completion
+                showCompletionMessage();
             }
         });
 
         buttonPrev.setOnClickListener(v -> {
+            if (flashcardList.isEmpty()) {
+                Toast.makeText(this, "Không có flashcard nào.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (currentCardIndex > 0) {
-                // If currently showing answer, flip back to question before moving to previous
+                // Move to previous card
                 if (!isShowingQuestion) {
                     isShowingQuestion = true;
-                    flipCardForNavigation(true); // Flip back to question
-                } else {
-                    currentCardIndex--;
-                    updateCardView();
                 }
+                currentCardIndex--;
+                updateCardView();
+                Log.d(TAG, "Moved to previous card: index=" + currentCardIndex);
             } else {
                 Toast.makeText(this, "Bạn đang ở flashcard đầu tiên.", Toast.LENGTH_SHORT).show();
             }
         });
 
         cardFlashcard.setOnClickListener(v -> {
-            if (!flashcardList.isEmpty() && flashcardList.size() > 0) {
+            if (!flashcardList.isEmpty() && !isAnimating) {
                 flipCard();
+            } else if (flashcardList.isEmpty()) {
+                Toast.makeText(this, "Không có flashcard nào để lật.", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -132,30 +149,38 @@ public class FlashcardsModeActivity extends AppCompatActivity {
                     flashcardList = response.body().value;
                     if (!flashcardList.isEmpty()) {
                         updateCardView();
-                        // Set camera distance for flip animation
-                        float distance = 8000;
-                        float scale = getResources().getDisplayMetrics().density * distance;
-                        cardFlashcard.setCameraDistance(scale);
+                        Log.d(TAG, "Fetched " + flashcardList.size() + " flashcards for quizId: " + quizId);
                     } else {
                         textFlashcardContent.setText("Không có flashcard nào.");
                         textCardCounter.setText("0 / 0");
                         buttonPrev.setVisibility(View.INVISIBLE);
                         buttonNext.setVisibility(View.INVISIBLE);
+                        Log.d(TAG, "No flashcards found for quizId: " + quizId);
                     }
                 } else {
                     Toast.makeText(FlashcardsModeActivity.this, "Không tìm thấy flashcard hoặc lỗi phản hồi.", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Failed to fetch flashcards. Code: " + response.code() + ", Message: " + response.message());
                 }
             }
 
             @Override
             public void onFailure(Call<ODataResponse<Flashcard>> call, Throwable t) {
                 Toast.makeText(FlashcardsModeActivity.this, "Lỗi tải flashcard: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e(TAG, "API call for flashcards failed: " + t.getMessage(), t);
             }
         });
     }
 
     private void updateCardView() {
-        if (flashcardList.isEmpty()) return;
+        if (flashcardList.isEmpty()) {
+            textFlashcardContent.setText("Không có flashcard nào.");
+            textCardCounter.setText("0 / 0");
+            buttonPrev.setEnabled(false);
+            buttonNext.setEnabled(false);
+            buttonPrev.setAlpha(0.5f);
+            buttonNext.setAlpha(0.5f);
+            return;
+        }
 
         Flashcard currentCard = flashcardList.get(currentCardIndex);
         if (isShowingQuestion) {
@@ -167,17 +192,20 @@ public class FlashcardsModeActivity extends AppCompatActivity {
         }
         textCardCounter.setText(String.format("%d / %d", currentCardIndex + 1, flashcardList.size()));
 
-        // Enable/disable navigation buttons and adjust alpha
         buttonPrev.setEnabled(currentCardIndex > 0);
-        buttonNext.setEnabled(currentCardIndex < flashcardList.size() - 1);
+        buttonNext.setEnabled(currentCardIndex < flashcardList.size() - 1 || isShowingQuestion);
         buttonPrev.setAlpha(buttonPrev.isEnabled() ? 1.0f : 0.5f);
         buttonNext.setAlpha(buttonNext.isEnabled() ? 1.0f : 0.5f);
+        Log.d(TAG, "Updated card view: index=" + currentCardIndex + ", isShowingQuestion=" + isShowingQuestion);
     }
 
     private void flipCard() {
-        if (flashcardList.isEmpty()) return;
+        if (flashcardList.isEmpty() || isAnimating) {
+            Log.w(TAG, "Cannot flip: empty list or animation in progress");
+            return;
+        }
 
-        // Disable interaction during animation
+        isAnimating = true;
         cardFlashcard.setClickable(false);
         buttonPrev.setEnabled(false);
         buttonNext.setEnabled(false);
@@ -187,107 +215,75 @@ public class FlashcardsModeActivity extends AppCompatActivity {
         mSetRightOut.setTarget(cardFlashcard);
         mSetLeftIn.setTarget(cardFlashcard);
 
+        isShowingQuestion = !isShowingQuestion;
+        updateCardView();
+
         mSetRightOut.start();
         mSetRightOut.addListener(new Animator.AnimatorListener() {
             @Override
-            public void onAnimationStart(Animator animation) {}
+            public void onAnimationStart(Animator animation) {
+                Log.d(TAG, "Flip animation started: right out");
+            }
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                isShowingQuestion = !isShowingQuestion;
-                updateCardView(); // Update content after the first half of the flip
                 mSetLeftIn.start();
                 mSetLeftIn.addListener(new Animator.AnimatorListener() {
                     @Override
-                    public void onAnimationStart(Animator animation) {}
+                    public void onAnimationStart(Animator animation) {
+                        Log.d(TAG, "Flip animation started: left in");
+                    }
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        mIsBackVisible = !mIsBackVisible;
+                        isAnimating = false; // Reset animation flag
                         cardFlashcard.setClickable(true); // Re-enable interaction
-
-                        // Re-enable navigation buttons based on current state
                         buttonPrev.setEnabled(currentCardIndex > 0);
-                        buttonNext.setEnabled(currentCardIndex < flashcardList.size() - 1);
+                        buttonNext.setEnabled(currentCardIndex < flashcardList.size() - 1 || isShowingQuestion);
                         buttonPrev.setAlpha(buttonPrev.isEnabled() ? 1.0f : 0.5f);
                         buttonNext.setAlpha(buttonNext.isEnabled() ? 1.0f : 0.5f);
+                        Log.d(TAG, "Flip animation completed: isShowingQuestion=" + isShowingQuestion);
 
-                        // Check if at the last card and showing the answer
                         if (currentCardIndex == flashcardList.size() - 1 && !isShowingQuestion) {
                             showCompletionMessage();
                         }
                     }
 
-                    @Override public void onAnimationCancel(Animator animation) {}
-                    @Override public void onAnimationRepeat(Animator animation) {}
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                        isAnimating = false;
+                        cardFlashcard.setClickable(true);
+                        Log.w(TAG, "Flip animation cancelled: left in");
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {}
                 });
             }
 
-            @Override public void onAnimationCancel(Animator animation) {}
-            @Override public void onAnimationRepeat(Animator animation) {}
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                isAnimating = false;
+                cardFlashcard.setClickable(true);
+                Log.w(TAG, "Flip animation cancelled: right out");
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {}
         });
-    }
-
-    // This method is specifically for flipping back to the question when navigating
-    private void flipCardForNavigation(boolean isMovingToPrevious) {
-        // Only flip if currently showing the answer
-        if (!isShowingQuestion) {
-            // Disable interaction during animation
-            cardFlashcard.setClickable(false);
-            buttonPrev.setEnabled(false);
-            buttonNext.setEnabled(false);
-            buttonPrev.setAlpha(0.5f);
-            buttonNext.setAlpha(0.5f);
-
-            mSetRightOut.setTarget(cardFlashcard);
-            mSetLeftIn.setTarget(cardFlashcard);
-
-            mSetRightOut.start();
-            mSetRightOut.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    isShowingQuestion = true; // Always flip back to question for navigation
-                    updateCardView(); // Update content to question
-                    mSetLeftIn.start();
-                    mSetLeftIn.addListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            mIsBackVisible = false; // Ensure front is visible
-                            cardFlashcard.setClickable(true); // Re-enable interaction
-
-                            // Now, after flipping, move to the next/previous card
-                            if (isMovingToPrevious) {
-                                currentCardIndex--;
-                            } else {
-                                currentCardIndex++;
-                            }
-                            updateCardView(); // Update with the new card's content
-                        }
-                        @Override public void onAnimationStart(Animator animation) {}
-                        @Override public void onAnimationCancel(Animator animation) {}
-                        @Override public void onAnimationRepeat(Animator animation) {}
-                    });
-                }
-                @Override public void onAnimationStart(Animator animation) {}
-                @Override public void onAnimationCancel(Animator animation) {}
-                @Override public void onAnimationRepeat(Animator animation) {}
-            });
-        }
     }
 
     private void showCompletionMessage() {
         textFlashcardContent.setText("Chúc mừng bạn đã học xong!");
-        textCardCounter.setText(String.format("%d / %d", flashcardList.size(), flashcardList.size())); // Show full count
-
-        // Hide all interactive elements
+        textCardCounter.setText(String.format("%d / %d", flashcardList.size(), flashcardList.size()));
         cardFlashcard.setClickable(false);
         buttonPrev.setVisibility(View.INVISIBLE);
         buttonNext.setVisibility(View.INVISIBLE);
-        buttonBack.setVisibility(View.INVISIBLE); // Optionally hide back button too
+        buttonBack.setVisibility(View.INVISIBLE);
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            // After 2 seconds, finish this activity and return to the previous screen
+            Log.d(TAG, "Completion message displayed, finishing activity");
             finish();
-        }, 2000); // Display the completion message for 2 seconds
+        }, 2000);
     }
 }

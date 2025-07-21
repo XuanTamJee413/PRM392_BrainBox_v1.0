@@ -92,7 +92,7 @@ public class DocumentAdapter extends ListAdapter<DocumentDto, DocumentAdapter.Do
 
         public void bind(DocumentDto doc) {
             title.setText(doc.Title);
-            author.setText(doc.Author != null ? doc.Author.Username : "Ẩn danh");
+            author.setText(doc.Author != null ? "Tác giả: " + doc.Author.Username : "Ẩn danh");
             views.setText(doc.Views + " lượt xem");
         }
     }

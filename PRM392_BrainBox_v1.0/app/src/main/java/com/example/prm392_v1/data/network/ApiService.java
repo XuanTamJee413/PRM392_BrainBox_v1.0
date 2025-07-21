@@ -1,7 +1,10 @@
 package com.example.prm392_v1.data.network;
 
+import com.example.prm392_v1.data.model.ChangePasswordRequest;
 import com.example.prm392_v1.data.model.DocumentDetail;
 import com.example.prm392_v1.data.model.DocumentDto;
+import com.example.prm392_v1.data.model.DocumentCreateDto;
+import com.example.prm392_v1.data.model.ForgotPasswordRequest;
 import com.example.prm392_v1.data.model.LoginRequest;
 import com.example.prm392_v1.data.model.LoginResponse;
 import com.example.prm392_v1.data.model.Quiz;
@@ -55,6 +58,8 @@ public interface ApiService {
     @GET("api/RatingQuizzes")
     Call<RatingQuiz> getMyRatingForQuiz(@Query("quizId") int quizId);
 
+    @DELETE("odata/quizzes({id})")
+    Call<Void> deleteQuiz(@Path("id") int quizId);
     @POST("api/RatingQuizzes")
     Call<Void> submitRating(@Body RatingQuizRequest request);
 
@@ -103,6 +108,11 @@ public interface ApiService {
 
     @PUT("odata/Documents({id})")
     Call<Void> updateDocument(@Path("id") int docId, @Body DocumentDto document);
+    @POST("odata/Documents")
+    Call<DocumentDto> createDocumentNew(@Body DocumentCreateDto document);
+
+    @PUT("odata/Documents({id})")
+    Call<Void> updateDocumentNew(@Path("id") int docId, @Body DocumentCreateDto document);
 
     @PATCH("odata/Documents({id})")
     Call<Void> patchDocument(@Path("id") int docId, @Body DocumentDto document);
@@ -132,5 +142,16 @@ public interface ApiService {
 
     @POST("odata/Comments")
     Call<Comment> createComment(@Body Comment comment);
+
+    @POST("api/auth/change-password")
+    Call<Void> changePassword(@Body ChangePasswordRequest request);
+
+    @POST("api/auth/forgot-password")
+    Call<Void> forgotPassword(@Body ForgotPasswordRequest request);
+
+    @GET("odata/Users")
+    Call<ODataResponse<UserDto>> getAllUsers();
+    @PATCH("odata/Users({id})")
+    Call<Void> updateUser(@Path("id") int userId, @Body Map<String, Object> updates);
 
 }

@@ -12,7 +12,9 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-    private static final String BASE_URL = "https://10.0.2.2:7120/";
+    //    private static final String BASE_URL = "https://10.0.2.2:7120/";
+    private static final String BASE_URL = "https://af22b9573456.ngrok-free.app/";
+
     private static Retrofit retrofit = null;
 
     public static ApiService getApiService(Context context) {
@@ -38,7 +40,6 @@ public class RetrofitClient {
             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
             final javax.net.ssl.SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
-
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
@@ -53,5 +54,18 @@ public class RetrofitClient {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static final String GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/";
+    private static Retrofit geminiRetrofit = null;
+
+    public static GeminiApiService getGeminiApiService() {
+        if (geminiRetrofit == null) {
+            geminiRetrofit = new Retrofit.Builder()
+                    .baseUrl(GEMINI_BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+        return geminiRetrofit.create(GeminiApiService.class);
     }
 }

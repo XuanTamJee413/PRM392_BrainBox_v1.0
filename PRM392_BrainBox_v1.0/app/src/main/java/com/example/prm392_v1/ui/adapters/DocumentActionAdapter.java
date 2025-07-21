@@ -55,7 +55,15 @@ public class DocumentActionAdapter extends ListAdapter<DocumentDto, DocumentActi
 
         @Override
         public boolean areContentsTheSame(@NonNull DocumentDto oldItem, @NonNull DocumentDto newItem) {
-            return oldItem.equals(newItem);
+            // Explicitly compare fields to avoid relying on equals()
+            return (oldItem.Title != null ? oldItem.Title.equals(newItem.Title) : newItem.Title == null) &&
+                    (oldItem.Content != null ? oldItem.Content.equals(newItem.Content) : newItem.Content == null) &&
+                    oldItem.IsPublic == newItem.IsPublic &&
+                    oldItem.Views == newItem.Views &&
+                    oldItem.CreatedAt == newItem.CreatedAt &&
+                    (oldItem.Author != null && newItem.Author != null ?
+                            oldItem.Author.Username.equals(newItem.Author.Username) :
+                            oldItem.Author == null && newItem.Author == null);
         }
     };
 

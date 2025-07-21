@@ -29,13 +29,11 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
     public QuestionAdapter(Context context, List<Flashcard> flashcardList) {
         this.context = context;
         this.flashcardList = flashcardList;
-        // Initialize userAnswers array with a default value (e.g., 0) indicating no answer
         this.userAnswers = new int[flashcardList.size()];
     }
 
     public void setShowFeedback(boolean showFeedback) {
         this.showFeedback = showFeedback;
-        // This will trigger onBindViewHolder for all visible items, applying feedback logic.
         notifyDataSetChanged();
     }
 
@@ -58,31 +56,25 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         holder.textQuestionNumber.setText("Câu " + (position + 1) + ":");
         holder.textQuestion.setText(flashcard.question);
 
-        // Set options text
         holder.radioOptionA.setText("A. " + flashcard.option1);
         holder.radioOptionB.setText("B. " + flashcard.option2);
         holder.radioOptionC.setText("C. " + flashcard.option3);
         holder.radioOptionD.setText("D. " + flashcard.option4);
 
-        // --- Crucial part for preventing auto-selection and ensuring correct state ---
-        // Clear previous selection and listener before setting new state or listener
-        holder.radioGroupOptions.setOnCheckedChangeListener(null); // Detach listener
-        holder.radioGroupOptions.clearCheck(); // Clear any checked radio button
+        holder.radioGroupOptions.setOnCheckedChangeListener(null);
+        holder.radioGroupOptions.clearCheck();
 
-        // Reset radio button text colors to default
         holder.radioOptionA.setTextColor(ContextCompat.getColor(context, R.color.text_color_default));
         holder.radioOptionB.setTextColor(ContextCompat.getColor(context, R.color.text_color_default));
         holder.radioOptionC.setTextColor(ContextCompat.getColor(context, R.color.text_color_default));
         holder.radioOptionD.setTextColor(ContextCompat.getColor(context, R.color.text_color_default));
 
-        // Re-enable radio buttons for interaction (if not in feedback mode)
         holder.radioOptionA.setEnabled(true);
         holder.radioOptionB.setEnabled(true);
         holder.radioOptionC.setEnabled(true);
         holder.radioOptionD.setEnabled(true);
-        holder.radioGroupOptions.setEnabled(true); // Enable the group itself
+        holder.radioGroupOptions.setEnabled(true);
 
-        // Set user's previous answer if available and not in feedback mode
         if (userAnswers[position] != 0 && !showFeedback) {
             switch (userAnswers[position]) {
                 case 1: holder.radioOptionA.setChecked(true); break;
@@ -92,8 +84,6 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
             }
         }
 
-        // Set listener for RadioGroup to record user's answer
-        // Only attach listener if not showing feedback
         if (!showFeedback) {
             holder.radioGroupOptions.setOnCheckedChangeListener((group, checkedId) -> {
                 int selectedAnswer = 0;
@@ -111,7 +101,6 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
             });
         }
 
-        // --- Show feedback after submission ---
         if (showFeedback) {
             holder.textFeedback.setVisibility(View.VISIBLE);
             int correctAnswer = flashcard.answer;
@@ -119,36 +108,29 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
 
             Log.d("QuestionAdapter", "Question " + (position + 1) + ": User answer = " + userAnswer + ", Correct answer = " + correctAnswer);
 
-            // Disable radio group and its children when showing feedback
             holder.radioGroupOptions.setEnabled(false);
             for (int i = 0; i < holder.radioGroupOptions.getChildCount(); i++) {
                 holder.radioGroupOptions.getChildAt(i).setEnabled(false);
             }
 
-            // Determine feedback text and color
-            if (userAnswer == 0) { // Not answered
+            if (userAnswer == 0) {
                 holder.textFeedback.setText("Chưa trả lời! Đáp án đúng: " + getOptionText(flashcard, correctAnswer));
                 holder.textFeedback.setTextColor(ContextCompat.getColor(context, android.R.color.holo_red_dark));
-                // Highlight correct answer even if not answered
                 highlightCorrectAnswer(holder, correctAnswer, android.R.color.holo_green_dark);
-            } else if (userAnswer == correctAnswer) { // Correct answer
+            } else if (userAnswer == correctAnswer) {
                 holder.textFeedback.setText("Đúng!");
                 holder.textFeedback.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark));
-                // Highlight the correct user selection in green
                 highlightCorrectAnswer(holder, userAnswer, android.R.color.holo_green_dark);
-            } else { // Incorrect answer
+            } else {
                 String correctOptionText = getOptionText(flashcard, correctAnswer);
                 holder.textFeedback.setText("Sai! Đáp án đúng: " + correctOptionText);
                 holder.textFeedback.setTextColor(ContextCompat.getColor(context, android.R.color.holo_red_dark));
 
-                // Highlight correct answer in green
                 highlightCorrectAnswer(holder, correctAnswer, android.R.color.holo_green_dark);
-                // Highlight incorrect user answer in red
                 highlightIncorrectAnswer(holder, userAnswer, android.R.color.holo_red_dark);
             }
         } else {
             holder.textFeedback.setVisibility(View.GONE);
-            // Ensure feedback text color is reset when not in feedback mode
             holder.textFeedback.setTextColor(ContextCompat.getColor(context, android.R.color.black)); // Or your default text color
         }
     }
@@ -168,7 +150,6 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         }
     }
 
-    // Helper method to highlight the correct answer
     private void highlightCorrectAnswer(QuestionViewHolder holder, int correctAnswer, int colorResId) {
         switch (correctAnswer) {
             case 1: holder.radioOptionA.setTextColor(ContextCompat.getColor(context, colorResId)); break;
@@ -178,7 +159,6 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         }
     }
 
-    // Helper method to highlight an incorrect user answer
     private void highlightIncorrectAnswer(QuestionViewHolder holder, int userAnswer, int colorResId) {
         switch (userAnswer) {
             case 1: holder.radioOptionA.setTextColor(ContextCompat.getColor(context, colorResId)); break;
