@@ -27,7 +27,9 @@ public class Quiz {
     @SerializedName("Flashcards")
     public List<Flashcard> flashcards;
 
-    public float averageRating = 0.0f; // Calculated client-side
-    public int totalRatings = 0;       // Calculated client-side
+
+    public float averageRating = 0.0f;
+    public int totalRatings = 0;
+
 
 }
