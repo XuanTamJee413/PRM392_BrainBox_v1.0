@@ -25,9 +25,7 @@ import androidx.room.ForeignKey;
 public class Bookmark {
     public int userId;
     public int quizId;
-
     @Nullable
     public Integer lastCardId;
-
     public long bookmarkedAt = System.currentTimeMillis();
 }

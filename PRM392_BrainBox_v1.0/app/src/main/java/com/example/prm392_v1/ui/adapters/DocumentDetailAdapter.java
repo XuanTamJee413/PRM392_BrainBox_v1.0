@@ -36,7 +36,7 @@ public class DocumentDetailAdapter extends ListAdapter<DocumentDetail, DocumentD
 
     public DocumentDetailAdapter() {
         super(DIFF_CALLBACK);
-        apiService = RetrofitClient.getApiService(null); // Khởi tạo ApiService
+        apiService = RetrofitClient.getApiService(null);
     }
 
     private static final DiffUtil.ItemCallback<DocumentDetail> DIFF_CALLBACK = new DiffUtil.ItemCallback<DocumentDetail>() {
@@ -90,7 +90,6 @@ public class DocumentDetailAdapter extends ListAdapter<DocumentDetail, DocumentD
             }
             caption.setText(detail.Caption != null ? detail.Caption : "");
 
-            // Tải danh sách bình luận cho DocumentDetail
             loadComments(detail.DocDetailId);
         }
 
@@ -105,7 +104,6 @@ public class DocumentDetailAdapter extends ListAdapter<DocumentDetail, DocumentD
 
                 @Override
                 public void onFailure(Call<ODataResponse<Comment>> call, Throwable t) {
-                    // Xử lý lỗi (có thể hiển thị Toast hoặc thông báo)
                 }
             });
         }

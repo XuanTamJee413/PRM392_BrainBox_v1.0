@@ -11,10 +11,6 @@ import androidx.room.PrimaryKey;
                         parentColumns = "quizId",
                         childColumns = "quizId",
                         onDelete = ForeignKey.CASCADE),
-//                @ForeignKey(entity = User.class,
-//                        parentColumns = "id",
-//                        childColumns = "creatorId",
-//                        onDelete = ForeignKey.SET_NULL)
         }
 )
 public class Flashcard {
@@ -30,7 +26,7 @@ public class Flashcard {
     public String option3;
     public String option4;
 
-    public int answer; // 1, 2, 3, 4
+    public int answer;
 
     public int creatorId;
 

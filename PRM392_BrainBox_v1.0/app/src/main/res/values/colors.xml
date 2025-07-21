@@ -8,4 +8,17 @@
     <color name="teal_700">#FF018786</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="cardview_light_background">#FFFAFAFA</color>
+    <color name="text_color_default">#000000</color>
+    <color name="md_theme_primary">#6750A4</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_surface">#FFFBFE</color>
+    <color name="md_theme_onSurface">#1C1B1F</color>
+    <color name="md_theme_onSurfaceVariant">#49454F</color>
+    <color name="md_theme_outline">#79747E</color>
+    <color name="md_theme_background">#FFFBFE</color>
+    <color name="promo_gradient_start">#673AB7</color>
+    <color name="promo_gradient_end">#3F51B5</color>
+    <color name="button_accent_color">#FF9800</color>
+    <color name="see_all_text_color">?attr/colorPrimary</color>
+    <color name="background_light">#F8FAFC</color>
 </resources>

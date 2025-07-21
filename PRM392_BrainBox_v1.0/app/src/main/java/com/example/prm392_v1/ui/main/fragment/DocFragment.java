@@ -15,12 +15,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.prm392_v1.R;
 import com.example.prm392_v1.data.model.DocumentDto;
+import com.example.prm392_v1.data.model.DocumentCreateDto;
 import com.example.prm392_v1.data.model.ODataResponse;
 import com.example.prm392_v1.data.network.ApiService;
 import com.example.prm392_v1.data.network.RetrofitClient;
-import com.example.prm392_v1.ui.adapters.DocumentActionAdapter;
+import com.example.prm392_v1.ui.adapters.DocumentActionNewAdapter;
 import com.example.prm392_v1.ui.main.DocumentDetailActivity;
 import com.example.prm392_v1.utils.AuthUtils;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import retrofit2.Call;
@@ -29,7 +31,7 @@ import retrofit2.Response;
 
 public class DocFragment extends Fragment {
     private RecyclerView recyclerView;
-    private DocumentActionAdapter documentAdapter;
+    private DocumentActionNewAdapter documentAdapter;
     private ApiService apiService;
     private TextView tvEmpty;
     private FloatingActionButton fabAddDocument;
@@ -43,25 +45,21 @@ public class DocFragment extends Fragment {
         tvEmpty = view.findViewById(R.id.tv_empty);
         fabAddDocument = view.findViewById(R.id.fab_add_document);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        documentAdapter = new DocumentActionAdapter();
+        documentAdapter = new DocumentActionNewAdapter();
         recyclerView.setAdapter(documentAdapter);
 
         apiService = RetrofitClient.getApiService(getContext());
 
-        // Listener for viewing document details
         documentAdapter.setOnItemClickListener(document -> {
             Bundle bundle = new Bundle();
             bundle.putInt("docId", document.DocId);
             DocumentDetailActivity.start(getContext(), bundle);
         });
 
-        // Listener for updating document
         documentAdapter.setOnUpdateClickListener(this::showUpdateDialog);
 
-        // Listener for deleting document
         documentAdapter.setOnDeleteClickListener(document -> deleteDocument(document.DocId));
 
-        // Listener for adding new document
         fabAddDocument.setOnClickListener(v -> showCreateDialog());
 
         loadDocuments();
@@ -119,15 +117,26 @@ public class DocFragment extends Fragment {
                 return;
             }
 
-            DocumentDto newDoc = new DocumentDto();
-            newDoc.Title = title;
-            newDoc.Content = content;
-            newDoc.IsPublic = true; // Mặc định công khai
-            newDoc.Views = 0;
-            newDoc.CreatedAt = System.currentTimeMillis();
-            // Không gán Author vì backend sẽ tự lấy từ token
+            String currentUserId = AuthUtils.getUserIdFromToken(getContext());
+            if (currentUserId == null || currentUserId.isEmpty()) {
+                Toast.makeText(getContext(), "Vui lòng đăng nhập để tạo tài liệu", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            apiService.createDocument(newDoc).enqueue(new Callback<DocumentDto>() {
+            DocumentCreateDto newDoc = new DocumentCreateDto();
+            newDoc.title = title;
+            newDoc.content = content;
+            newDoc.isPublic = true;
+            newDoc.views = 0;
+            newDoc.createdAt = System.currentTimeMillis();
+            try {
+                newDoc.authorId = Integer.parseInt(currentUserId);
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Lỗi: Không thể xác định thông tin người dùng", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            apiService.createDocumentNew(newDoc).enqueue(new Callback<DocumentDto>() {
                 @Override
                 public void onResponse(Call<DocumentDto> call, Response<DocumentDto> response) {
                     if (response.isSuccessful() && response.body() != null) {
@@ -168,16 +177,26 @@ public class DocFragment extends Fragment {
                 return;
             }
 
-            DocumentDto updatedDoc = new DocumentDto();
-            updatedDoc.DocId = document.DocId;
-            updatedDoc.Title = title;
-            updatedDoc.Content = content;
-            updatedDoc.IsPublic = document.IsPublic;
-            updatedDoc.Views = document.Views;
-            updatedDoc.CreatedAt = document.CreatedAt;
-            updatedDoc.Author = document.Author; // Giữ nguyên Author
+            String currentUserId = AuthUtils.getUserIdFromToken(getContext());
+            if (currentUserId == null || currentUserId.isEmpty()) {
+                Toast.makeText(getContext(), "Vui lòng đăng nhập để cập nhật tài liệu", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            apiService.updateDocument(document.DocId, updatedDoc).enqueue(new Callback<Void>() {
+            DocumentCreateDto updatedDoc = new DocumentCreateDto();
+            updatedDoc.title = title;
+            updatedDoc.content = content;
+            updatedDoc.isPublic = document.IsPublic;
+            updatedDoc.views = document.Views;
+            updatedDoc.createdAt = document.CreatedAt;
+            try {
+                updatedDoc.authorId = Integer.parseInt(currentUserId);
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Lỗi: Không thể xác định thông tin người dùng", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            apiService.updateDocumentNew(document.DocId, updatedDoc).enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
                     if (response.isSuccessful()) {

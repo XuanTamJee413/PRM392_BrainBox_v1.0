@@ -25,9 +25,9 @@ public class RatingQuiz {
 
     public int userId;
 
-    public int rating; // từ 1 đến 5
+    public int rating;
 
-    public String comment; // tùy chọn
+    public String comment;
 
     public long ratedAt = System.currentTimeMillis();
 }

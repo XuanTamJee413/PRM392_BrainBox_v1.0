@@ -2,7 +2,6 @@ package com.example.prm392_v1.data;
 
 import android.content.Context;
 
-import androidx.room.RoomDatabase.Callback;
 import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
@@ -12,6 +11,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import com.example.prm392_v1.data.dao.*;
 import com.example.prm392_v1.data.entity.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 
 @Database(
@@ -37,7 +37,6 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
 
     private static volatile BrainBoxDatabase INSTANCE;
 
-    // ==== DAO declarations ====
     public abstract UserDao userDao();
     public abstract DocumentDao documentDao();
     public abstract CommentDao commentDao();
@@ -51,7 +50,6 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
     public abstract NotificationDao notificationDao();
     public abstract ChallengeDao challengeDao();
 
-    // ==== Singleton builder ====
     public static BrainBoxDatabase getInstance(Context context) {
         if (INSTANCE == null) {
             synchronized (BrainBoxDatabase.class) {
@@ -81,7 +79,6 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
         return INSTANCE;
     }
 
-    // ==== Seed default users ====
     private static void seedData(BrainBoxDatabase db) {
         Executors.newSingleThreadExecutor().execute(() -> {
             UserDao userDao = db.userDao();
@@ -93,8 +90,7 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
                 userDao.insert(new User(0, "teacher.jane", hash("123456"), "teacher", "jane@brainbox.com", true, "https://i.pravatar.cc/150?img=12", now, 0));
                 userDao.insert(new User(0, "student.bob", hash("123456"), "user", "bob@student.edu", true, "https://i.pravatar.cc/150?img=25", now, nextMonth));
                 userDao.insert(new User(0, "student.alice", hash("123456"), "user", "alice@student.edu", false, "https://i.pravatar.cc/150?img=30", now, 0));
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ignored) {
             }
 
             QuizDao quizDao = db.quizDao();
@@ -112,8 +108,7 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
                 quizDao.insert(quiz1);
                 quizDao.insert(quiz2);
 
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ignored) {
             }
             DocumentDao documentDao = db.documentDao();
             try {
@@ -144,19 +139,17 @@ public abstract class BrainBoxDatabase extends RoomDatabase {
                 documentDao.insert(doc1);
                 documentDao.insert(doc2);
                 documentDao.insert(doc3);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ignored) {
             }
 
 
         });
     }
 
-    // ==== SHA-256 Hashing ====
     private static String hash(String input) {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(input.getBytes("UTF-8"));
+            byte[] hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder();
             for (byte b : hash) sb.append(String.format("%02x", b));
             return sb.toString();

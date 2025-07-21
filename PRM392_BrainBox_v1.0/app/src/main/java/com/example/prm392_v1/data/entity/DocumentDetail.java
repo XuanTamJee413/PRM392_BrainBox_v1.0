@@ -21,7 +21,7 @@ public class DocumentDetail {
 
     public String imageUrl;
 
-    public String caption; // tùy chọn
+    public String caption;
 
     public long createdAt = System.currentTimeMillis();
 }

@@ -1,7 +1,8 @@
-package com.example.prm392_v1.ui.main;
+package com.example.prm392_v1.ui.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.graphics.Color; // This import is not used, can be removed.
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,23 +19,22 @@ import com.example.prm392_v1.data.model.Flashcard;
 
 import java.util.List;
 
-public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.QuestionViewHolder> { // Renamed to TestAdapter if you prefer
+public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.QuestionViewHolder> {
 
     private final List<Flashcard> flashcardList;
-    private final int[] userAnswers; // Store user's selected answer for each question (0 if not answered)
+    private final int[] userAnswers;
     private final Context context;
-    private boolean showFeedback = false; // Flag to control feedback visibility
+    private boolean showFeedback = false;
 
     public QuestionAdapter(Context context, List<Flashcard> flashcardList) {
         this.context = context;
         this.flashcardList = flashcardList;
-        this.userAnswers = new int[flashcardList.size()]; // Initialize with 0s
+        this.userAnswers = new int[flashcardList.size()];
     }
 
-    // Call this method when the user submits the quiz
     public void setShowFeedback(boolean showFeedback) {
         this.showFeedback = showFeedback;
-        notifyDataSetChanged(); // Refresh the RecyclerView to show feedback
+        notifyDataSetChanged();
     }
 
     public int[] getUserAnswers() {
@@ -52,6 +52,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
     public void onBindViewHolder(@NonNull QuestionViewHolder holder, int position) {
         Flashcard flashcard = flashcardList.get(position);
 
+        // Set question text
         holder.textQuestionNumber.setText("Câu " + (position + 1) + ":");
         holder.textQuestion.setText(flashcard.question);
 
@@ -60,11 +61,21 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         holder.radioOptionC.setText("C. " + flashcard.option3);
         holder.radioOptionD.setText("D. " + flashcard.option4);
 
-        // Clear previous selection to prevent incorrect states due to recycling views
+        holder.radioGroupOptions.setOnCheckedChangeListener(null);
         holder.radioGroupOptions.clearCheck();
 
-        // Set user's previous answer if available
-        if (userAnswers[position] != 0) {
+        holder.radioOptionA.setTextColor(ContextCompat.getColor(context, R.color.text_color_default));
+        holder.radioOptionB.setTextColor(ContextCompat.getColor(context, R.color.text_color_default));
+        holder.radioOptionC.setTextColor(ContextCompat.getColor(context, R.color.text_color_default));
+        holder.radioOptionD.setTextColor(ContextCompat.getColor(context, R.color.text_color_default));
+
+        holder.radioOptionA.setEnabled(true);
+        holder.radioOptionB.setEnabled(true);
+        holder.radioOptionC.setEnabled(true);
+        holder.radioOptionD.setEnabled(true);
+        holder.radioGroupOptions.setEnabled(true);
+
+        if (userAnswers[position] != 0 && !showFeedback) {
             switch (userAnswers[position]) {
                 case 1: holder.radioOptionA.setChecked(true); break;
                 case 2: holder.radioOptionB.setChecked(true); break;
@@ -73,80 +84,54 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
             }
         }
 
-        // Listener for RadioGroup to record user's answer
-        holder.radioGroupOptions.setOnCheckedChangeListener(null); // Clear listener to prevent infinite loop
-        holder.radioGroupOptions.setOnCheckedChangeListener((group, checkedId) -> {
-            int selectedAnswer = 0;
-            if (checkedId == R.id.radio_option_a) {
-                selectedAnswer = 1;
-            } else if (checkedId == R.id.radio_option_b) {
-                selectedAnswer = 2;
-            } else if (checkedId == R.id.radio_option_c) {
-                selectedAnswer = 3;
-            } else if (checkedId == R.id.radio_option_d) {
-                selectedAnswer = 4;
-            }
-            userAnswers[position] = selectedAnswer; // Store the selected answer
-        });
+        if (!showFeedback) {
+            holder.radioGroupOptions.setOnCheckedChangeListener((group, checkedId) -> {
+                int selectedAnswer = 0;
+                if (checkedId == R.id.radio_option_a) {
+                    selectedAnswer = 1;
+                } else if (checkedId == R.id.radio_option_b) {
+                    selectedAnswer = 2;
+                } else if (checkedId == R.id.radio_option_c) {
+                    selectedAnswer = 3;
+                } else if (checkedId == R.id.radio_option_d) {
+                    selectedAnswer = 4;
+                }
+                userAnswers[position] = selectedAnswer;
+                Log.d("QuestionAdapter", "Question " + (position + 1) + " selected answer: " + selectedAnswer);
+            });
+        }
 
-        // Show feedback after submission
         if (showFeedback) {
             holder.textFeedback.setVisibility(View.VISIBLE);
             int correctAnswer = flashcard.answer;
             int userAnswer = userAnswers[position];
 
-            // Reset all radio button colors to default text color first
-            holder.radioOptionA.setTextColor(ContextCompat.getColor(context, android.R.color.tab_indicator_text));
-            holder.radioOptionB.setTextColor(ContextCompat.getColor(context, android.R.color.tab_indicator_text));
-            holder.radioOptionC.setTextColor(ContextCompat.getColor(context, android.R.color.tab_indicator_text));
-            holder.radioOptionD.setTextColor(ContextCompat.getColor(context, android.R.color.tab_indicator_text));
+            Log.d("QuestionAdapter", "Question " + (position + 1) + ": User answer = " + userAnswer + ", Correct answer = " + correctAnswer);
 
+            holder.radioGroupOptions.setEnabled(false);
+            for (int i = 0; i < holder.radioGroupOptions.getChildCount(); i++) {
+                holder.radioGroupOptions.getChildAt(i).setEnabled(false);
+            }
 
-            if (userAnswer == correctAnswer) {
+            if (userAnswer == 0) {
+                holder.textFeedback.setText("Chưa trả lời! Đáp án đúng: " + getOptionText(flashcard, correctAnswer));
+                holder.textFeedback.setTextColor(ContextCompat.getColor(context, android.R.color.holo_red_dark));
+                highlightCorrectAnswer(holder, correctAnswer, android.R.color.holo_green_dark);
+            } else if (userAnswer == correctAnswer) {
                 holder.textFeedback.setText("Đúng!");
                 holder.textFeedback.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark));
-                // Highlight correct option in green
-                switch (correctAnswer) {
-                    case 1: holder.radioOptionA.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark)); break;
-                    case 2: holder.radioOptionB.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark)); break;
-                    case 3: holder.radioOptionC.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark)); break;
-                    case 4: holder.radioOptionD.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark)); break;
-                }
+                highlightCorrectAnswer(holder, userAnswer, android.R.color.holo_green_dark);
             } else {
                 String correctOptionText = getOptionText(flashcard, correctAnswer);
                 holder.textFeedback.setText("Sai! Đáp án đúng: " + correctOptionText);
                 holder.textFeedback.setTextColor(ContextCompat.getColor(context, android.R.color.holo_red_dark));
 
-                // Highlight user's incorrect answer in red
-                switch (userAnswer) {
-                    case 1: holder.radioOptionA.setTextColor(ContextCompat.getColor(context, android.R.color.holo_red_dark)); break;
-                    case 2: holder.radioOptionB.setTextColor(ContextCompat.getColor(context, android.R.color.holo_red_dark)); break;
-                    case 3: holder.radioOptionC.setTextColor(ContextCompat.getColor(context, android.R.color.holo_red_dark)); break;
-                    case 4: holder.radioOptionD.setTextColor(ContextCompat.getColor(context, android.R.color.holo_red_dark)); break;
-                }
-                // Highlight correct answer in green
-                switch (correctAnswer) {
-                    case 1: holder.radioOptionA.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark)); break;
-                    case 2: holder.radioOptionB.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark)); break;
-                    case 3: holder.radioOptionC.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark)); break;
-                    case 4: holder.radioOptionD.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark)); break;
-                }
-            }
-            // Disable radio group after submission
-            for (int i = 0; i < holder.radioGroupOptions.getChildCount(); i++) {
-                holder.radioGroupOptions.getChildAt(i).setEnabled(false);
+                highlightCorrectAnswer(holder, correctAnswer, android.R.color.holo_green_dark);
+                highlightIncorrectAnswer(holder, userAnswer, android.R.color.holo_red_dark);
             }
         } else {
             holder.textFeedback.setVisibility(View.GONE);
-            // Re-enable radio group
-            for (int i = 0; i < holder.radioGroupOptions.getChildCount(); i++) {
-                holder.radioGroupOptions.getChildAt(i).setEnabled(true);
-            }
-            // Reset all radio button colors to default text color
-            holder.radioOptionA.setTextColor(ContextCompat.getColor(context, android.R.color.tab_indicator_text));
-            holder.radioOptionB.setTextColor(ContextCompat.getColor(context, android.R.color.tab_indicator_text));
-            holder.radioOptionC.setTextColor(ContextCompat.getColor(context, android.R.color.tab_indicator_text));
-            holder.radioOptionD.setTextColor(ContextCompat.getColor(context, android.R.color.tab_indicator_text));
+            holder.textFeedback.setTextColor(ContextCompat.getColor(context, android.R.color.black)); // Or your default text color
         }
     }
 
@@ -162,6 +147,24 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
             case 3: return card.option3;
             case 4: return card.option4;
             default: return "N/A";
+        }
+    }
+
+    private void highlightCorrectAnswer(QuestionViewHolder holder, int correctAnswer, int colorResId) {
+        switch (correctAnswer) {
+            case 1: holder.radioOptionA.setTextColor(ContextCompat.getColor(context, colorResId)); break;
+            case 2: holder.radioOptionB.setTextColor(ContextCompat.getColor(context, colorResId)); break;
+            case 3: holder.radioOptionC.setTextColor(ContextCompat.getColor(context, colorResId)); break;
+            case 4: holder.radioOptionD.setTextColor(ContextCompat.getColor(context, colorResId)); break;
+        }
+    }
+
+    private void highlightIncorrectAnswer(QuestionViewHolder holder, int userAnswer, int colorResId) {
+        switch (userAnswer) {
+            case 1: holder.radioOptionA.setTextColor(ContextCompat.getColor(context, colorResId)); break;
+            case 2: holder.radioOptionB.setTextColor(ContextCompat.getColor(context, colorResId)); break;
+            case 3: holder.radioOptionC.setTextColor(ContextCompat.getColor(context, colorResId)); break;
+            case 4: holder.radioOptionD.setTextColor(ContextCompat.getColor(context, colorResId)); break;
         }
     }
 
